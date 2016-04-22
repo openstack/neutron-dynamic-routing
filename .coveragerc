@@ -1,0 +1,7 @@
+[run]
+branch = True
+source = neutron_dynamic_routing
+# omit = neutron_dynamic_routing/tests/*
+
+[report]
+ignore_errors = True
