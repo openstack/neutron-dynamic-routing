@@ -1,0 +1,66 @@
+#########################
+#   Devstack Settings   #
+#########################
+
+# Each service you enable has the following meaning:
+# q-dr       -  Add this config flag for Openstack Neutron server node
+# q-dr-agent -  Add this config flag indicate that dynamic routing agent
+#               will be running
+
+# This can be overridden in the localrc file
+DR_MODE=${DR_MODE:-allinone}
+
+# DR_MODE is used to configure how devstack works with neutron-dynamic-routing.
+# You can configure it in there ways:
+#
+# DR_MODE=allinone
+# Use this mode if you want to run neutron server and q-dr-agent on same node.
+# Useful for a single node deployment or on the control node of a multi-node
+# devstack environment.
+#
+# DR_MODE=dr_plugin
+# Use this to enable dr plugin extension on neutron server
+#
+# DR_MODE=dr_agent
+# Use this for the nodes where you want to run q-dr-agent in a multi-node
+# devstack environment.
+
+case $DR_MODE in
+    allinone)
+        enable_service q-dr q-dr-agent
+        ;;
+    dr_plugin)
+        enable_service q-dr
+        ;;
+    dr_agent)
+        enable_service q-dr-agent
+        ;;
+esac
+
+# DR_SUPPORTED_PROTOCOLS specifies the list of protocols supported
+# by neutron-dynamic-routing project. ONLY BGP is supported as of now
+# and it's enabled by default. The protocols may include: "BGP OSPF ISIS RIP".
+# It can be overridden in the localrc file.
+DR_SUPPORTED_PROTOCOLS=${DR_SUPPORTED_PROTOCOLS:-"BGP"}
+
+
+#######################
+#   Binary Settings   #
+#######################
+NEUTRON_DYNAMIC_ROUTING_DIR=$DEST/neutron-dynamic-routing
+DR_AGENT_BINARY=${DR_AGENT_BINARY:-"$NEUTRON_BIN_DIR/neutron-bgp-dragent"}
+
+
+################################
+#   Protocol Config Settings   #
+################################
+
+
+###########
+#   BGP   #
+###########
+DR_AGENT_BGP_CONF_FILE=${DR_AGENT_BGP_CONF_FILE:-"$NEUTRON_CONF_DIR/bgp_dragent.ini"}
+BGP_ROUTER_ID=${BGP_ROUTER_ID:-"127.0.0.1"}
+BGP_PLUGIN=${BGP_PLUGIN:-"neutron_dynamic_routing.services.bgp.bgp_plugin.BgpPlugin"}
+RYU_BGP_SPEAKER_DRIVER="neutron_dynamic_routing.services.bgp.agent.driver.ryu.driver.RyuBgpDriver"
+
