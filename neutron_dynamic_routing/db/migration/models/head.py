@@ -14,6 +14,9 @@
 
 from neutron.db import model_base
 
+from neutron_dynamic_routing.db import bgp_db  # noqa
+from neutron_dynamic_routing.db import bgp_dragentscheduler_db  # noqa
+
 
 def get_metadata():
     return model_base.BASEV2.metadata
