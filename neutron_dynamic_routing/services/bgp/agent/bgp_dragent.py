@@ -15,7 +15,6 @@
 
 import collections
 
-from neutron_lib import constants as n_const
 from oslo_config import cfg
 from oslo_log import log as logging
 import oslo_messaging
@@ -24,6 +23,7 @@ from oslo_service import periodic_task
 from oslo_utils import importutils
 
 from neutron.agent import rpc as agent_rpc
+from neutron.common import constants as n_const
 from neutron.common import rpc as n_rpc
 from neutron.common import topics
 from neutron.common import utils
