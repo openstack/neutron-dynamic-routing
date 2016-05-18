@@ -22,7 +22,72 @@
       '''''''  Heading 4
       (Avoid deeper levels because they do not render well.)
 
-Agent & Scheduler
-=================
+Agent
+=====
 
-TODO: Coming Soon
+Neutron-dynamic-routing implements a new agent named "DRAgent". The agent talks
+to the neutron-dynamic-routing plugin which resides in the neutron server to get
+routing entity configuration. DRAgent interacts with the back-end driver to
+realize the required dynamic routing protocol functionality. For details,
+please refer to the system design document :doc:`system-design`
+
+.. note::
+ One DRAgent can support multiple drivers but currently ONLY Ryu is
+ integrated successfully.
+
+
+Scheduler
+=========
+
+Neutron-dynamic-routing scheduler, schedules a routing entity to a proper DRAgent.
+
+BGP Scheduler
+-------------
+
+BGP Speaker and DRAgent has 1:N association which means one BGP speaker can be
+scheduled on multiple DRAgents.
+
+Here is an example to associate/disassociate a BGP Speaker to/from a DRAgent.
+
+::
+
+  (neutron) bgp-speaker-list
+  +--------------------------------------+------+----------+------------+
+  | id                                   | name | local_as | ip_version |
+  +--------------------------------------+------+----------+------------+
+  | 0967eb04-59e5-4ca6-a0b0-d584d8d4a132 | bgp2 |      200 |          4 |
+  | a73432c3-a3fc-4b1e-9be2-6c32a61df579 | bgp1 |      100 |          4 |
+  +--------------------------------------+------+----------+------------+
+
+  (neutron) agent-list
+  +--------------------------------------+---------------------------+---------------------+-------------------+-------+----------------+---------------------------+
+  | id                                   | agent_type                | host                | availability_zone | alive | admin_state_up | binary                    |
+  +--------------------------------------+---------------------------+---------------------+-------------------+-------+----------------+---------------------------+
+  | 0c21a829-4fd6-4375-8e65-36db4dc434ac | DHCP agent                | steve-devstack-test | nova              | :-)   | True           | neutron-dhcp-agent        |
+  | 0f9d6886-910d-4af4-b248-673b22eb9e78 | Metadata agent            | steve-devstack-test |                   | :-)   | True           | neutron-metadata-agent    |
+  | 5908a304-b9d9-4e8c-a0af-96a066a7c87e | Open vSwitch agent        | steve-devstack-test |                   | :-)   | True           | neutron-openvswitch-agent |
+  | ae74e375-6a75-4ebe-b85c-6628d2baf02f | L3 agent                  | steve-devstack-test | nova              | :-)   | True           | neutron-l3-agent          |
+  | dbd9900e-9d16-444d-afc4-8d0035df5ed5 | BGP dynamic routing agent | steve-devstack-test |                   | :-)   | True           | neutron-bgp-dragent       |
+  +--------------------------------------+---------------------------+---------------------+-------------------+-------+----------------+---------------------------+
+
+  (neutron) bgp-dragent-speaker-add dbd9900e-9d16-444d-afc4-8d0035df5ed5 bgp1
+  Associated BGP speaker bgp1 to the Dynamic Routing agent.
+
+  (neutron) bgp-speaker-list-on-dragent dbd9900e-9d16-444d-afc4-8d0035df5ed5
+  +--------------------------------------+------+----------+------------+
+  | id                                   | name | local_as | ip_version |
+  +--------------------------------------+------+----------+------------+
+  | a73432c3-a3fc-4b1e-9be2-6c32a61df579 | bgp1 |      100 |          4 |
+  +--------------------------------------+------+----------+------------+
+
+  (neutron) bgp-dragent-speaker-remove dbd9900e-9d16-444d-afc4-8d0035df5ed5 bgp1
+  Disassociated BGP speaker bgp1 from the Dynamic Routing agent.
+
+  (neutron) bgp-speaker-list-on-dragent dbd9900e-9d16-444d-afc4-8d0035df5ed5
+
+  (neutron)
+
+.. note:: Currently, auto-scheduling is not supported.
+
+ReST API's for neutron-dynamic-routing scheduler is defined in the
+API document :doc:`api`
