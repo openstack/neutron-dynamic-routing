@@ -1,0 +1,91 @@
+function is_protocol_enabled {
+    local enabled=1
+    local protocol=$1
+    for temp in $DR_SUPPORTED_PROTOCOLS ;do
+        if [ $protocol == $temp ] ; then
+            enabled=0
+        fi
+    done
+
+    return $enabled
+}
+
+
+##############################
+#   BGP Section              #
+##############################
+
+function configure_dr_agent_bgp_config {
+    cp $NEUTRON_DYNAMIC_ROUTING_DIR/etc/bgp_dragent.ini.sample $DR_AGENT_BGP_CONF_FILE
+    iniset $DR_AGENT_BGP_CONF_FILE DEFAULT verbose True
+    iniset $DR_AGENT_BGP_CONF_FILE DEFAULT debug $ENABLE_DEBUG_LOG_LEVEL
+    iniset $DR_AGENT_BGP_CONF_FILE BGP bgp_router_id $BGP_ROUTER_ID
+}
+
+function configure_dr_agent_bgp_driver {
+    if [ -z "$BGP_SPEAKER_DRIVER" ] ; then
+        BGP_SPEAKER_DRIVER=$RYU_BGP_SPEAKER_DRIVER
+    fi
+    iniset $DR_AGENT_BGP_CONF_FILE BGP bgp_speaker_driver $BGP_SPEAKER_DRIVER
+}
+
+#############################
+# Stack Install Section     #
+#############################
+
+#This API will be called for phase "install"
+
+function dr_configure {
+    setup_develop $NEUTRON_DYNAMIC_ROUTING_DIR
+    if is_service_enabled q-dr && is_service_enabled q-svc; then
+        if is_protocol_enabled BGP; then
+            _neutron_service_plugin_class_add $BGP_PLUGIN
+        fi
+    fi
+}
+
+#############################
+# Stack Post-config Section #
+#############################
+
+#This API will be called for phase "post-config"
+function dr_generate_config_files {
+    (cd $NEUTRON_DYNAMIC_ROUTING_DIR && exec ./tools/generate_config_file_samples.sh)
+}
+
+function dr_post_configure {
+    if is_service_enabled q-dr-agent; then
+        dr_generate_config_files
+        if is_protocol_enabled BGP; then
+            configure_dr_agent_bgp_config
+            configure_dr_agent_bgp_driver
+        fi
+    fi
+}
+
+#############################
+# Stack Extra Section       #
+#############################
+
+#This API will be called for phase "extra"
+function start_dr_agent {
+    local process="$DR_AGENT_BINARY --config-file $NEUTRON_CONF "
+    local bgp_parameter
+    if is_protocol_enabled BGP; then
+        bgp_parameter="--config-file $DR_AGENT_BGP_CONF_FILE"
+    fi
+
+    agent_process=$process$bgp_parameter
+    if is_service_enabled q-dr-agent; then
+        run_process q-dr-agent "$agent_process"
+    fi
+}
+
+#############################
+# Unstack Section           #
+#############################
+
+#This API will be called for unstack
+function stop_dr_agent {
+    stop_process q-dr-agent
+}
