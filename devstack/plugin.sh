@@ -6,7 +6,7 @@ if [[ "$1" == "stack" ]]; then
     case "$2" in
         install)
             echo_summary "Installing neutron-dynamic-routing"
-            dr_configure
+            dr_install
             ;;
         post-config)
             echo_summary "Configuring neutron-dynamic-routing"
