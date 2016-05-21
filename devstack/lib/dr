@@ -38,6 +38,8 @@ function configure_dr_agent_bgp_driver {
 function dr_install {
     setup_develop $NEUTRON_DYNAMIC_ROUTING_DIR
     if is_service_enabled q-dr && is_service_enabled q-svc; then
+        mkdir -v -p $NEUTRON_CONF_DIR/policy.d
+        cp -v $NEUTRON_DYNAMIC_ROUTING_DIR/etc/neutron/policy.d/dynamic_routing.conf $NEUTRON_CONF_DIR/policy.d
         if is_protocol_enabled BGP; then
             _neutron_service_plugin_class_add $BGP_PLUGIN
         fi

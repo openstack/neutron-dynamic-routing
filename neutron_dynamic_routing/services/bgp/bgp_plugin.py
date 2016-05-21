@@ -24,7 +24,6 @@ from neutron.callbacks import registry
 from neutron.callbacks import resources
 from neutron.common import rpc as n_rpc
 from neutron import context
-from neutron import policy
 from neutron.services import service_base
 
 from neutron_dynamic_routing.api.rpc.agentnotifiers import bgp_dr_rpc_agent_api  # noqa
@@ -99,7 +98,6 @@ class BgpPlugin(service_base.ServicePluginBase,
     def get_bgp_speakers(self, context, filters=None, fields=None,
                          sorts=None, limit=None, marker=None,
                          page_reverse=False):
-        policy.check_is_admin(context)
         return super(BgpPlugin, self).get_bgp_speakers(
                                                     context,
                                                     filters=filters,
@@ -110,25 +108,21 @@ class BgpPlugin(service_base.ServicePluginBase,
                                                     page_reverse=page_reverse)
 
     def get_bgp_speaker(self, context, bgp_speaker_id, fields=None):
-        policy.check_is_admin(context)
         return super(BgpPlugin, self).get_bgp_speaker(context,
                                                       bgp_speaker_id,
                                                       fields=fields)
 
     def create_bgp_speaker(self, context, bgp_speaker):
-        policy.check_is_admin(context)
         bgp_speaker = super(BgpPlugin, self).create_bgp_speaker(context,
                                                                 bgp_speaker)
         return bgp_speaker
 
     def update_bgp_speaker(self, context, bgp_speaker_id, bgp_speaker):
-        policy.check_is_admin(context)
         return super(BgpPlugin, self).update_bgp_speaker(context,
                                                          bgp_speaker_id,
                                                          bgp_speaker)
 
     def delete_bgp_speaker(self, context, bgp_speaker_id):
-        policy.check_is_admin(context)
         hosted_bgp_dragents = self.get_dragents_hosting_bgp_speakers(
                                                              context,
                                                              [bgp_speaker_id])
@@ -140,7 +134,6 @@ class BgpPlugin(service_base.ServicePluginBase,
 
     def get_bgp_peers(self, context, fields=None, filters=None, sorts=None,
                       limit=None, marker=None, page_reverse=False):
-        policy.check_is_admin(context)
         return super(BgpPlugin, self).get_bgp_peers(
                                                  context, fields=fields,
                                                  filters=filters, sorts=sorts,
@@ -148,27 +141,22 @@ class BgpPlugin(service_base.ServicePluginBase,
                                                  page_reverse=page_reverse)
 
     def get_bgp_peer(self, context, bgp_peer_id, fields=None):
-        policy.check_is_admin(context)
         return super(BgpPlugin, self).get_bgp_peer(context,
                                                    bgp_peer_id,
                                                    fields=fields)
 
     def create_bgp_peer(self, context, bgp_peer):
-        policy.check_is_admin(context)
         return super(BgpPlugin, self).create_bgp_peer(context, bgp_peer)
 
     def update_bgp_peer(self, context, bgp_peer_id, bgp_peer):
-        policy.check_is_admin(context)
         return super(BgpPlugin, self).update_bgp_peer(context,
                                                       bgp_peer_id,
                                                       bgp_peer)
 
     def delete_bgp_peer(self, context, bgp_peer_id):
-        policy.check_is_admin(context)
         super(BgpPlugin, self).delete_bgp_peer(context, bgp_peer_id)
 
     def add_bgp_peer(self, context, bgp_speaker_id, bgp_peer_info):
-        policy.check_is_admin(context)
         ret_value = super(BgpPlugin, self).add_bgp_peer(context,
                                                         bgp_speaker_id,
                                                         bgp_peer_info)
@@ -182,7 +170,6 @@ class BgpPlugin(service_base.ServicePluginBase,
         return ret_value
 
     def remove_bgp_peer(self, context, bgp_speaker_id, bgp_peer_info):
-        policy.check_is_admin(context)
         hosted_bgp_dragents = self.get_dragents_hosting_bgp_speakers(
             context, [bgp_speaker_id])
 
@@ -197,42 +184,35 @@ class BgpPlugin(service_base.ServicePluginBase,
                                                  agent.host)
 
     def add_bgp_speaker_to_dragent(self, context, agent_id, speaker_id):
-        policy.check_is_admin(context)
         super(BgpPlugin, self).add_bgp_speaker_to_dragent(context,
                                                           agent_id,
                                                           speaker_id)
 
     def remove_bgp_speaker_from_dragent(self, context, agent_id, speaker_id):
-        policy.check_is_admin(context)
         super(BgpPlugin, self).remove_bgp_speaker_from_dragent(context,
                                                                agent_id,
                                                                speaker_id)
 
     def list_bgp_speaker_on_dragent(self, context, agent_id):
-        policy.check_is_admin(context)
         return super(BgpPlugin, self).list_bgp_speaker_on_dragent(context,
                                                                   agent_id)
 
     def list_dragent_hosting_bgp_speaker(self, context, speaker_id):
-        policy.check_is_admin(context)
         return super(BgpPlugin, self).list_dragent_hosting_bgp_speaker(
                                                                    context,
                                                                    speaker_id)
 
     def add_gateway_network(self, context, bgp_speaker_id, network_info):
-        policy.check_is_admin(context)
         return super(BgpPlugin, self).add_gateway_network(context,
                                                           bgp_speaker_id,
                                                           network_info)
 
     def remove_gateway_network(self, context, bgp_speaker_id, network_info):
-        policy.check_is_admin(context)
         return super(BgpPlugin, self).remove_gateway_network(context,
                                                              bgp_speaker_id,
                                                              network_info)
 
     def get_advertised_routes(self, context, bgp_speaker_id):
-        policy.check_is_admin(context)
         return super(BgpPlugin, self).get_advertised_routes(context,
                                                             bgp_speaker_id)
 
