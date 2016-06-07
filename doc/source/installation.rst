@@ -30,7 +30,7 @@ At the command line::
 
     $ pip install neutron-dynamic-routing
 
-Or, if you have virtualenvwrapper installed::
+Or, if you have virtualenv wrapper installed::
 
     $ mkvirtualenv neutron-dynamic-routing
     $ pip install neutron-dynamic-routing
