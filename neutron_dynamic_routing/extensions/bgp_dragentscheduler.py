@@ -89,7 +89,7 @@ class BgpDrAgentController(wsgi.Controller):
             bgp_ext.BGP_EXT_ALIAS)
         if not plugin:
             LOG.error(_LE('No plugin for BGP routing registered'))
-            msg = _LE('The resource could not be found.')
+            msg = _('The resource could not be found.')
             raise webob.exc.HTTPNotFound(msg)
         return plugin
 
