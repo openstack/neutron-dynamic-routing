@@ -212,7 +212,7 @@ Delete
 Issue ``DELETE`` request to ``/v2.0/bgp-speakers/<bgp-speaker-id>`` to delete
 a specific BGP Speaker. ::
 
-  No reponse body
+  No response body
 
   Return code: 204
 
@@ -275,7 +275,7 @@ Show
 Issue a ``GET`` request to ``/v2.0/bgp-peers/<bgp-peer-id>`` to retrieve the detail about a
 specific BGP peer. ::
 
-  Reponse body:
+  Response body:
 
   {
      "bgp_peer":{
