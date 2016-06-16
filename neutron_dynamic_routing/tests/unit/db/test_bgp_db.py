@@ -573,7 +573,7 @@ class BgpTests(test_plugin.Ml2PluginV2TestCase,
 
     def test__tenant_prefixes_by_router_no_gateway_port(self):
         with self.network() as net1, self.network() as net2,\
-            self.subnetpool_with_address_scope(6, tenant_id='test-tenant',
+            self.subnetpool_with_address_scope(6, tenant_id=_uuid(),
                                           prefixes=['2001:db8::/63']) as pool:
             subnetpool_id = pool['id']
             with self.subnet(network=net1,
@@ -643,9 +643,9 @@ class BgpTests(test_plugin.Ml2PluginV2TestCase,
     def test_all_routes_by_bgp_speaker_different_tenant_address_scope(self):
         binding_cidr = '2001:db8::/64'
         tenant_cidr = '2002:ab8::/64'
-        with self.subnetpool_with_address_scope(6, tenant_id='test-tenant',
+        with self.subnetpool_with_address_scope(6, tenant_id=_uuid(),
                                        prefixes=[binding_cidr]) as ext_pool,\
-            self.subnetpool_with_address_scope(6, tenant_id='test-tenant',
+            self.subnetpool_with_address_scope(6, tenant_id=_uuid(),
                                        prefixes=[tenant_cidr]) as int_pool,\
             self.network() as ext_net, self.network() as int_net:
             gw_net_id = ext_net['network']['id']
