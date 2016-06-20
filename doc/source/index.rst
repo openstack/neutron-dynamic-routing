@@ -32,7 +32,7 @@ Developer Guide
 ===============
 In the Developer Guide, you will find information on neutron-dynamic-routing
 lower level programming APIs. There are sections that cover the core pieces
-of neutron-dynamic-routing, including its api, command-lines, database,
+of neutron-dynamic-routing, including its API, command-lines, database,
 system-design, alembic-migration etc. There are also subsections that describe
 specific drivers inside neutron-dynamic-routing. Finally, the developer guide
 includes information about testing and supported functionalities as well. This
