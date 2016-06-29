@@ -16,12 +16,34 @@ import netaddr
 from tempest import config
 from tempest.lib import exceptions as lib_exc
 from tempest import test
-import testtools
 
-from neutron.tests.api import base
+from neutron.tests.tempest.api import base
 from neutron.tests.tempest.common import tempest_fixtures as fixtures
+from neutron_dynamic_routing.tests.tempest import bgp_client
 
 CONF = config.CONF
+
+
+def _setup_client_args(auth_provider):
+    """Set up ServiceClient arguments using config settings. """
+    service = CONF.network.catalog_type or 'network'
+    region = CONF.network.region or 'regionOne'
+    endpoint_type = CONF.network.endpoint_type
+    build_interval = CONF.network.build_interval
+    build_timeout = CONF.network.build_timeout
+
+    # The disable_ssl appears in identity
+    disable_ssl_certificate_validation = (
+        CONF.identity.disable_ssl_certificate_validation)
+    ca_certs = None
+
+    # Trace in debug section
+    trace_requests = CONF.debug.trace_requests
+
+    return [auth_provider, service, region, endpoint_type,
+            build_interval, build_timeout,
+            disable_ssl_certificate_validation, ca_certs,
+            trace_requests]
 
 
 class BgpSpeakerTestJSONBase(base.BaseAdminNetworkTest):
@@ -36,6 +58,24 @@ class BgpSpeakerTestJSONBase(base.BaseAdminNetworkTest):
                              'peer_ip': '192.168.1.1',
                              'auth_type': 'md5', 'password': 'my-secret'}
 
+    def setUp(self):
+        self.addCleanup(self.resource_cleanup)
+        super(BgpSpeakerTestJSONBase, self).setUp()
+
+    @classmethod
+    def _setup_bgp_admin_client(cls):
+        mgr = cls.get_client_manager(credential_type='admin')
+        auth_provider = mgr.auth_provider
+        client_args = _setup_client_args(auth_provider)
+        cls.bgp_adm_client = bgp_client.BgpSpeakerClientJSON(*client_args)
+
+    @classmethod
+    def _setup_bgp_non_admin_client(cls):
+        mgr = cls.get_client_manager()
+        auth_provider = mgr.auth_provider
+        client_args = _setup_client_args(auth_provider)
+        cls.bgp_client = bgp_client.BgpSpeakerClientJSON(*client_args)
+
     @classmethod
     def resource_setup(cls):
         super(BgpSpeakerTestJSONBase, cls).resource_setup()
@@ -47,6 +87,8 @@ class BgpSpeakerTestJSONBase(base.BaseAdminNetworkTest):
         cls.admin_floatingips = []
         cls.admin_routers = []
         cls.ext_net_id = CONF.network.public_network_id
+        cls._setup_bgp_admin_client()
+        cls._setup_bgp_non_admin_client()
 
     @classmethod
     def resource_cleanup(cls):
@@ -64,27 +106,27 @@ class BgpSpeakerTestJSONBase(base.BaseAdminNetworkTest):
 
     def create_bgp_speaker(self, auto_delete=True, **args):
         data = {'bgp_speaker': args}
-        bgp_speaker = self.admin_client.create_bgp_speaker(data)
-        bgp_speaker_id = bgp_speaker['bgp-speaker']['id']
+        bgp_speaker = self.bgp_adm_client.create_bgp_speaker(data)
+        bgp_speaker_id = bgp_speaker['bgp_speaker']['id']
         if auto_delete:
             self.addCleanup(self.delete_bgp_speaker, bgp_speaker_id)
-        return bgp_speaker
+        return bgp_speaker['bgp_speaker']
 
     def create_bgp_peer(self, **args):
-        bgp_peer = self.admin_client.create_bgp_peer({'bgp_peer': args})
-        bgp_peer_id = bgp_peer['bgp-peer']['id']
+        bgp_peer = self.bgp_adm_client.create_bgp_peer({'bgp_peer': args})
+        bgp_peer_id = bgp_peer['bgp_peer']['id']
         self.addCleanup(self.delete_bgp_peer, bgp_peer_id)
-        return bgp_peer
+        return bgp_peer['bgp_peer']
 
     def update_bgp_speaker(self, id, **args):
         data = {'bgp_speaker': args}
-        return self.admin_client.update_bgp_speaker(id, data)
+        return self.bgp_adm_client.update_bgp_speaker(id, data)
 
     def delete_bgp_speaker(self, id):
-        return self.admin_client.delete_bgp_speaker(id)
+        return self.bgp_adm_client.delete_bgp_speaker(id)
 
     def get_bgp_speaker(self, id):
-        return self.admin_client.get_bgp_speaker(id)
+        return self.bgp_adm_client.get_bgp_speaker(id)['bgp_speaker']
 
     def create_bgp_speaker_and_peer(self):
         bgp_speaker = self.create_bgp_speaker(**self.default_bgp_speaker_args)
@@ -92,15 +134,15 @@ class BgpSpeakerTestJSONBase(base.BaseAdminNetworkTest):
         return (bgp_speaker, bgp_peer)
 
     def delete_bgp_peer(self, id):
-        return self.admin_client.delete_bgp_peer(id)
+        return self.bgp_adm_client.delete_bgp_peer(id)
 
     def add_bgp_peer(self, bgp_speaker_id, bgp_peer_id):
-        return self.admin_client.add_bgp_peer_with_id(bgp_speaker_id,
-                                                      bgp_peer_id)
+        return self.bgp_adm_client.add_bgp_peer_with_id(bgp_speaker_id,
+                                                        bgp_peer_id)
 
     def remove_bgp_peer(self, bgp_speaker_id, bgp_peer_id):
-        return self.admin_client.remove_bgp_peer_with_id(bgp_speaker_id,
-                                                         bgp_peer_id)
+        return self.bgp_adm_client.remove_bgp_peer_with_id(bgp_speaker_id,
+                                                           bgp_peer_id)
 
     def delete_address_scope(self, id):
         return self.admin_client.delete_address_scope(id)
@@ -123,7 +165,7 @@ class BgpSpeakerTestJSON(BgpSpeakerTestJSONBase):
     def test_delete_bgp_speaker(self):
         bgp_speaker = self.create_bgp_speaker(auto_delete=False,
                                               **self.default_bgp_speaker_args)
-        bgp_speaker_id = bgp_speaker['bgp-speaker']['id']
+        bgp_speaker_id = bgp_speaker['id']
         self.delete_bgp_speaker(bgp_speaker_id)
         self.assertRaises(lib_exc.NotFound,
                           self.get_bgp_speaker,
@@ -136,82 +178,78 @@ class BgpSpeakerTestJSON(BgpSpeakerTestJSONBase):
     @test.idempotent_id('6ade0319-1ee2-493c-ac4b-5eb230ff3a77')
     def test_add_bgp_peer(self):
         bgp_speaker, bgp_peer = self.create_bgp_speaker_and_peer()
-        bgp_speaker_id = bgp_speaker['bgp-speaker']['id']
-        bgp_peer_id = bgp_peer['bgp-peer']['id']
+        bgp_speaker_id = bgp_speaker['id']
+        bgp_peer_id = bgp_peer['id']
 
         self.add_bgp_peer(bgp_speaker_id, bgp_peer_id)
-        bgp_speaker = self.admin_client.get_bgp_speaker(bgp_speaker_id)
-        bgp_peers_list = bgp_speaker['bgp-speaker']['peers']
+        bgp_speaker = self.get_bgp_speaker(bgp_speaker_id)
+        bgp_peers_list = bgp_speaker['peers']
         self.assertEqual(1, len(bgp_peers_list))
         self.assertTrue(bgp_peer_id in bgp_peers_list)
 
     @test.idempotent_id('f9737708-1d79-440b-8350-779f97d882ee')
     def test_remove_bgp_peer(self):
         bgp_peer = self.create_bgp_peer(**self.default_bgp_peer_args)
-        bgp_peer_id = bgp_peer['bgp-peer']['id']
+        bgp_peer_id = bgp_peer['id']
         bgp_speaker = self.create_bgp_speaker(**self.default_bgp_speaker_args)
-        bgp_speaker_id = bgp_speaker['bgp-speaker']['id']
+        bgp_speaker_id = bgp_speaker['id']
         self.add_bgp_peer(bgp_speaker_id, bgp_peer_id)
-        bgp_speaker = self.admin_client.get_bgp_speaker(bgp_speaker_id)
-        bgp_peers_list = bgp_speaker['bgp-speaker']['peers']
+        bgp_speaker = self.get_bgp_speaker(bgp_speaker_id)
+        bgp_peers_list = bgp_speaker['peers']
         self.assertTrue(bgp_peer_id in bgp_peers_list)
 
         bgp_speaker = self.remove_bgp_peer(bgp_speaker_id, bgp_peer_id)
-        bgp_speaker = self.admin_client.get_bgp_speaker(bgp_speaker_id)
-        bgp_peers_list = bgp_speaker['bgp-speaker']['peers']
+        bgp_speaker = self.get_bgp_speaker(bgp_speaker_id)
+        bgp_peers_list = bgp_speaker['peers']
         self.assertTrue(not bgp_peers_list)
 
-    @testtools.skip('bug/1553374')
     @test.idempotent_id('23c8eb37-d10d-4f43-b2e7-6542cb6a4405')
     def test_add_gateway_network(self):
         self.useFixture(fixtures.LockFixture('gateway_network_binding'))
         bgp_speaker = self.create_bgp_speaker(**self.default_bgp_speaker_args)
-        bgp_speaker_id = bgp_speaker['bgp-speaker']['id']
+        bgp_speaker_id = bgp_speaker['id']
 
-        self.admin_client.add_bgp_gateway_network(bgp_speaker_id,
-                                                  self.ext_net_id)
-        bgp_speaker = self.admin_client.get_bgp_speaker(bgp_speaker_id)
-        network_list = bgp_speaker['bgp-speaker']['networks']
+        self.bgp_adm_client.add_bgp_gateway_network(bgp_speaker_id,
+                                                    self.ext_net_id)
+        bgp_speaker = self.get_bgp_speaker(bgp_speaker_id)
+        network_list = bgp_speaker['networks']
         self.assertEqual(1, len(network_list))
         self.assertTrue(self.ext_net_id in network_list)
 
-    @testtools.skip('bug/1553374')
     @test.idempotent_id('6cfc7137-0d99-4a3d-826c-9d1a3a1767b0')
     def test_remove_gateway_network(self):
         self.useFixture(fixtures.LockFixture('gateway_network_binding'))
         bgp_speaker = self.create_bgp_speaker(**self.default_bgp_speaker_args)
-        bgp_speaker_id = bgp_speaker['bgp-speaker']['id']
-        self.admin_client.add_bgp_gateway_network(bgp_speaker_id,
-                                                  self.ext_net_id)
-        bgp_speaker = self.admin_client.get_bgp_speaker(bgp_speaker_id)
-        networks = bgp_speaker['bgp-speaker']['networks']
+        bgp_speaker_id = bgp_speaker['id']
+        self.bgp_adm_client.add_bgp_gateway_network(bgp_speaker_id,
+                                                    self.ext_net_id)
+        bgp_speaker = self.get_bgp_speaker(bgp_speaker_id)
+        networks = bgp_speaker['networks']
 
         self.assertTrue(self.ext_net_id in networks)
-        self.admin_client.remove_bgp_gateway_network(bgp_speaker_id,
-                                                     self.ext_net_id)
-        bgp_speaker = self.admin_client.get_bgp_speaker(bgp_speaker_id)
-        network_list = bgp_speaker['bgp-speaker']['networks']
+        self.bgp_adm_client.remove_bgp_gateway_network(bgp_speaker_id,
+                                                       self.ext_net_id)
+        bgp_speaker = self.get_bgp_speaker(bgp_speaker_id)
+        network_list = bgp_speaker['networks']
         self.assertTrue(not network_list)
 
-    @testtools.skip('bug/1553374')
     @test.idempotent_id('5bef22ad-5e70-4f7b-937a-dc1944642996')
     def test_get_advertised_routes_null_address_scope(self):
         self.useFixture(fixtures.LockFixture('gateway_network_binding'))
         bgp_speaker = self.create_bgp_speaker(**self.default_bgp_speaker_args)
-        bgp_speaker_id = bgp_speaker['bgp-speaker']['id']
-        self.admin_client.add_bgp_gateway_network(bgp_speaker_id,
+        bgp_speaker_id = bgp_speaker['id']
+        self.bgp_adm_client.add_bgp_gateway_network(bgp_speaker_id,
                                                   self.ext_net_id)
-        routes = self.admin_client.get_bgp_advertised_routes(bgp_speaker_id)
+        routes = self.bgp_adm_client.get_bgp_advertised_routes(bgp_speaker_id)
         self.assertEqual(0, len(routes['advertised_routes']))
 
-    @testtools.skip('bug/1553374')
     @test.idempotent_id('cae9cdb1-ad65-423c-9604-d4cd0073616e')
     def test_get_advertised_routes_floating_ips(self):
         self.useFixture(fixtures.LockFixture('gateway_network_binding'))
         bgp_speaker = self.create_bgp_speaker(**self.default_bgp_speaker_args)
-        bgp_speaker_id = bgp_speaker['bgp-speaker']['id']
-        self.admin_client.add_bgp_gateway_network(bgp_speaker_id,
-                                                  self.ext_net_id)
+        bgp_speaker_id = bgp_speaker['id']
+        self.bgp_adm_client.add_bgp_gateway_network(bgp_speaker_id,
+                                                    self.ext_net_id)
         tenant_net = self.create_network()
         tenant_subnet = self.create_subnet(tenant_net)
         ext_gw_info = {'network_id': self.ext_net_id}
@@ -231,12 +269,11 @@ class BgpSpeakerTestJSON(BgpSpeakerTestJSONBase):
         self.admin_floatingips.append(floatingip)
         self.client.update_floatingip(floatingip['id'],
                                       port_id=tenant_port['id'])
-        routes = self.admin_client.get_bgp_advertised_routes(bgp_speaker_id)
+        routes = self.bgp_adm_client.get_bgp_advertised_routes(bgp_speaker_id)
         self.assertEqual(1, len(routes['advertised_routes']))
         self.assertEqual(floatingip['floating_ip_address'] + '/32',
                          routes['advertised_routes'][0]['destination'])
 
-    @testtools.skip('bug/1553374')
     @test.idempotent_id('c9ad566e-fe8f-4559-8303-bbad9062a30c')
     def test_get_advertised_routes_tenant_networks(self):
         self.useFixture(fixtures.LockFixture('gateway_network_binding'))
@@ -276,10 +313,10 @@ class BgpSpeakerTestJSON(BgpSpeakerTestJSONBase):
         self.admin_routerports.append({'router_id': router['id'],
                                        'subnet_id': tenant_subnet['id']})
         bgp_speaker = self.create_bgp_speaker(**self.default_bgp_speaker_args)
-        bgp_speaker_id = bgp_speaker['bgp-speaker']['id']
-        self.admin_client.add_bgp_gateway_network(bgp_speaker_id,
-                                                  ext_net['id'])
-        routes = self.admin_client.get_bgp_advertised_routes(bgp_speaker_id)
+        bgp_speaker_id = bgp_speaker['id']
+        self.bgp_adm_client.add_bgp_gateway_network(bgp_speaker_id,
+                                                    ext_net['id'])
+        routes = self.bgp_adm_client.get_bgp_advertised_routes(bgp_speaker_id)
         self.assertEqual(1, len(routes['advertised_routes']))
         self.assertEqual(tenant_subnet['cidr'],
                          routes['advertised_routes'][0]['destination'])

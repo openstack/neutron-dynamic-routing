@@ -35,21 +35,21 @@ class BgpSpeakerTestJSONNegative(test_base.BgpSpeakerTestJSONBase):
     @test.idempotent_id('6742ec2e-382a-4453-8791-13a19b47cd13')
     def test_create_bgp_speaker_non_admin(self):
         self.assertRaises(lib_exc.Forbidden,
-                          self.client.create_bgp_speaker,
+                          self.bgp_client.create_bgp_speaker,
                           {'bgp_speaker': self.default_bgp_speaker_args})
 
     @test.attr(type=['negative', 'smoke'])
     @test.idempotent_id('33f7aaf0-9786-478b-b2d1-a51086a50eb4')
     def test_create_bgp_peer_non_admin(self):
         self.assertRaises(lib_exc.Forbidden,
-                          self.client.create_bgp_peer,
+                          self.bgp_client.create_bgp_peer,
                           {'bgp_peer': self.default_bgp_peer_args})
 
     @test.attr(type=['negative', 'smoke'])
     @test.idempotent_id('39435932-0266-4358-899b-0e9b1e53c3e9')
     def test_update_bgp_speaker_local_asn(self):
         bgp_speaker = self.create_bgp_speaker(**self.default_bgp_speaker_args)
-        bgp_speaker_id = bgp_speaker['bgp-speaker']['id']
+        bgp_speaker_id = bgp_speaker['id']
 
         self.assertRaises(lib_exc.BadRequest, self.update_bgp_speaker,
                           bgp_speaker_id, local_as='4321')
@@ -109,10 +109,10 @@ class BgpSpeakerTestJSONNegative(test_base.BgpSpeakerTestJSONBase):
         self.admin_routerports.append({'router_id': router['id'],
                                        'subnet_id': tenant_subnet2['id']})
         bgp_speaker = self.create_bgp_speaker(**self.default_bgp_speaker_args)
-        bgp_speaker_id = bgp_speaker['bgp-speaker']['id']
-        self.admin_client.add_bgp_gateway_network(bgp_speaker_id,
-                                                  ext_net['id'])
-        routes = self.admin_client.get_bgp_advertised_routes(bgp_speaker_id)
+        bgp_speaker_id = bgp_speaker['id']
+        self.bgp_adm_client.add_bgp_gateway_network(bgp_speaker_id,
+                                                    ext_net['id'])
+        routes = self.bgp_adm_client.get_bgp_advertised_routes(bgp_speaker_id)
         self.assertEqual(1, len(routes['advertised_routes']))
         self.assertEqual(tenant_subnet1['cidr'],
                          routes['advertised_routes'][0]['destination'])
