@@ -108,11 +108,7 @@ class TestRyuBgpDriver(base.BaseTestCase):
         self.ryu_bgp_driver.add_bgp_speaker(FAKE_LOCAL_AS1)
         self.assertEqual(1,
                 self.ryu_bgp_driver.cache.get_hosted_bgp_speakers_count())
-        # In Python3 a str is unicode
-        if six.PY3:
-            NEW_FAKE_PEER_PASSWORD = str(FAKE_PEER_PASSWORD)
-        else:
-            NEW_FAKE_PEER_PASSWORD = unicode(FAKE_PEER_PASSWORD)
+        NEW_FAKE_PEER_PASSWORD = six.text_type(FAKE_PEER_PASSWORD)
         self.ryu_bgp_driver.add_bgp_peer(
             FAKE_LOCAL_AS1,
             FAKE_PEER_IP,
