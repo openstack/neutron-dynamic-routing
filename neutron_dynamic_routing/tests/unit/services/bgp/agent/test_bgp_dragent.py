@@ -29,7 +29,6 @@ from neutron.tests import base
 
 from neutron_dynamic_routing.services.bgp.agent import bgp_dragent
 from neutron_dynamic_routing.services.bgp.agent import config as bgp_config
-from neutron_dynamic_routing.services.bgp.agent import entry
 
 HOSTNAME = 'hostname'
 rpc_api = bgp_dragent.BgpDrPluginApi
@@ -97,26 +96,6 @@ class TestBgpDrAgent(base.BaseTestCase):
                         [mock.call(mock.ANY),
                          mock.call().report_state(mock.ANY, mock.ANY,
                                                   mock.ANY)])
-
-    def test_bgp_dragent_main_agent_manager(self):
-        logging_str = 'neutron.agent.common.config.setup_logging'
-        launcher_str = 'oslo_service.service.ServiceLauncher'
-        with mock.patch(logging_str):
-            with mock.patch.object(sys, 'argv') as sys_argv:
-                with mock.patch(launcher_str) as launcher:
-                    sys_argv.return_value = ['bgp_dragent', '--config-file',
-                                             base.etcdir('neutron.conf')]
-                    entry.main()
-                    if launcher.mock_calls[0][2]:
-                        launcher.assert_has_calls(
-                            [mock.call(cfg.CONF, restart_method='reload'),
-                             mock.call().launch_service(mock.ANY, workers=1),
-                             mock.call().wait()])
-                    else:
-                        launcher.assert_has_calls(
-                            [mock.call(cfg.CONF),
-                             mock.call().launch_service(mock.ANY),
-                             mock.call().wait()])
 
     def test_run_completes_single_pass(self):
         bgp_dr = bgp_dragent.BgpDrAgent(HOSTNAME)
