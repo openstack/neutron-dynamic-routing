@@ -19,6 +19,7 @@ from oslo_log import log as logging
 from oslo_utils import uuidutils
 import sqlalchemy as sa
 from sqlalchemy import and_
+from sqlalchemy.ext import declarative
 from sqlalchemy import orm
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm import exc as sa_exc
@@ -43,6 +44,29 @@ from neutron_dynamic_routing.extensions import bgp as bgp_ext
 LOG = logging.getLogger(__name__)
 DEVICE_OWNER_ROUTER_GW = lib_consts.DEVICE_OWNER_ROUTER_GW
 DEVICE_OWNER_ROUTER_INTF = lib_consts.DEVICE_OWNER_ROUTER_INTF
+
+
+class HasTenant(object):
+    # NOTE(HenryG): Temporary solution!
+    # Remove when I87a8ef342ccea004731ba0192b23a8e79bc382dc is merged.
+
+    project_id = sa.Column(sa.String(attr.TENANT_ID_MAX_LEN), index=True)
+
+    def __init__(self, *args, **kwargs):
+        # NOTE(HenryG): debtcollector requires init in class
+        super(HasTenant, self).__init__(*args, **kwargs)
+
+    def get_tenant_id(self):
+        return self.project_id
+
+    def set_tenant_id(self, value):
+        self.project_id = value
+
+    @declarative.declared_attr
+    def tenant_id(cls):
+        return orm.synonym(
+            'project_id',
+            descriptor=property(cls.get_tenant_id, cls.set_tenant_id))
 
 
 class BgpSpeakerPeerBinding(model_base.BASEV2):
@@ -85,7 +109,7 @@ class BgpSpeakerNetworkBinding(model_base.BASEV2):
 
 class BgpSpeaker(model_base.BASEV2,
                  model_base.HasId,
-                 model_base.HasTenant):
+                 HasTenant):
 
     """Represents a BGP speaker"""
 
@@ -108,7 +132,7 @@ class BgpSpeaker(model_base.BASEV2,
 
 class BgpPeer(model_base.BASEV2,
               model_base.HasId,
-              model_base.HasTenant):
+              HasTenant):
 
     """Represents a BGP routing peer."""
 
