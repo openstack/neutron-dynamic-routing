@@ -160,8 +160,6 @@ class BgpTests(test_plugin.Ml2PluginV2TestCase,
             p_const.L3_ROUTER_NAT)
         self.bgp_plugin = bgp_plugin.BgpPlugin()
         self.plugin = manager.NeutronManager.get_plugin()
-        self.l3plugin = manager.NeutronManager.get_service_plugins().get(
-                                                        p_const.L3_ROUTER_NAT)
 
     @contextlib.contextmanager
     def subnetpool_with_address_scope(self, ip_version, prefixes=None,
