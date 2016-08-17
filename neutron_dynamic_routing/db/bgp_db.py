@@ -15,7 +15,6 @@
 import itertools
 
 from oslo_db import exception as oslo_db_exc
-from oslo_log import log as logging
 from oslo_utils import uuidutils
 import sqlalchemy as sa
 from sqlalchemy import and_
@@ -40,7 +39,6 @@ from neutron_dynamic_routing._i18n import _
 from neutron_dynamic_routing.extensions import bgp as bgp_ext
 
 
-LOG = logging.getLogger(__name__)
 DEVICE_OWNER_ROUTER_GW = lib_consts.DEVICE_OWNER_ROUTER_GW
 DEVICE_OWNER_ROUTER_INTF = lib_consts.DEVICE_OWNER_ROUTER_INTF
 
