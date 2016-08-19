@@ -231,9 +231,13 @@ class BgpPlugin(service_base.ServicePluginBase,
             n_const.IP_VERSION_4)
 
         if last_router_id and new_router_id != last_router_id:
+            # Here gives the old route next_hop a `None` value, then
+            # the DR agent side will withdraw it.
+            old_host_route = {'destination': dest, 'next_hop': None}
             for bgp_speaker in bgp_speakers:
                 self.stop_route_advertisements(ctx, self._bgp_rpc,
-                                               bgp_speaker.id, [dest])
+                                               bgp_speaker.id,
+                                               [old_host_route])
 
         if new_router_id and new_router_id != last_router_id:
             next_hop = self._get_fip_next_hop(

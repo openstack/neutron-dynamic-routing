@@ -627,6 +627,7 @@ class BgpSpeakerCache(object):
         routes = self.cache[bgp_speaker_id]['advertised_routes']
         for r in routes:
             if r['destination'] == route['destination'] and (
+                    route['next_hop'] is None or
                     r['next_hop'] == route['next_hop']):
                 return True
         return False

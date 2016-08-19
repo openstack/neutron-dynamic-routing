@@ -725,3 +725,20 @@ class TestBGPSpeakerCache(base.BaseTestCase):
         self.assertFalse(self.bs_cache.is_route_advertised(
             FAKE_BGP_SPEAKER['id'], {'destination': 'foo-destination',
                                      'next_hop': 'foo-next-hop'}))
+
+    def test_put_bgp_speaker_adv_route_and_remove_with_next_hop_none(self):
+        self.bs_cache.put_bgp_speaker(FAKE_BGP_SPEAKER)
+        self.bs_cache.put_adv_route(FAKE_BGP_SPEAKER['id'], FAKE_ROUTE)
+        expected_cache = copy.deepcopy(self.expected_cache)
+        expected_cache[FAKE_BGP_SPEAKER['id']]['advertised_routes'].append(
+            FAKE_ROUTE)
+        self.assertEqual(expected_cache, self.bs_cache.cache)
+
+        fake_route_2 = copy.deepcopy(FAKE_ROUTE)
+        fake_route_2.update({'next_hop': None})
+        self.assertTrue(self.bs_cache.is_route_advertised(
+            FAKE_BGP_SPEAKER['id'], fake_route_2))
+
+        self.bs_cache.remove_adv_route(FAKE_BGP_SPEAKER['id'],
+                                       fake_route_2)
+        self.assertEqual(self.expected_cache, self.bs_cache.cache)

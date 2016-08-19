@@ -13,6 +13,7 @@
 # under the License.
 
 import contextlib
+import mock
 import netaddr
 from oslo_config import cfg
 
@@ -1153,11 +1154,69 @@ class BgpTests(test_plugin.Ml2PluginV2TestCase,
 
     def _create_scenario_test_fips(self, ext_net_id,
                                    tenant_id, port_ids):
+        fips = []
         for port_id in port_ids:
             fip_data = {'floatingip': {'floating_network_id': ext_net_id,
                                        'tenant_id': tenant_id,
                                        'port_id': port_id}}
-            self.l3plugin.create_floatingip(self.context, fip_data)
+            fip = self.l3plugin.create_floatingip(self.context, fip_data)
+            fips.append(fip)
+        return fips
+
+    def test_floatingip_update_callback(self):
+        gw_prefix = '172.16.10.0/24'
+        tenant_prefix = '10.10.10.0/24'
+        tenant_id = _uuid()
+        agent_confs = [{"host": "network1", "mode": "legacy"}]
+        self._create_scenario_test_l3_agents(agent_confs)
+        with self.router_with_external_and_tenant_networks(
+                tenant_id=tenant_id,
+                gw_prefix=gw_prefix,
+                tenant_prefix=tenant_prefix) as res:
+            router, ext_net, int_net = res
+            gw_net_id = ext_net['network']['id']
+            ext_gw_info = router['external_gateway_info']
+            next_hop = ext_gw_info[
+                'external_fixed_ips'][0]['ip_address']
+
+            port_configs = [{'net_id': int_net['network']['id'],
+                             'host': 'compute1'}]
+            ports = self._create_scenario_test_ports(tenant_id, port_configs)
+            port_ids = [port['id'] for port in ports]
+            with self.bgp_speaker(4, 1234, networks=[gw_net_id]) as speaker:
+                with mock.patch.object(
+                    self.bgp_plugin,
+                    'start_route_advertisements') as start_adv:
+                    with mock.patch.object(
+                        self.bgp_plugin,
+                        'stop_route_advertisements') as stop_adv:
+                        bgp_speaker_id = speaker['id']
+                        # Create and associate floating IP
+                        fips = self._create_scenario_test_fips(
+                            gw_net_id, tenant_id, port_ids)
+                        fip_id = fips[0]['id']
+                        fip_addr = fips[0]['floating_ip_address']
+                        host_route = {'destination': fip_addr + '/32',
+                                      'next_hop': next_hop}
+                        start_adv.assert_called_once_with(
+                            mock.ANY,
+                            mock.ANY,
+                            bgp_speaker_id,
+                            [host_route])
+                        fip_data = {'floatingip': {'port_id': None}}
+                        fip = self.l3plugin.update_floatingip(
+                            self.context,
+                            fip_id,
+                            fip_data)
+                        self.assertIsNone(fip['port_id'])
+                        # Dissociate floating IP,
+                        # withdraw route with next_hop None
+                        host_route['next_hop'] = None
+                        stop_adv.assert_called_once_with(
+                            mock.ANY,
+                            mock.ANY,
+                            bgp_speaker_id,
+                            [host_route])
 
     def _test_legacy_router_fips_next_hop(self, router_ha=False):
         if router_ha:
