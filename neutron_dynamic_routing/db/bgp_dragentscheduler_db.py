@@ -13,6 +13,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from neutron_lib.db import model_base
 from oslo_config import cfg
 from oslo_db import exception as db_exc
 from oslo_log import log as logging
@@ -22,7 +23,6 @@ from sqlalchemy.orm import exc
 
 from neutron.db import agents_db
 from neutron.db import agentschedulers_db as as_db
-from neutron.db import model_base
 
 from neutron_dynamic_routing._i18n import _
 from neutron_dynamic_routing._i18n import _LW
