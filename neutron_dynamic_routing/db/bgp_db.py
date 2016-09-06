@@ -28,10 +28,10 @@ from neutron_lib.db import model_base
 from neutron_lib import exceptions as n_exc
 
 from neutron.api.v2 import attributes as attr
-from neutron.db import address_scope_db
 from neutron.db import common_db_mixin as common_db
 from neutron.db import l3_attrs_db
 from neutron.db import l3_db
+from neutron.db.models import address_scope as address_scope_db
 from neutron.db import models_v2
 from neutron.plugins.ml2 import models as ml2_models
 
