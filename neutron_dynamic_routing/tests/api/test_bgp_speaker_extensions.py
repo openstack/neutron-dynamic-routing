@@ -13,8 +13,6 @@
 #    under the License.
 
 import netaddr
-
-from oslo_config import cfg
 from tempest import config
 from tempest.lib import exceptions as lib_exc
 from tempest import test
@@ -35,15 +33,8 @@ def _setup_client_args(auth_provider):
     build_timeout = CONF.network.build_timeout
 
     # The disable_ssl appears in identity
-    try:
-        disable_ssl_certificate_validation = (
-            CONF.service_clients.disable_ssl_certificate_validation)
-    except cfg.NoSuchOptError:
-        # TODO(kakuma): This except must be removed when a new tempest
-        # release includes the following change.
-        #   Change-Id: I296f1080ce89f0cdceae1c476866b215393b2605
-        disable_ssl_certificate_validation = (
-            CONF.identity.disable_ssl_certificate_validation)
+    disable_ssl_certificate_validation = (
+        CONF.identity.disable_ssl_certificate_validation)
     ca_certs = None
 
     # Trace in debug section
