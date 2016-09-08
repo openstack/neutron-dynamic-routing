@@ -24,6 +24,7 @@ from sqlalchemy.orm import exc as sa_exc
 
 from neutron_lib.api import validators
 from neutron_lib import constants as lib_consts
+from neutron_lib.db import model_base
 from neutron_lib import exceptions as n_exc
 
 from neutron.api.v2 import attributes as attr
@@ -31,7 +32,6 @@ from neutron.db import address_scope_db
 from neutron.db import common_db_mixin as common_db
 from neutron.db import l3_attrs_db
 from neutron.db import l3_db
-from neutron.db import model_base
 from neutron.db import models_v2
 from neutron.plugins.ml2 import models as ml2_models
 
@@ -83,7 +83,7 @@ class BgpSpeakerNetworkBinding(model_base.BASEV2):
 
 class BgpSpeaker(model_base.BASEV2,
                  model_base.HasId,
-                 model_base.HasTenant):
+                 model_base.HasProject):
 
     """Represents a BGP speaker"""
 
@@ -106,7 +106,7 @@ class BgpSpeaker(model_base.BASEV2,
 
 class BgpPeer(model_base.BASEV2,
               model_base.HasId,
-              model_base.HasTenant):
+              model_base.HasProject):
 
     """Represents a BGP routing peer."""
 
