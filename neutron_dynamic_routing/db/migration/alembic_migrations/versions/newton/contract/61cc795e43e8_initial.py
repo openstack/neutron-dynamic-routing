@@ -21,16 +21,12 @@ Create Date: 2016-05-03 08:30:18.421995
 
 """
 
-from neutron.db import migration
 from neutron.db.migration import cli
 
 # revision identifiers, used by Alembic.
 revision = '61cc795e43e8'
 down_revision = 'start_neutron_dynamic_routing'
 branch_labels = (cli.CONTRACT_BRANCH,)
-
-# milestone identifier, used by neutron-db-manage
-neutron_milestone = [migration.NEWTON]
 
 
 def upgrade():

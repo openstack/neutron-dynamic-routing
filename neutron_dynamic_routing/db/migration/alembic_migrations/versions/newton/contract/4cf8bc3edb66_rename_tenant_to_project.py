@@ -23,10 +23,15 @@ from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.engine import reflection
 
+from neutron.db import migration
+
+
 # revision identifiers, used by Alembic.
 revision = '4cf8bc3edb66'
 down_revision = '61cc795e43e8'
 
+# milestone identifier, used by neutron-db-manage
+neutron_milestone = [migration.NEWTON]
 
 _INSPECTOR = None
 
