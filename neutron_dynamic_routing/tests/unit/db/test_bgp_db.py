@@ -895,11 +895,11 @@ class BgpTests(test_plugin.Ml2PluginV2TestCase,
                                 portbindings.HOST_ID: 'test-host'}}
             fixed_port = self.plugin.create_port(self.context,
                                                  fixed_port_data)
-            self.plugin._create_or_update_agent(self.context,
-                                                {'agent_type': 'L3 agent',
-                                                 'host': 'test-host',
-                                                 'binary': 'neutron-l3-agent',
-                                                 'topic': 'test'})
+            self.plugin.create_or_update_agent(self.context,
+                                               {'agent_type': 'L3 agent',
+                                                'host': 'test-host',
+                                                'binary': 'neutron-l3-agent',
+                                                'topic': 'test'})
             fip_gw = self.l3plugin.create_fip_agent_gw_port_if_not_exists(
                                                                  self.context,
                                                                  gw_net_id,
@@ -960,11 +960,11 @@ class BgpTests(test_plugin.Ml2PluginV2TestCase,
                                 portbindings.HOST_ID: 'test-host'}}
             fixed_port = self.plugin.create_port(self.context,
                                                  fixed_port_data)
-            self.plugin._create_or_update_agent(self.context,
-                                                {'agent_type': 'L3 agent',
-                                                 'host': 'test-host',
-                                                 'binary': 'neutron-l3-agent',
-                                                 'topic': 'test'})
+            self.plugin.create_or_update_agent(self.context,
+                                               {'agent_type': 'L3 agent',
+                                                'host': 'test-host',
+                                                'binary': 'neutron-l3-agent',
+                                                'topic': 'test'})
             fip_gw = self.l3plugin.create_fip_agent_gw_port_if_not_exists(
                                                                  self.context,
                                                                  gw_net_id,
@@ -1016,11 +1016,11 @@ class BgpTests(test_plugin.Ml2PluginV2TestCase,
                                 portbindings.HOST_ID: 'test-host'}}
             fixed_port = self.plugin.create_port(self.context,
                                                  fixed_port_data)
-            self.plugin._create_or_update_agent(self.context,
-                                                {'agent_type': 'L3 agent',
-                                                 'host': 'test-host',
-                                                 'binary': 'neutron-l3-agent',
-                                                 'topic': 'test'})
+            self.plugin.create_or_update_agent(self.context,
+                                               {'agent_type': 'L3 agent',
+                                                'host': 'test-host',
+                                                'binary': 'neutron-l3-agent',
+                                                'topic': 'test'})
             fip_gw = self.l3plugin.create_fip_agent_gw_port_if_not_exists(
                                                                  self.context,
                                                                  gw_net_id,
@@ -1128,7 +1128,7 @@ class BgpTests(test_plugin.Ml2PluginV2TestCase,
 
     def _create_scenario_test_l3_agents(self, agent_confs):
         for item in agent_confs:
-            self.plugin._create_or_update_agent(
+            self.plugin.create_or_update_agent(
                 self.context,
                 {'agent_type': 'L3 agent',
                  'host': item['host'],
