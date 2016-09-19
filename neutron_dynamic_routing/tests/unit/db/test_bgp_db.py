@@ -1213,3 +1213,48 @@ class BgpTests(test_plugin.Ml2PluginV2TestCase,
 
     def test_ha_router_fips_has_no_next_hop_to_fip_agent_gateway(self):
         self._test_legacy_router_fips_next_hop(router_ha=True)
+
+    def _test__get_fip_next_hop(self, distributed=False):
+        gw_prefix = '172.16.10.0/24'
+        tenant_prefix = '10.10.10.0/24'
+        tenant_id = _uuid()
+        agent_confs = [{"host": "compute1", "mode": "dvr"},
+                       {"host": "network1", "mode": "dvr_snat"}]
+        self._create_scenario_test_l3_agents(agent_confs)
+        with self.router_with_external_and_tenant_networks(
+                tenant_id=tenant_id,
+                gw_prefix=gw_prefix,
+                tenant_prefix=tenant_prefix,
+                distributed=distributed) as res:
+            router, ext_net, int_net = res
+            ext_gw_info = router['external_gateway_info']
+            legacy_gw_ip = ext_gw_info[
+                'external_fixed_ips'][0]['ip_address']
+            gw_net_id = ext_net['network']['id']
+            # Whatever the router type is, we always create such dvr fip agent
+            # gateway port, in order to make sure that legacy router fip bgp
+            # route next_hop is not the dvr_fip_agent_gw.
+            fip_gw = self.l3plugin.create_fip_agent_gw_port_if_not_exists(
+                self.context, gw_net_id, 'compute1')
+            port_configs = [{'net_id': int_net['network']['id'],
+                             'host': 'compute1'}]
+            ports = self._create_scenario_test_ports(tenant_id, port_configs)
+            dvr_gw_ip = fip_gw['fixed_ips'][0]['ip_address']
+            fip_data = {'floatingip': {'floating_network_id': gw_net_id,
+                                       'tenant_id': tenant_id,
+                                       'port_id': ports[0]['id']}}
+            fip = self.l3plugin.create_floatingip(self.context, fip_data)
+            fip_address = fip['floating_ip_address']
+            with self.bgp_speaker(4, 1234, networks=[gw_net_id]):
+                next_hop = self.bgp_plugin._get_fip_next_hop(
+                    self.context, router['id'], fip_address)
+                if distributed:
+                    self.assertEqual(dvr_gw_ip, next_hop)
+                else:
+                    self.assertEqual(legacy_gw_ip, next_hop)
+
+    def test__get_fip_next_hop_legacy(self):
+        self._test__get_fip_next_hop()
+
+    def test__get_fip_next_hop_dvr(self):
+        self._test__get_fip_next_hop(distributed=True)

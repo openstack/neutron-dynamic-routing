@@ -13,6 +13,7 @@
 # under the License.
 
 import itertools
+import netaddr
 
 from oslo_db import exception as oslo_db_exc
 from oslo_utils import uuidutils
@@ -30,8 +31,10 @@ from neutron_lib import exceptions as n_exc
 from neutron.db import common_db_mixin as common_db
 from neutron.db import l3_attrs_db
 from neutron.db import l3_db
+from neutron.db import l3_dvr_db
 from neutron.db.models import address_scope as address_scope_db
 from neutron.db import models_v2
+from neutron.extensions import l3 as l3_ext
 from neutron.plugins.ml2 import models as ml2_models
 
 from neutron_dynamic_routing._i18n import _
@@ -1016,3 +1019,66 @@ class BgpDbMixin(common_db.CommonDbMixin):
         """Return the list of host routes given a list of (IP, nexthop)"""
         return ({'destination': x + '/32',
                  'next_hop': y} for x, y in ip_next_hop_tuples)
+
+    def _get_router(self, context, router_id):
+        try:
+            router = self._get_by_id(context, l3_db.Router, router_id)
+        except sa_exc.NoResultFound:
+            raise l3_ext.RouterNotFound(router_id=router_id)
+        return router
+
+    def _get_fip_next_hop(self, context, router_id, ip_address=None):
+        router = self._get_router(context, router_id)
+        gw_port = router.gw_port
+        if not gw_port:
+            return
+
+        if l3_dvr_db.is_distributed_router(router) and ip_address:
+            return self._get_dvr_fip_next_hop(context, ip_address)
+
+        for fixed_ip in gw_port.fixed_ips:
+            addr = netaddr.IPAddress(fixed_ip.ip_address)
+            if addr.version == 4:
+                return fixed_ip.ip_address
+
+    def _get_dvr_fip_agent_gateway_query(self, context):
+        ML2PortBinding = ml2_models.PortBinding
+        IpAllocation = models_v2.IPAllocation
+        Port = models_v2.Port
+        base_query = context.session.query(Port.network_id,
+                                           ML2PortBinding.host,
+                                           IpAllocation.ip_address)
+
+        gw_query = base_query.filter(
+            ML2PortBinding.port_id == Port.id,
+            IpAllocation.port_id == Port.id,
+            Port.device_owner == lib_consts.DEVICE_OWNER_AGENT_GW)
+        return gw_query
+
+    def _get_fip_fixed_port_host_query(self, context, fip_address):
+        ML2PortBinding = ml2_models.PortBinding
+
+        fip_query = context.session.query(
+            l3_db.FloatingIP.floating_network_id,
+            ML2PortBinding.host,
+            l3_db.FloatingIP.floating_ip_address)
+        fip_query = fip_query.filter(
+            l3_db.FloatingIP.fixed_port_id == ML2PortBinding.port_id,
+            l3_db.FloatingIP.floating_ip_address == fip_address)
+        return fip_query
+
+    def _get_dvr_fip_next_hop(self, context, fip_address):
+        try:
+            dvr_agent_gw_query = self._get_dvr_fip_agent_gateway_query(
+                context)
+            fip_fix_port_query = self._get_fip_fixed_port_host_query(
+                context, fip_address)
+            q = self._join_fip_by_host_binding_to_agent_gateway(
+                context,
+                fip_fix_port_query.subquery(),
+                dvr_agent_gw_query.subquery()).one()
+            return q[1]
+        except sa_exc.NoResultFound:
+            return
+        except sa_exc.MultipleResultsFound:
+            return

@@ -223,8 +223,8 @@ class BgpPlugin(service_base.ServicePluginBase,
         ctx = context.get_admin_context()
         new_router_id = kwargs['router_id']
         last_router_id = kwargs['last_known_router_id']
-        next_hop = kwargs['next_hop']
-        dest = kwargs['floating_ip_address'] + '/32'
+        floating_ip_address = kwargs['floating_ip_address']
+        dest = floating_ip_address + '/32'
         bgp_speakers = self._bgp_speakers_for_gw_network_by_family(
             ctx,
             kwargs['floating_network_id'],
@@ -235,7 +235,9 @@ class BgpPlugin(service_base.ServicePluginBase,
                 self.stop_route_advertisements(ctx, self._bgp_rpc,
                                                bgp_speaker.id, [dest])
 
-        if next_hop and new_router_id != last_router_id:
+        if new_router_id and new_router_id != last_router_id:
+            next_hop = self._get_fip_next_hop(
+                ctx, new_router_id, floating_ip_address)
             new_host_route = {'destination': dest, 'next_hop': next_hop}
             for bgp_speaker in bgp_speakers:
                 self.start_route_advertisements(ctx, self._bgp_rpc,
