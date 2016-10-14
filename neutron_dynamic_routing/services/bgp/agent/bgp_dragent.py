@@ -43,9 +43,9 @@ class BgpDrAgent(manager.Manager):
 
     Note that the public methods of this class are exposed as the server side
     of an rpc interface.  The neutron server uses
-    neutron.api.rpc.agentnotifiers.bgp_dr_rpc_agent_api.
-    BgpDrAgentNotifyApi as the client side to execute the methods
-    here. For more information about changing rpc interfaces, see
+    api.rpc.agentnotifiers.bgp_dr_rpc_agent_api.BgpDrAgentNotifyApi as the
+    client side to execute the methods here. For more information about
+    changing rpc interfaces, see
     http://docs.openstack.org/developer/neutron/devref/rpc_api.html.
 
     API version history:
@@ -528,7 +528,7 @@ class BgpDrPluginApi(object):
 
     This class implements the client side of an rpc interface.
     The server side of this interface can be found in
-    neutron.api.rpc.handlers.bgp_speaker_rpc.BgpSpeakerRpcCallback.
+    api.rpc.handlers.bgp_speaker_rpc.BgpSpeakerRpcCallback.
     For more information about changing rpc interfaces, see
     doc/source/devref/rpc_api.rst.
 
