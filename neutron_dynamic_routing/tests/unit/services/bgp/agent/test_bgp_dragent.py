@@ -120,7 +120,7 @@ class TestBgpDrAgent(base.BaseTestCase):
         bgp_dr = bgp_dragent.BgpDrAgent(HOSTNAME)
 
         attrs_to_mock = dict(
-            [(a, mock.MagicMock())
+            [(a, mock.Mock())
              for a in ['plugin_rpc', 'sync_bgp_speaker',
                        'safe_configure_dragent_for_bgp_speaker',
                        'remove_bgp_speaker_from_dragent']])
@@ -279,7 +279,7 @@ class TestBgpDrAgent(base.BaseTestCase):
         bgp_dr = bgp_dragent.BgpDrAgent(HOSTNAME)
 
         attrs_to_mock = dict(
-            [(a, mock.MagicMock())
+            [(a, mock.Mock())
              for a in ['remove_bgp_peer_from_bgp_speaker',
                        'add_bgp_peers_to_bgp_speaker',
                        'advertise_routes_via_bgp_speaker',
