@@ -185,7 +185,7 @@ class BgpDrAgent(manager.Manager):
 
     @utils.synchronized('bgp-dr-agent')
     def bgp_speaker_remove_end(self, context, payload):
-        """Handle bgp_speaker_create_end notification event."""
+        """Handle bgp_speaker_remove_end notification event."""
 
         bgp_speaker_id = payload['bgp_speaker']['id']
         LOG.debug('Received BGP speaker remove notification for '
