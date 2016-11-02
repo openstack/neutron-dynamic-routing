@@ -61,7 +61,7 @@ class BgpPlugin(service_base.ServicePluginBase,
     def get_plugin_description(self):
         """returns string description of the plugin."""
         return ("BGP dynamic routing service for announcement of next-hops "
-                "for tenant networks, floating IP's, and DVR host routes.")
+                "for project networks, floating IP's, and DVR host routes.")
 
     def _setup_rpc(self):
         self.topic = bgp_consts.BGP_PLUGIN
