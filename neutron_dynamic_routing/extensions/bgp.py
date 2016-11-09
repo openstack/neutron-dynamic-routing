@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 
+from neutron_lib.api import converters as n_conv
 from neutron_lib import exceptions as n_exc
 
 from neutron.api import extensions
@@ -65,7 +66,7 @@ RESOURCE_ATTRIBUTE_MAP = {
         'advertise_floating_ip_host_routes': {
                                       'allow_post': True,
                                       'allow_put': True,
-                                      'convert_to': attr.convert_to_boolean,
+                                      'convert_to': n_conv.convert_to_boolean,
                                       'validate': {'type:boolean': None},
                                       'is_visible': True, 'default': True,
                                       'required_by_policy': False,
@@ -73,7 +74,7 @@ RESOURCE_ATTRIBUTE_MAP = {
         'advertise_tenant_networks': {
                                       'allow_post': True,
                                       'allow_put': True,
-                                      'convert_to': attr.convert_to_boolean,
+                                      'convert_to': n_conv.convert_to_boolean,
                                       'validate': {'type:boolean': None},
                                       'is_visible': True, 'default': True,
                                       'required_by_policy': False,
