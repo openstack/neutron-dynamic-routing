@@ -18,13 +18,13 @@ import six
 import webob
 
 from neutron_lib import exceptions as n_exc
+from neutron_lib.plugins import directory
 from oslo_log import log as logging
 
 from neutron.api import extensions
 from neutron.api.v2 import base
 from neutron.api.v2 import resource
 from neutron.extensions import agent
-from neutron import manager
 from neutron import wsgi
 
 from neutron_dynamic_routing._i18n import _, _LE
@@ -57,8 +57,7 @@ class DrAgentAssociationError(n_exc.Conflict):
 class BgpDrSchedulerController(wsgi.Controller):
     """Schedule BgpSpeaker for a BgpDrAgent"""
     def get_plugin(self):
-        plugin = manager.NeutronManager.get_service_plugins().get(
-            bgp_ext.BGP_EXT_ALIAS)
+        plugin = directory.get_plugin(bgp_ext.BGP_EXT_ALIAS)
         if not plugin:
             LOG.error(_LE('No plugin for BGP routing registered'))
             msg = _('The resource could not be found.')
@@ -85,8 +84,7 @@ class BgpDrSchedulerController(wsgi.Controller):
 
 class BgpDrAgentController(wsgi.Controller):
     def get_plugin(self):
-        plugin = manager.NeutronManager.get_service_plugins().get(
-            bgp_ext.BGP_EXT_ALIAS)
+        plugin = directory.get_plugin(bgp_ext.BGP_EXT_ALIAS)
         if not plugin:
             LOG.error(_LE('No plugin for BGP routing registered'))
             msg = _('The resource could not be found.')
@@ -94,8 +92,7 @@ class BgpDrAgentController(wsgi.Controller):
         return plugin
 
     def index(self, request, **kwargs):
-        plugin = manager.NeutronManager.get_service_plugins().get(
-            bgp_ext.BGP_EXT_ALIAS)
+        plugin = directory.get_plugin(bgp_ext.BGP_EXT_ALIAS)
         return plugin.list_dragent_hosting_bgp_speaker(
             request.context, kwargs['bgp_speaker_id'])
 
