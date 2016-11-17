@@ -17,7 +17,7 @@ import netaddr
 from tempest.lib import exceptions as lib_exc
 from tempest import test
 
-from neutron_dynamic_routing.tests.api import test_bgp_speaker_extensions as test_base  # noqa
+from neutron_dynamic_routing.tests.tempest.api import test_bgp_speaker_extensions as test_base  # noqa
 
 
 class BgpSpeakerTestJSONNegative(test_base.BgpSpeakerTestJSONBase):

@@ -26,8 +26,4 @@ then
 
     # Make the workspace owned by the stack user
     sudo chown -R $STACK_USER:$STACK_USER $BASE
-
-else
-    echo "Unrecognized environment $VENV".
-    exit 1
 fi
