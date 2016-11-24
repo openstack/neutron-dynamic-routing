@@ -14,20 +14,21 @@
 # limitations under the License.
 
 import mock
+from neutron_lib.plugins import directory
 
 from neutron.tests import base
 
 from neutron_dynamic_routing.api.rpc.handlers import bgp_speaker_rpc
+from neutron_dynamic_routing.extensions import bgp as bgp_ext
 
 
 class TestBgpSpeakerRpcCallback(base.BaseTestCase):
 
     def setUp(self):
-        self.plugin_p = mock.patch('neutron.manager.NeutronManager.'
-                                   'get_service_plugins')
-        self.plugin = self.plugin_p.start()
-        self.callback = bgp_speaker_rpc.BgpSpeakerRpcCallback()
         super(TestBgpSpeakerRpcCallback, self).setUp()
+        self.plugin = mock.Mock()
+        directory.add_plugin(bgp_ext.BGP_EXT_ALIAS, self.plugin)
+        self.callback = bgp_speaker_rpc.BgpSpeakerRpcCallback()
 
     def test_get_bgp_speaker_info(self):
         self.callback.get_bgp_speaker_info(mock.Mock(),

@@ -18,14 +18,13 @@ from oslo_config import cfg
 
 from neutron_lib import constants as n_const
 from neutron_lib import exceptions as n_exc
+from neutron_lib.plugins import directory
 from oslo_utils import uuidutils
 
 from neutron.db import l3_dvr_ha_scheduler_db
 from neutron.db import l3_hamode_db
 from neutron.extensions import external_net
 from neutron.extensions import portbindings
-from neutron import manager
-from neutron.plugins.common import constants as p_const
 from neutron.tests.unit.extensions import test_l3
 from neutron.tests.unit.plugins.ml2 import test_plugin
 
@@ -168,10 +167,9 @@ class BgpTests(test_plugin.Ml2PluginV2TestCase,
 
     def setUp(self):
         super(BgpTests, self).setUp()
-        self.l3plugin = manager.NeutronManager.get_service_plugins().get(
-            p_const.L3_ROUTER_NAT)
+        self.l3plugin = directory.get_plugin(n_const.L3)
         self.bgp_plugin = bgp_plugin.BgpPlugin()
-        self.plugin = manager.NeutronManager.get_plugin()
+        self.plugin = directory.get_plugin()
 
     @contextlib.contextmanager
     def subnetpool_with_address_scope(self, ip_version, prefixes=None,

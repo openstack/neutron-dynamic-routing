@@ -12,13 +12,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from neutron_lib.plugins import directory
 from oslo_config import cfg
 from oslo_utils import importutils
 
 from neutron.api.v2 import attributes
 from neutron import context
 from neutron.extensions import agent
-from neutron import manager
 from neutron.tests.unit.db import test_db_base_plugin_v2 as test_db_base_plugin
 from neutron.tests.unit.extensions import test_agent
 
@@ -201,6 +201,5 @@ class BgpDrPluginSchedulerTests(test_db_base_plugin.NeutronDbPluginV2TestCase,
         ext_mgr = ext_mgr or BgpDrSchedulerTestExtensionManager()
         super(BgpDrPluginSchedulerTests, self).setUp(
             plugin=plugin, ext_mgr=ext_mgr, service_plugins=service_plugins)
-        self.bgp_plugin = manager.NeutronManager.get_service_plugins().get(
-            bgp.BGP_EXT_ALIAS)
+        self.bgp_plugin = directory.get_plugin(bgp.BGP_EXT_ALIAS)
         self.context = context.get_admin_context()
