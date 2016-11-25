@@ -185,7 +185,6 @@ class Bgp(extensions.ExtensionDescriptor):
     def get_resources(cls):
         plural_mappings = rh.build_plural_mappings(
             {}, RESOURCE_ATTRIBUTE_MAP)
-        attr.PLURALS.update(plural_mappings)
         action_map = {BGP_SPEAKER_RESOURCE_NAME:
                       {'add_bgp_peer': 'PUT',
                        'remove_bgp_peer': 'PUT',
