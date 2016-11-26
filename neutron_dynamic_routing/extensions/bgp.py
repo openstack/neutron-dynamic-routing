@@ -15,10 +15,10 @@
 #
 
 from neutron_lib.api import converters as n_conv
+from neutron_lib.api import extensions
 from neutron_lib.db import constants as db_const
 from neutron_lib import exceptions as n_exc
 
-from neutron.api import extensions
 from neutron.api.v2 import resource_helper as rh
 
 from neutron_dynamic_routing._i18n import _

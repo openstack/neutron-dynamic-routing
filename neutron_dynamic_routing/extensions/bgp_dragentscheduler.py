@@ -17,6 +17,7 @@ import abc
 import six
 import webob
 
+from neutron_lib.api import extensions as api_extensions
 from neutron_lib import exceptions as n_exc
 from neutron_lib.plugins import directory
 from oslo_log import log as logging
@@ -97,7 +98,7 @@ class BgpDrAgentController(wsgi.Controller):
             request.context, kwargs['bgp_speaker_id'])
 
 
-class Bgp_dragentscheduler(extensions.ExtensionDescriptor):
+class Bgp_dragentscheduler(api_extensions.ExtensionDescriptor):
     """Extension class supporting Dynamic Routing scheduler.
     """
     @classmethod
