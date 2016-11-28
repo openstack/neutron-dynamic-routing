@@ -27,7 +27,6 @@ from neutron_lib import constants as lib_consts
 from neutron_lib.db import model_base
 from neutron_lib import exceptions as n_exc
 
-from neutron.api.v2 import attributes as attr
 from neutron.db import common_db_mixin as common_db
 from neutron.db import l3_attrs_db
 from neutron.db import l3_db
@@ -89,7 +88,7 @@ class BgpSpeaker(model_base.BASEV2,
 
     __tablename__ = 'bgp_speakers'
 
-    name = sa.Column(sa.String(attr.NAME_MAX_LEN), nullable=False)
+    name = sa.Column(sa.String(255), nullable=False)
     local_as = sa.Column(sa.Integer, nullable=False, autoincrement=False)
     advertise_floating_ip_host_routes = sa.Column(sa.Boolean, nullable=False)
     advertise_tenant_networks = sa.Column(sa.Boolean, nullable=False)
@@ -112,7 +111,7 @@ class BgpPeer(model_base.BASEV2,
 
     __tablename__ = 'bgp_peers'
 
-    name = sa.Column(sa.String(attr.NAME_MAX_LEN), nullable=False)
+    name = sa.Column(sa.String(255), nullable=False)
     peer_ip = sa.Column(sa.String(64),
                         nullable=False)
     remote_as = sa.Column(sa.Integer, nullable=False, autoincrement=False)
