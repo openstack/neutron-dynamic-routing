@@ -58,7 +58,7 @@ class BgpDrAgentNotifyApi(object):
 
     def bgp_peer_disassociated(self, context, bgp_speaker_id,
                                bgp_peer_ip, host):
-        """Tell BgpDrAgent about a new BGP Peer association.
+        """Tell BgpDrAgent about a BGP Peer disassociation.
 
         This effectively tells the BgpDrAgent to stop a peering session.
         """
@@ -68,7 +68,7 @@ class BgpDrAgentNotifyApi(object):
 
     def bgp_peer_associated(self, context, bgp_speaker_id,
                             bgp_peer_id, host):
-        """Tell BgpDrAgent about a BGP Peer disassociation.
+        """Tell BgpDrAgent about a new BGP Peer association.
 
         This effectively tells the bgp_dragent to open a peering session.
         """
