@@ -15,11 +15,11 @@
 
 import copy
 import sys
-import uuid
 
 import eventlet
 import mock
 from oslo_config import cfg
+from oslo_utils import uuidutils
 import testtools
 
 from neutron.agent.common import config
@@ -34,8 +34,8 @@ HOSTNAME = 'hostname'
 rpc_api = bgp_dragent.BgpDrPluginApi
 BGP_PLUGIN = '%s.%s' % (rpc_api.__module__, rpc_api.__name__)
 
-FAKE_BGPSPEAKER_UUID = str(uuid.uuid4())
-FAKE_BGPPEER_UUID = str(uuid.uuid4())
+FAKE_BGPSPEAKER_UUID = uuidutils.generate_uuid()
+FAKE_BGPPEER_UUID = uuidutils.generate_uuid()
 
 FAKE_BGP_SPEAKER = {'id': FAKE_BGPSPEAKER_UUID,
                     'local_as': 12345,
