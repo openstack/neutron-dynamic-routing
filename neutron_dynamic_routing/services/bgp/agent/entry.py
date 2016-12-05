@@ -18,9 +18,9 @@ import sys
 from oslo_config import cfg
 from oslo_service import service
 
-from neutron.agent.common import config
 from neutron.agent.linux import external_process
 from neutron.common import config as common_config
+from neutron.conf.agent import common as config
 from neutron import service as neutron_service
 
 from neutron_dynamic_routing.services.bgp.agent import config as bgp_dragent_config  # noqa
