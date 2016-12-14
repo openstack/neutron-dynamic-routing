@@ -13,7 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import netaddr
 import six
+
+from neutron_lib import constants as lib_consts
 
 from neutron_dynamic_routing.services.bgp.agent.driver import exceptions as bgp_driver_exc  # noqa
 from neutron_dynamic_routing.services.bgp.common import constants as bgp_consts  # noqa
@@ -44,6 +47,16 @@ def validate_auth(auth_type, password):
             raise bgp_driver_exc.InvaildAuthType(auth_type=auth_type)
     else:
         raise bgp_driver_exc.InvaildAuthType(auth_type=auth_type)
+
+
+def validate_ip_addr(ip_addr):
+    if netaddr.valid_ipv4(ip_addr):
+        return lib_consts.IP_VERSION_4
+    elif netaddr.valid_ipv6(ip_addr):
+        return lib_consts.IP_VERSION_6
+    else:
+        raise bgp_driver_exc.InvalidParamType(param=ip_addr,
+                                              param_type='ip-address')
 
 
 def validate_string(param):

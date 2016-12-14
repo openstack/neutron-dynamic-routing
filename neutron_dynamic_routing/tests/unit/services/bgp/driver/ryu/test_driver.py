@@ -35,6 +35,7 @@ FAKE_ROUTER_ID = '1.1.1.1'
 # Test variables for BGP Peer
 FAKE_PEER_AS = 45678
 FAKE_PEER_IP = '2.2.2.5'
+FAKE_PEER_IPV6 = '2001:db8::'
 FAKE_AUTH_TYPE = 'md5'
 FAKE_PEER_PASSWORD = 'awesome'
 
@@ -85,6 +86,8 @@ class TestRyuBgpDriver(base.BaseTestCase):
         speaker.neighbor_add.assert_called_once_with(
                                             address=FAKE_PEER_IP,
                                             remote_as=FAKE_PEER_AS,
+                                            enable_ipv4=True,
+                                            enable_ipv6=False,
                                             password=None,
                                             connect_mode=CONNECT_MODE_ACTIVE)
 
@@ -101,6 +104,8 @@ class TestRyuBgpDriver(base.BaseTestCase):
         speaker.neighbor_add.assert_called_once_with(
             address=FAKE_PEER_IP,
             remote_as=FAKE_PEER_AS,
+            enable_ipv4=True,
+            enable_ipv6=False,
             password=encodeutils.to_utf8(FAKE_PEER_PASSWORD),
             connect_mode=CONNECT_MODE_ACTIVE)
 
@@ -119,8 +124,26 @@ class TestRyuBgpDriver(base.BaseTestCase):
         speaker.neighbor_add.assert_called_once_with(
             address=FAKE_PEER_IP,
             remote_as=FAKE_PEER_AS,
+            enable_ipv4=True,
+            enable_ipv6=False,
             password=encodeutils.to_utf8(NEW_FAKE_PEER_PASSWORD),
             connect_mode=CONNECT_MODE_ACTIVE)
+
+    def test_add_bgp_peer_with_ipv6(self):
+        self.ryu_bgp_driver.add_bgp_speaker(FAKE_LOCAL_AS1)
+        self.assertEqual(1,
+                self.ryu_bgp_driver.cache.get_hosted_bgp_speakers_count())
+        self.ryu_bgp_driver.add_bgp_peer(FAKE_LOCAL_AS1,
+                                         FAKE_PEER_IPV6,
+                                         FAKE_PEER_AS)
+        speaker = self.ryu_bgp_driver.cache.get_bgp_speaker(FAKE_LOCAL_AS1)
+        speaker.neighbor_add.assert_called_once_with(
+                                            address=FAKE_PEER_IPV6,
+                                            remote_as=FAKE_PEER_AS,
+                                            enable_ipv4=False,
+                                            enable_ipv6=True,
+                                            password=None,
+                                            connect_mode=CONNECT_MODE_ACTIVE)
 
     def test_remove_bgp_peer(self):
         self.ryu_bgp_driver.add_bgp_speaker(FAKE_LOCAL_AS1)
@@ -201,6 +224,11 @@ class TestRyuBgpDriver(base.BaseTestCase):
                           self.ryu_bgp_driver.add_bgp_peer,
                           FAKE_LOCAL_AS1, FAKE_PEER_IP, FAKE_PEER_AS,
                           FAKE_AUTH_TYPE, None)
+        # Test with a invalid ip address
+        self.assertRaises(bgp_driver_exc.InvalidParamType,
+                          self.ryu_bgp_driver.add_bgp_peer,
+                          FAKE_LOCAL_AS1, '1.2.3.a', FAKE_PEER_AS,
+                          FAKE_AUTH_TYPE, FAKE_PEER_PASSWORD)
 
     def test_add_bgp_peer_with_invalid_asnum_range(self):
         self.ryu_bgp_driver.add_bgp_speaker(FAKE_LOCAL_AS1)
