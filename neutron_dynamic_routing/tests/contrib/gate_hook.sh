@@ -26,4 +26,7 @@ then
 
     # Make the workspace owned by the stack user
     sudo chown -R $STACK_USER:$STACK_USER $BASE
+elif [[ "$VENV" == dsvm-api* ]]
+then
+    $GATE_DEST/devstack-gate/devstack-vm-gate.sh
 fi
