@@ -1222,7 +1222,6 @@ class BgpTests(test_plugin.Ml2PluginV2TestCase,
         if router_ha:
             cfg.CONF.set_override('l3_ha', True)
             cfg.CONF.set_override('max_l3_agents_per_router', 2)
-            cfg.CONF.set_override('min_l3_agents_per_router', 2)
         gw_prefix = '172.16.10.0/24'
         tenant_prefix = '10.10.10.0/24'
         tenant_id = _uuid()
