@@ -20,7 +20,7 @@ import neutron_dynamic_routing.services.bgp.agent.config
 
 def list_bgp_agent_opts():
     return [
-        ('BGP',
+        ('bgp',
          itertools.chain(
              neutron_dynamic_routing.services.bgp.agent.
              config.BGP_DRIVER_OPTS,
