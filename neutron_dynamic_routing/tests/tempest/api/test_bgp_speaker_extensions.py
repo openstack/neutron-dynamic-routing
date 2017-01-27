@@ -14,6 +14,7 @@
 
 import netaddr
 from tempest import config
+from tempest.lib import decorators
 from tempest.lib import exceptions as lib_exc
 from tempest import test
 
@@ -161,7 +162,7 @@ class BgpSpeakerTestJSON(BgpSpeakerTestJSONBase):
         Delete bgp-peer
     """
 
-    @test.idempotent_id('df259771-7104-4ffa-b77f-bd183600d7f9')
+    @decorators.idempotent_id('df259771-7104-4ffa-b77f-bd183600d7f9')
     def test_delete_bgp_speaker(self):
         bgp_speaker = self.create_bgp_speaker(auto_delete=False,
                                               **self.default_bgp_speaker_args)
@@ -171,11 +172,11 @@ class BgpSpeakerTestJSON(BgpSpeakerTestJSONBase):
                           self.get_bgp_speaker,
                           bgp_speaker_id)
 
-    @test.idempotent_id('81d9dc45-19f8-4c6e-88b8-401d965cd1b0')
+    @decorators.idempotent_id('81d9dc45-19f8-4c6e-88b8-401d965cd1b0')
     def test_create_bgp_peer(self):
         self.create_bgp_peer(**self.default_bgp_peer_args)
 
-    @test.idempotent_id('6ade0319-1ee2-493c-ac4b-5eb230ff3a77')
+    @decorators.idempotent_id('6ade0319-1ee2-493c-ac4b-5eb230ff3a77')
     def test_add_bgp_peer(self):
         bgp_speaker, bgp_peer = self.create_bgp_speaker_and_peer()
         bgp_speaker_id = bgp_speaker['id']
@@ -187,7 +188,7 @@ class BgpSpeakerTestJSON(BgpSpeakerTestJSONBase):
         self.assertEqual(1, len(bgp_peers_list))
         self.assertTrue(bgp_peer_id in bgp_peers_list)
 
-    @test.idempotent_id('f9737708-1d79-440b-8350-779f97d882ee')
+    @decorators.idempotent_id('f9737708-1d79-440b-8350-779f97d882ee')
     def test_remove_bgp_peer(self):
         bgp_peer = self.create_bgp_peer(**self.default_bgp_peer_args)
         bgp_peer_id = bgp_peer['id']
@@ -203,7 +204,7 @@ class BgpSpeakerTestJSON(BgpSpeakerTestJSONBase):
         bgp_peers_list = bgp_speaker['peers']
         self.assertTrue(not bgp_peers_list)
 
-    @test.idempotent_id('23c8eb37-d10d-4f43-b2e7-6542cb6a4405')
+    @decorators.idempotent_id('23c8eb37-d10d-4f43-b2e7-6542cb6a4405')
     def test_add_gateway_network(self):
         self.useFixture(fixtures.LockFixture('gateway_network_binding'))
         bgp_speaker = self.create_bgp_speaker(**self.default_bgp_speaker_args)
@@ -216,7 +217,7 @@ class BgpSpeakerTestJSON(BgpSpeakerTestJSONBase):
         self.assertEqual(1, len(network_list))
         self.assertTrue(self.ext_net_id in network_list)
 
-    @test.idempotent_id('6cfc7137-0d99-4a3d-826c-9d1a3a1767b0')
+    @decorators.idempotent_id('6cfc7137-0d99-4a3d-826c-9d1a3a1767b0')
     def test_remove_gateway_network(self):
         self.useFixture(fixtures.LockFixture('gateway_network_binding'))
         bgp_speaker = self.create_bgp_speaker(**self.default_bgp_speaker_args)
@@ -233,7 +234,7 @@ class BgpSpeakerTestJSON(BgpSpeakerTestJSONBase):
         network_list = bgp_speaker['networks']
         self.assertTrue(not network_list)
 
-    @test.idempotent_id('5bef22ad-5e70-4f7b-937a-dc1944642996')
+    @decorators.idempotent_id('5bef22ad-5e70-4f7b-937a-dc1944642996')
     def test_get_advertised_routes_null_address_scope(self):
         self.useFixture(fixtures.LockFixture('gateway_network_binding'))
         bgp_speaker = self.create_bgp_speaker(**self.default_bgp_speaker_args)
@@ -243,7 +244,7 @@ class BgpSpeakerTestJSON(BgpSpeakerTestJSONBase):
         routes = self.bgp_adm_client.get_bgp_advertised_routes(bgp_speaker_id)
         self.assertEqual(0, len(routes['advertised_routes']))
 
-    @test.idempotent_id('cae9cdb1-ad65-423c-9604-d4cd0073616e')
+    @decorators.idempotent_id('cae9cdb1-ad65-423c-9604-d4cd0073616e')
     def test_get_advertised_routes_floating_ips(self):
         self.useFixture(fixtures.LockFixture('gateway_network_binding'))
         bgp_speaker = self.create_bgp_speaker(**self.default_bgp_speaker_args)
@@ -274,7 +275,7 @@ class BgpSpeakerTestJSON(BgpSpeakerTestJSONBase):
         self.assertEqual(floatingip['floating_ip_address'] + '/32',
                          routes['advertised_routes'][0]['destination'])
 
-    @test.idempotent_id('c9ad566e-fe8f-4559-8303-bbad9062a30c')
+    @decorators.idempotent_id('c9ad566e-fe8f-4559-8303-bbad9062a30c')
     def test_get_advertised_routes_tenant_networks(self):
         self.useFixture(fixtures.LockFixture('gateway_network_binding'))
         addr_scope = self.create_address_scope('my-scope', ip_version=4)
