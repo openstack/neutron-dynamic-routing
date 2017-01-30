@@ -26,8 +26,8 @@ BGP Speaker
 ===========
 BGP Speaker acts as a route server using BGP routing protocol. It advertises
 routes to the BGP peers which are added to the BGP Speaker. Now there is a
-framework that allows different `BGP drivers <../design/drivers.rst>`_
-to be plugged into a `dynamic routing agent <./dynamic-routing-agent.rst>`_.
+framework that allows different `BGP drivers <../design/drivers.html>`_
+to be plugged into a `dynamic routing agent <../design/agent-scheduler.html>`_.
 
 Currently, BGP Speaker only advertises routes for a network to which it is associated.
 A BGP Speaker requires association with a "gateway" network to determine eligible routes.
@@ -36,7 +36,7 @@ external network is best for being used as a gateway network. The association bu
 list of all virtual routers with gateways on provider and self-service networks within
 the same address scope. Hence, the BGP speaker advertises self-service network prefixes
 with the corresponding router as the next-hop IP address.
-For details refer to `Route advertisement <./route-advertisement.rst>`_.
+For details refer to `Route advertisement <./route-advertisement.html>`_.
 
 Address Scopes
 --------------
@@ -119,12 +119,12 @@ A Sample Quagga router configuration file forming BGP peering with Neutron:
 BGP Speaker Architecture
 ------------------------
 Dynamic routing project saves BGP Speaker configuration as per the defined
-`_data model<https://git.openstack.org/cgit/openstack/neutron-dynamic-routing/tree/neutron_dynamic_routing/db/bgp_db.py#n85>`_.
+`data model <https://git.openstack.org/cgit/openstack/neutron-dynamic-routing/tree/neutron_dynamic_routing/db/bgp_db.py#n85>`_.
 and pass on the configuration request to the dynamic routing agent for further processing.
 The implementation of a BGP Speaker is driver specific. During the driver interface
 initialization process, needed configurations are read from the configuration file
 and BGP Speaker object instance is created. For details refer to
-`BGP drivers <../design/drivers.rst>`_.
+`BGP drivers <../design/drivers.html>`_.
 
 BGP Speaker Life Cycle
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -160,8 +160,8 @@ BGP Plugin just send rpc ``bgp_speaker_remove_end`` to the specific Dragent.
 
 Advertisement
 ~~~~~~~~~~~~~
-For details refer to `Route Advertisement <./route-advertisement.rst>`_.
+For details refer to `Route Advertisement <./route-advertisement.html>`_.
 
 How to work
 -----------
-For details refer to `Testing <../others/testing.rst>`_.
+For details refer to `Testing <../others/testing.html>`_.
