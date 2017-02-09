@@ -24,7 +24,6 @@ from neutron_lib.plugins import directory
 from oslo_utils import uuidutils
 
 from neutron.db import l3_dvr_ha_scheduler_db
-from neutron.db import l3_hamode_db
 from neutron.extensions import external_net
 from neutron.tests.unit.extensions import test_l3
 from neutron.tests.unit.plugins.ml2 import test_plugin
@@ -39,7 +38,6 @@ IMAGINARY = '2b2334c8-adfe-42d9-82c6-ad866c7fc5d8'  # non existent resource id
 
 
 class TestL3Plugin(test_l3.TestL3NatAgentSchedulingServicePlugin,
-                   l3_hamode_db.L3_HA_NAT_db_mixin,
                    l3_dvr_ha_scheduler_db.L3_DVR_HA_scheduler_db_mixin):
     pass
 
