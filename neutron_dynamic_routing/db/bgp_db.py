@@ -29,10 +29,10 @@ from neutron_lib.db import model_base
 from neutron_lib import exceptions as n_exc
 
 from neutron.db import common_db_mixin as common_db
-from neutron.db import l3_attrs_db
-from neutron.db import l3_db
 from neutron.db import l3_dvr_db
 from neutron.db.models import address_scope as address_scope_db
+from neutron.db.models import l3 as l3_db
+from neutron.db.models import l3_attrs as l3_attrs_db
 from neutron.db import models_v2
 from neutron.extensions import l3 as l3_ext
 from neutron.plugins.ml2 import models as ml2_models

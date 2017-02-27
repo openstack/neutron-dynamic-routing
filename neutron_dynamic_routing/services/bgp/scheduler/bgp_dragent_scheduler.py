@@ -19,6 +19,7 @@ from sqlalchemy.orm import exc
 from sqlalchemy import sql
 
 from neutron.db import agents_db
+from neutron.db.models import agent as agent_model
 from neutron.scheduler import base_resource_filter
 from neutron.scheduler import base_scheduler
 
@@ -128,7 +129,7 @@ class BgpDrAgentSchedulerBase(BgpDrAgentFilter):
 
         LOG.debug('Started auto-scheduling on host %s', host)
         with context.session.begin(subtransactions=True):
-            query = context.session.query(agents_db.Agent)
+            query = context.session.query(agent_model.Agent)
             query = query.filter_by(
                 agent_type=bgp_consts.AGENT_TYPE_BGP_ROUTING,
                 host=host,

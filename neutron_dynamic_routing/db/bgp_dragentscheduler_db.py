@@ -21,8 +21,8 @@ import sqlalchemy as sa
 from sqlalchemy import orm
 from sqlalchemy.orm import exc
 
-from neutron.db import agents_db
 from neutron.db import agentschedulers_db as as_db
+from neutron.db.models import agent as agent_model
 
 from neutron_dynamic_routing._i18n import _
 from neutron_dynamic_routing._i18n import _LW
@@ -53,7 +53,7 @@ class BgpSpeakerDrAgentBinding(model_base.BASEV2):
                                sa.ForeignKey("bgp_speakers.id",
                                              ondelete='CASCADE'),
                                nullable=False)
-    dragent = orm.relation(agents_db.Agent)
+    dragent = orm.relation(agent_model.Agent)
     agent_id = sa.Column(sa.String(length=36),
                          sa.ForeignKey("agents.id",
                                        ondelete='CASCADE'),
@@ -155,7 +155,7 @@ class BgpDrAgentSchedulerDbMixin(bgp_dras_ext.BgpDrSchedulerPluginBase,
             query = query.filter(
                 BgpSpeakerDrAgentBinding.bgp_speaker_id in bgp_speaker_ids)
         if admin_state_up is not None:
-            query = query.filter(agents_db.Agent.admin_state_up ==
+            query = query.filter(agent_model.Agent.admin_state_up ==
                                  admin_state_up)
 
         return [binding.dragent
