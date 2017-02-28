@@ -13,14 +13,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from neutron_lib.callbacks import events
+from neutron_lib.callbacks import registry
 from neutron_lib import context as nl_context
 from oslo_db import exception as db_exc
 from oslo_log import log as logging
 from sqlalchemy.orm import exc
 from sqlalchemy import sql
 
-from neutron.callbacks import events
-from neutron.callbacks import registry
 from neutron.db import agents_db
 from neutron.db.models import agent as agent_model
 from neutron.scheduler import base_resource_filter

@@ -16,11 +16,11 @@
 import mock
 import testscenarios
 
+from neutron_lib.callbacks import events
+from neutron_lib.callbacks import registry
 from neutron_lib import context
 from oslo_utils import importutils
 
-from neutron.callbacks import events
-from neutron.callbacks import registry
 from neutron.tests.unit import testlib_api
 
 from neutron_dynamic_routing.api.rpc.callbacks import resources as dr_resources
