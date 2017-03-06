@@ -18,13 +18,13 @@ import sys
 
 import eventlet
 import mock
+from neutron_lib import context
 from oslo_config import cfg
 from oslo_utils import uuidutils
 import testtools
 
 from neutron.agent.common import config
 from neutron.common import config as n_config
-from neutron import context
 from neutron.tests import base
 
 from neutron_dynamic_routing.services.bgp.agent import bgp_dragent

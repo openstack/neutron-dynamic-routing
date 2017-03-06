@@ -15,9 +15,9 @@
 
 import testscenarios
 
+from neutron_lib import context
 from oslo_utils import importutils
 
-from neutron import context
 from neutron.tests.unit import testlib_api
 
 from neutron_dynamic_routing.db import bgp_db

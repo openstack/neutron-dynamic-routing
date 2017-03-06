@@ -14,8 +14,8 @@
 # limitations under the License.
 
 import mock
+from neutron_lib import context
 
-from neutron import context
 from neutron.tests import base
 
 from neutron_dynamic_routing.api.rpc.agentnotifiers import bgp_dr_rpc_agent_api

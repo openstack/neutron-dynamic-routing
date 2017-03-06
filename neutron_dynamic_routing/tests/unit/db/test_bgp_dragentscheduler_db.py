@@ -12,12 +12,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from neutron_lib import context
 from neutron_lib.plugins import directory
 from oslo_config import cfg
 from oslo_utils import importutils
 
 from neutron.api.v2 import attributes
-from neutron import context
 from neutron.extensions import agent
 from neutron.tests.unit.db import test_db_base_plugin_v2 as test_db_base_plugin
 from neutron.tests.unit.extensions import test_agent

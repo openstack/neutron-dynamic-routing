@@ -12,7 +12,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from neutron import context
+from neutron_lib import context
+
 from neutron.tests.common import helpers
 
 from neutron_dynamic_routing.services.bgp.common import constants as bgp_const

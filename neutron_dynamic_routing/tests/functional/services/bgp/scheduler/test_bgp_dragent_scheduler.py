@@ -13,9 +13,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from neutron_lib import context
 import testscenarios
 
-from neutron import context
 from neutron.db import agents_db
 from neutron.db import common_db_mixin
 from neutron.tests.unit import testlib_api
