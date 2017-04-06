@@ -72,7 +72,6 @@ Others
 .. toctree::
    :maxdepth: 2
 
-   others/alembic_migration
    others/testing
 
 Indices and tables
