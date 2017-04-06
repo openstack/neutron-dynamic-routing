@@ -73,12 +73,12 @@ Devstack Setup
 
 1. Download devstack::
 
-    git clone http://git.openstack.org/openstack-dev/devstack.git
+    git clone https://git.openstack.org/openstack-dev/devstack.git
 
 2. Enable neutron-dynamic-routing::
 
     [[local|localrc]]
-    enable_plugin neutron-dynamic-routing http://git.openstack.org/openstack/neutron-dynamic-routing
+    enable_plugin neutron-dynamic-routing https://git.openstack.org/openstack/neutron-dynamic-routing
 
 3. Run devstack::
 
