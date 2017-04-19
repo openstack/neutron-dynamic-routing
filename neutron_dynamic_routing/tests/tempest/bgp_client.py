@@ -117,3 +117,12 @@ class BgpSpeakerClientJSON(rest_client.RestClient):
         body = jsonutils.loads(body)
         self.expected_success(200, resp.status)
         return rest_client.ResponseBody(resp, body)
+
+    def add_bgp_speaker_to_dragent(self, agent_id, bgp_speaker_id):
+        uri = 'v2.0/agents/%s/bgp-drinstances' % agent_id
+        update_body = {"bgp_speaker_id": bgp_speaker_id}
+        update_body = jsonutils.dumps(update_body)
+        resp, body = self.post(uri, update_body)
+        self.expected_success(201, resp.status)
+        body = jsonutils.loads(body)
+        return rest_client.ResponseBody(resp, body)

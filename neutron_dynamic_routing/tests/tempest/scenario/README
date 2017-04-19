@@ -1,0 +1,36 @@
+scenario tests use the following environment.
+
+diagram:
+
+       ----------------------+--------------- tenant
+                             |                network
+                        +--------+
+                        | router |
+                        +--------+
+                             |
+       -----+----------------+--------------- provider
+            |                |                network
+       +---------+           |
+       | dragent |           |
+       +---------+           |
+            |                |
+            | +--------------+
+            | |
+       +--------+
+       | docker |
+       | bridge |
+       +--------+
+            |
+            +-----------+------------+-------
+                        |            |
+                   +---------+  +---------+
+       docker      | quagga1 |  | quagga2 | ...
+       container   +---------+  +---------+
+
+
+docker container environment is provided by test tool of ryu.
+It has the following functions:
+- build and remove a container image.
+- run, stop and remove a container.
+- some operations to quagga container.
+- get some information from quagga container.
