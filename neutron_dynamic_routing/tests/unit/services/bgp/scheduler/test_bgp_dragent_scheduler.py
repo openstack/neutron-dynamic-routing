@@ -13,15 +13,20 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import mock
 import testscenarios
 
 from neutron_lib import context
 from oslo_utils import importutils
 
+from neutron.callbacks import events
+from neutron.callbacks import registry
 from neutron.tests.unit import testlib_api
 
+from neutron_dynamic_routing.api.rpc.callbacks import resources as dr_resources
 from neutron_dynamic_routing.db import bgp_db
 from neutron_dynamic_routing.db import bgp_dragentscheduler_db as bgp_dras_db
+from neutron_dynamic_routing.services.bgp import bgp_plugin
 from neutron_dynamic_routing.services.bgp.scheduler import bgp_dragent_scheduler as bgp_dras  # noqa
 from neutron_dynamic_routing.tests.common import helpers
 
@@ -70,6 +75,67 @@ class TestBgpDrAgentSchedulerBaseTestCase(testlib_api.SqlTestCase):
 
         for result in results:
             self.assertEqual(bgp_speaker_id, result.bgp_speaker_id)
+
+
+class TestSchedulerCallback(TestBgpDrAgentSchedulerBaseTestCase):
+
+    def setUp(self):
+        super(TestSchedulerCallback, self).setUp()
+        bgp_notify_p = mock.patch('neutron_dynamic_routing.api.rpc.'
+                                  'agentnotifiers.bgp_dr_rpc_agent_api.'
+                                  'BgpDrAgentNotifyApi')
+        bgp_notify_p.start()
+        rpc_conn_p = mock.patch('neutron.common.rpc.create_connection')
+        rpc_conn_p.start()
+        admin_ctx_p = mock.patch('neutron_lib.context.get_admin_context')
+        admin_ctx_p = mock.patch('neutron_lib.context.get_admin_context')
+        self.admin_ctx_m = admin_ctx_p.start()
+        self.admin_ctx_m.return_value = self.ctx
+        self.plugin = bgp_plugin.BgpPlugin()
+        self.scheduler = bgp_dras.ChanceScheduler()
+
+    def _create_test_payload(self, context='test_ctx'):
+        bgp_speaker = {'id': '11111111-2222-3333-4444-555555555555'}
+        payload = {'plugin': self.plugin, 'context': context,
+                   'bgp_speaker': bgp_speaker}
+        return payload
+
+    def test__register_callbacks(self):
+        with mock.patch.object(registry, 'subscribe') as subscribe:
+            scheduler = bgp_dras.ChanceScheduler()
+            expected_calls = [
+                mock.call(scheduler.schedule_bgp_speaker_callback,
+                          dr_resources.BGP_SPEAKER, events.AFTER_CREATE),
+            ]
+            self.assertEqual(subscribe.call_args_list, expected_calls)
+        with mock.patch.object(registry, 'subscribe') as subscribe:
+            scheduler = bgp_dras.WeightScheduler()
+            expected_calls = [
+                mock.call(scheduler.schedule_bgp_speaker_callback,
+                          dr_resources.BGP_SPEAKER, events.AFTER_CREATE),
+            ]
+            self.assertEqual(subscribe.call_args_list, expected_calls)
+
+    def test_schedule_bgp_speaker_callback_with_valid_event(self):
+        payload = self._create_test_payload()
+        with mock.patch.object(self.plugin,
+                               'schedule_bgp_speaker') as sched_bgp:
+            self.scheduler.schedule_bgp_speaker_callback(
+                dr_resources.BGP_SPEAKER,
+                events.AFTER_CREATE,
+                self.scheduler, payload)
+            sched_bgp.assert_called_once_with(self.ctx,
+                                              payload['bgp_speaker'])
+
+    def test_schedule_bgp_speaker_callback_with_invalid_event(self):
+        payload = self._create_test_payload()
+        with mock.patch.object(self.plugin,
+                               'schedule_bgp_speaker') as sched_bgp:
+            self.scheduler.schedule_bgp_speaker_callback(
+                dr_resources.BGP_SPEAKER,
+                events.BEFORE_CREATE,
+                self.scheduler, payload)
+            sched_bgp.assert_not_called()
 
 
 class TestBgpDrAgentScheduler(TestBgpDrAgentSchedulerBaseTestCase,

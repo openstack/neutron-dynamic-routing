@@ -75,7 +75,7 @@ class BgpDrAgentSchedulerDbMixin(bgp_dras_ext.BgpDrSchedulerPluginBase,
 
     def schedule_bgp_speaker(self, context, created_bgp_speaker):
         if self.bgp_drscheduler:
-            agents = self.bgp_drscheduler.schedule(context,
+            agents = self.bgp_drscheduler.schedule(self, context,
                                                    created_bgp_speaker)
             for agent in agents:
                 self._bgp_rpc.bgp_speaker_created(context,

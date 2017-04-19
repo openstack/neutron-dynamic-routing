@@ -29,6 +29,12 @@ function configure_dr_agent_bgp_driver {
     iniset $DR_AGENT_BGP_CONF_FILE bgp bgp_speaker_driver $BGP_SPEAKER_DRIVER
 }
 
+function configure_dr_agent_scheduler_driver {
+    if [ -n "$BGP_SCHEDULER_DRIVER" ] ; then
+        iniset $NEUTRON_CONF DEFAULT bgp_drscheduler_driver $BGP_SCHEDULER_DRIVER
+    fi
+}
+
 #############################
 # Stack Install Section     #
 #############################
@@ -61,6 +67,7 @@ function dr_post_configure {
         if is_protocol_enabled BGP; then
             configure_dr_agent_bgp_config
             configure_dr_agent_bgp_driver
+            configure_dr_agent_scheduler_driver
         fi
     fi
 }

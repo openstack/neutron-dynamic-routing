@@ -13,17 +13,21 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from neutron_lib import context as nl_context
 from oslo_db import exception as db_exc
 from oslo_log import log as logging
 from sqlalchemy.orm import exc
 from sqlalchemy import sql
 
+from neutron.callbacks import events
+from neutron.callbacks import registry
 from neutron.db import agents_db
 from neutron.db.models import agent as agent_model
 from neutron.scheduler import base_resource_filter
 from neutron.scheduler import base_scheduler
 
 from neutron_dynamic_routing._i18n import _LI, _LW
+from neutron_dynamic_routing.api.rpc.callbacks import resources as dr_resources
 from neutron_dynamic_routing.db import bgp_db
 from neutron_dynamic_routing.db import bgp_dragentscheduler_db as bgp_dras_db
 from neutron_dynamic_routing.services.bgp.common import constants as bgp_consts
@@ -123,6 +127,11 @@ class BgpDrAgentFilter(base_resource_filter.BaseResourceFilter):
 
 class BgpDrAgentSchedulerBase(BgpDrAgentFilter):
 
+    def _register_callbacks(self):
+        registry.subscribe(self.schedule_bgp_speaker_callback,
+                           dr_resources.BGP_SPEAKER,
+                           events.AFTER_CREATE)
+
     def schedule_unscheduled_bgp_speakers(self, context, host):
         """Schedule unscheduled BgpSpeaker to a BgpDrAgent.
         """
@@ -178,12 +187,19 @@ class BgpDrAgentSchedulerBase(BgpDrAgentFilter):
             no_agent_binding)
         return [bgp_speaker_id_[0] for bgp_speaker_id_ in query]
 
+    def schedule_bgp_speaker_callback(self, resource, event, trigger, payload):
+        plugin = payload['plugin']
+        if event == events.AFTER_CREATE:
+            ctx = nl_context.get_admin_context()
+            plugin.schedule_bgp_speaker(ctx, payload['bgp_speaker'])
+
 
 class ChanceScheduler(base_scheduler.BaseChanceScheduler,
                       BgpDrAgentSchedulerBase):
 
     def __init__(self):
         super(ChanceScheduler, self).__init__(self)
+        self._register_callbacks()
 
 
 class WeightScheduler(base_scheduler.BaseWeightScheduler,
@@ -191,3 +207,4 @@ class WeightScheduler(base_scheduler.BaseWeightScheduler,
 
     def __init__(self):
         super(WeightScheduler, self).__init__(self)
+        self._register_callbacks()
