@@ -7,9 +7,6 @@
 # q-dr-agent -  Add this config flag indicate that dynamic routing agent
 #               will be running
 
-# This enables BGP extension
-NETWORK_API_EXTENSIONS=all
-
 # This can be overridden in the localrc file
 DR_MODE=${DR_MODE:-allinone}
 
