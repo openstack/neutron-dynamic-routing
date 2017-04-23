@@ -112,6 +112,7 @@ then
 elif [[ "$VENV" == dsvm-api* ]]
 then
     configure_docker_test_env
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"NETWORK_API_EXTENSIONS=all"
 
     $GATE_DEST/devstack-gate/devstack-vm-gate.sh
 
@@ -121,6 +122,7 @@ then
     sudo apt-get install -y --reinstall apparmor
     configure_docker_test_env
     check_apparmor_for_docker
+    DEVSTACK_LOCAL_CONFIG+=$'\n'"NETWORK_API_EXTENSIONS=all"
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"BGP_SCHEDULER_DRIVER=neutron_dynamic_routing.services.bgp.scheduler.bgp_dragent_scheduler.ChanceScheduler"
 
     do_devstack_gate
