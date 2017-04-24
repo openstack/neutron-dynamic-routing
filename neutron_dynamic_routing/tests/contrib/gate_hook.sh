@@ -76,7 +76,7 @@ function configure_docker_test_env {
         sudo pip install -c https://git.openstack.org/cgit/openstack/requirements/plain/upper-constraints.txt ryu
     fi
     RYU_PATH=`pip show ryu | grep Location | cut -d' ' -f2`/ryu
-    sudo usermod -aG sudo tempest
+    sudo bash -c 'echo "tempest ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers'
     bash $RYU_PATH/tests/integrated/common/install_docker_test_pkg.sh --sudo-pip
 }
 
