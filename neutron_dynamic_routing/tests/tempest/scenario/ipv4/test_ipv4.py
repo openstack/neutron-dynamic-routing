@@ -82,7 +82,7 @@ class BgpSpeakerIpv4Test(test_base.BgpSpeakerProtoTestBase):
                                    end_ip='192.168.10.254',
                                    self_ip=True,
                                    fixed_ip=cls.public_gw + '/24',
-                                   br_type=ctn_base.BRIDGE_TYPE_OVS)
+                                   br_type=base.BRIDGE_TYPE)
         cls.bridges.append(cls.brdc)
         # This is dummy container object for a dr service.
         # This keeps data which passes to a quagga container.
