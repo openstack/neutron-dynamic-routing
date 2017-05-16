@@ -150,9 +150,9 @@ class NetworkNotBound(n_exc.NotFound):
 
 
 class DuplicateBgpPeerIpException(n_exc.Conflict):
-    _message = _("BGP Speaker %(bgp_speaker_id)s is already configured to "
-                 "peer with a BGP Peer at %(peer_ip)s, it cannot peer with "
-                 "BGP Peer %(bgp_peer_id)s.")
+    message = _("BGP Speaker %(bgp_speaker_id)s is already configured to "
+                "peer with a BGP Peer at %(peer_ip)s, it cannot peer with "
+                "BGP Peer %(bgp_peer_id)s.")
 
 
 class InvalidBgpPeerMd5Authentication(n_exc.BadRequest):
