@@ -155,21 +155,7 @@ class BgpEntityCreationMixin(object):
                     yield router, ext_net, int_net
 
 
-class BgpTests(test_plugin.Ml2PluginV2TestCase,
-               BgpEntityCreationMixin):
-    fmt = 'json'
-
-    def setup_parent(self):
-        self.l3_plugin = ('neutron_dynamic_routing.tests.unit.db.test_bgp_db.'
-                          'TestL3Plugin')
-        super(BgpTests, self).setup_parent()
-
-    def setUp(self):
-        super(BgpTests, self).setUp()
-        self.l3plugin = directory.get_plugin(n_const.L3)
-        self.bgp_plugin = bgp_plugin.BgpPlugin()
-        self.plugin = directory.get_plugin()
-
+class BgpTests(BgpEntityCreationMixin):
     @contextlib.contextmanager
     def subnetpool_with_address_scope(self, ip_version, prefixes=None,
                                       shared=False, admin=True,
@@ -1314,3 +1300,19 @@ class BgpTests(test_plugin.Ml2PluginV2TestCase,
 
     def test__get_fip_next_hop_dvr(self):
         self._test__get_fip_next_hop(distributed=True)
+
+
+class Ml2BgpTests(test_plugin.Ml2PluginV2TestCase,
+                  BgpTests):
+    fmt = 'json'
+
+    def setup_parent(self):
+        self.l3_plugin = ('neutron_dynamic_routing.tests.unit.db.test_bgp_db.'
+                          'TestL3Plugin')
+        super(Ml2BgpTests, self).setup_parent()
+
+    def setUp(self):
+        super(Ml2BgpTests, self).setUp()
+        self.l3plugin = directory.get_plugin(n_const.L3)
+        self.bgp_plugin = bgp_plugin.BgpPlugin()
+        self.plugin = directory.get_plugin()
