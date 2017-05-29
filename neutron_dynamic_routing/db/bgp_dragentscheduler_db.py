@@ -22,6 +22,7 @@ from sqlalchemy import orm
 from sqlalchemy.orm import exc
 
 from neutron.db import agentschedulers_db as as_db
+from neutron.db import api as db_api
 from neutron.db.models import agent as agent_model
 
 from neutron_dynamic_routing._i18n import _
@@ -101,7 +102,7 @@ class BgpDrAgentSchedulerDbMixin(bgp_dras_ext.BgpDrSchedulerPluginBase,
 
     def _save_bgp_speaker_dragent_binding(self, context,
                                           agent_id, speaker_id):
-        with context.session.begin(subtransactions=True):
+        with db_api.context_manager.writer.using(context):
             agent_db = self._get_agent(context, agent_id)
             agent_up = agent_db['admin_state_up']
             is_agent_bgp = (agent_db['agent_type'] ==
@@ -117,7 +118,7 @@ class BgpDrAgentSchedulerDbMixin(bgp_dras_ext.BgpDrSchedulerPluginBase,
         self._bgp_rpc.bgp_speaker_created(context, speaker_id, agent_db.host)
 
     def remove_bgp_speaker_from_dragent(self, context, agent_id, speaker_id):
-        with context.session.begin(subtransactions=True):
+        with db_api.context_manager.writer.using(context):
             agent_db = self._get_agent(context, agent_id)
             is_agent_bgp = (agent_db['agent_type'] ==
                             bgp_consts.AGENT_TYPE_BGP_ROUTING)
