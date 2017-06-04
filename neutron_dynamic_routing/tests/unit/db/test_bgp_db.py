@@ -101,6 +101,14 @@ class BgpEntityCreationMixin(object):
         pass
 
     @contextlib.contextmanager
+    def gw_network(self, name='ext-net', external=False, **kwargs):
+        with self.network(name=name, **kwargs) as gw_network:
+            if external:
+                self._update('networks', gw_network['network']['id'],
+                             {'network': {external_net.EXTERNAL: True}})
+            yield gw_network
+
+    @contextlib.contextmanager
     def router(self, name='bgp-test-router', tenant_id=_uuid(),
                admin_state_up=True, **kwargs):
         request = {'router': {'tenant_id': tenant_id,
@@ -128,7 +136,8 @@ class BgpEntityCreationMixin(object):
         if address_scope:
             subnetpool_args['address_scope_id'] = address_scope['id']
 
-        with self.network() as ext_net, self.network() as int_net,\
+        with self.gw_network(external=True) as ext_net,\
+            self.network() as int_net,\
             self.subnetpool(prefixes, **subnetpool_args) as pool:
             subnetpool_id = pool['subnetpool']['id']
             gw_net_id = ext_net['network']['id']
@@ -140,8 +149,6 @@ class BgpEntityCreationMixin(object):
                             cidr=tenant_prefix,
                             subnetpool_id=subnetpool_id,
                             ip_version=tenant_ip_net.version) as int_subnet:
-                self._update('networks', gw_net_id,
-                             {'network': {external_net.EXTERNAL: True}})
                 ext_gw_info = {'network_id': gw_net_id}
                 with self.router(external_gateway_info=ext_gw_info,
                                  distributed=distributed,
@@ -392,7 +399,7 @@ class BgpTests(BgpEntityCreationMixin):
         with self.subnetpool_with_address_scope(4,
                                                 prefixes=['8.0.0.0/8']) as sp:
             with self.bgp_speaker(sp['ip_version'], 1234) as speaker,\
-                self.network() as network:
+                self.gw_network() as network:
                 network_id = network['network']['id']
                 self.bgp_plugin.add_gateway_network(self.context,
                                                    speaker['id'],
@@ -404,21 +411,18 @@ class BgpTests(BgpEntityCreationMixin):
 
     def test_create_bgp_speaker_with_network(self):
         with self.subnetpool_with_address_scope(4,
-                                                prefixes=['8.0.0.0/8']) as sp:
-            network = self.plugin.create_network(self.context,
-                                                {'network':
-                                                    {'name': 'test-net',
-                                                     'tenant_id': _uuid(),
-                                                     'admin_state_up': True,
-                                                     'shared': True}})
+                                                prefixes=['8.0.0.0/8']) as sp,\
+            self.gw_network(name='test-net', tenant_id=_uuid(),
+                            shared=True) as network:
+            network_id = network['network']['id']
             with self.bgp_speaker(sp['ip_version'], 1234,
-                                  networks=[network['id']]) as speaker:
+                                  networks=[network_id]) as speaker:
                 self.assertEqual(1, len(speaker['networks']))
-                self.assertTrue(network['id'] in speaker['networks'])
+                self.assertTrue(network_id in speaker['networks'])
 
     def test_remove_gateway_network(self):
-        with self.network() as network1,\
-            self.network() as network2,\
+        with self.gw_network() as network1,\
+            self.gw_network() as network2,\
             self.subnetpool_with_address_scope(4,
                                                prefixes=['8.0.0.0/8']) as sp:
             network1_id = network1['network']['id']
@@ -458,7 +462,7 @@ class BgpTests(BgpEntityCreationMixin):
                                                 prefixes=['8.0.0.0/8']) as sp:
             with self.bgp_speaker(sp['ip_version'], 1234) as speaker1,\
                 self.bgp_speaker(sp['ip_version'], 4321) as speaker2,\
-                self.network() as network:
+                self.gw_network() as network:
                 network_id = network['network']['id']
                 self.bgp_plugin.add_gateway_network(self.context,
                                                    speaker1['id'],
@@ -496,8 +500,8 @@ class BgpTests(BgpEntityCreationMixin):
             self.subnetpool_with_address_scope(4,
                                                prefixes=prefixes3,
                                                tenant_id=tenant_id) as sp3,\
-            self.network() as network1, self.network() as network2,\
-            self.network() as network3:
+            self.gw_network() as network1, self.gw_network() as network2,\
+            self.gw_network() as network3:
             network1_id = network1['network']['id']
             network2_id = network2['network']['id']
             network3_id = network3['network']['id']
@@ -708,12 +712,11 @@ class BgpTests(BgpEntityCreationMixin):
                                        prefixes=[binding_cidr]) as ext_pool,\
             self.subnetpool_with_address_scope(6, tenant_id=_uuid(),
                                        prefixes=[tenant_cidr]) as int_pool,\
-            self.network() as ext_net, self.network() as int_net:
+            self.gw_network(external=True) as ext_net,\
+            self.network() as int_net:
             gw_net_id = ext_net['network']['id']
             ext_pool_id = ext_pool['id']
             int_pool_id = int_pool['id']
-            self._update('networks', gw_net_id,
-                         {'network': {external_net.EXTERNAL: True}})
             with self.subnet(cidr=None,
                              subnetpool_id=ext_pool_id,
                              network=ext_net,
@@ -1080,11 +1083,10 @@ class BgpTests(BgpEntityCreationMixin):
                 self.assertTrue(fip_prefix_found)
 
     def test__bgp_speakers_for_gateway_network_by_ip_version(self):
-        with self.network() as ext_net, self.bgp_speaker(6, 1234) as s1,\
+        with self.gw_network(external=True) as ext_net,\
+            self.bgp_speaker(6, 1234) as s1,\
             self.bgp_speaker(6, 4321) as s2:
             gw_net_id = ext_net['network']['id']
-            self._update('networks', gw_net_id,
-                         {'network': {external_net.EXTERNAL: True}})
             self.bgp_plugin.add_gateway_network(self.context,
                                                 s1['id'],
                                                 {'network_id': gw_net_id})
@@ -1098,11 +1100,10 @@ class BgpTests(BgpEntityCreationMixin):
             self.assertEqual(2, len(speakers))
 
     def test__bgp_speakers_for_gateway_network_by_ip_version_no_binding(self):
-        with self.network() as ext_net, self.bgp_speaker(6, 1234),\
+        with self.gw_network(external=True) as ext_net,\
+            self.bgp_speaker(6, 1234),\
             self.bgp_speaker(6, 4321):
             gw_net_id = ext_net['network']['id']
-            self._update('networks', gw_net_id,
-                         {'network': {external_net.EXTERNAL: True}})
             speakers = self.bgp_plugin._bgp_speakers_for_gw_network_by_family(
                                                                  self.context,
                                                                  gw_net_id,
