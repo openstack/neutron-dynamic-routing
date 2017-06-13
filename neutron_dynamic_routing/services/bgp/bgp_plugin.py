@@ -52,6 +52,7 @@ class BgpPlugin(service_base.ServicePluginBase,
             cfg.CONF.bgp_drscheduler_driver)
         self._setup_rpc()
         self._register_callbacks()
+        self.add_periodic_dragent_status_check()
 
     def get_plugin_name(self):
         return PLUGIN_NAME

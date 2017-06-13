@@ -66,12 +66,15 @@ class TestBgpDrAgentSchedulerBaseTestCase(testlib_api.SqlTestCase):
                                 'networks': []}}
         cls._save_bgp_speaker(self.ctx, bgp_speaker_body, uuid=bgp_speaker_id)
 
+    def _get_dragent_bgp_speaker_bindings(self, bgp_speaker_id):
+        return self.ctx.session.query(
+            bgp_dras_db.BgpSpeakerDrAgentBinding).filter_by(
+            bgp_speaker_id=bgp_speaker_id).all()
+
     def _test_schedule_bind_bgp_speaker(self, agents, bgp_speaker_id):
         scheduler = bgp_dras.ChanceScheduler()
         scheduler.resource_filter.bind(self.ctx, agents, bgp_speaker_id)
-        results = self.ctx.session.query(
-            bgp_dras_db.BgpSpeakerDrAgentBinding).filter_by(
-            bgp_speaker_id=bgp_speaker_id).all()
+        results = self._get_dragent_bgp_speaker_bindings(bgp_speaker_id)
 
         for result in results:
             self.assertEqual(bgp_speaker_id, result.bgp_speaker_id)
@@ -289,3 +292,63 @@ class TestAutoScheduleBgpSpeakers(TestBgpDrAgentSchedulerBaseTestCase):
         hosted_agents = self.ctx.session.query(
             bgp_dras_db.BgpSpeakerDrAgentBinding).all()
         self.assertEqual(expected_hosted_agents, len(hosted_agents))
+
+
+class TestRescheduleBgpSpeaker(TestBgpDrAgentSchedulerBaseTestCase,
+                               bgp_db.BgpDbMixin):
+
+    def setUp(self):
+        super(TestRescheduleBgpSpeaker, self).setUp()
+        bgp_notify_p = mock.patch('neutron_dynamic_routing.api.rpc.'
+                                  'agentnotifiers.bgp_dr_rpc_agent_api.'
+                                  'BgpDrAgentNotifyApi')
+        bgp_notify_p.start()
+        rpc_conn_p = mock.patch('neutron.common.rpc.create_connection')
+        rpc_conn_p.start()
+        admin_ctx_p = mock.patch('neutron_lib.context.get_admin_context')
+        self.admin_ctx_m = admin_ctx_p.start()
+        self.admin_ctx_m.return_value = self.ctx
+        self.plugin = bgp_plugin.BgpPlugin()
+        self.scheduler = bgp_dras.ChanceScheduler()
+        self.host1 = 'host-a'
+        self.host2 = 'host-b'
+
+    def _kill_bgp_dragent(self, hosts):
+        agents = []
+        for host in hosts:
+            agents.append(
+                helpers.register_bgp_dragent(host=host, alive=False))
+        return agents
+
+    def _schedule_bind_bgp_speaker(self, agents, bgp_speaker_id):
+        self.scheduler.resource_filter.bind(self.ctx, agents, bgp_speaker_id)
+        return self._get_dragent_bgp_speaker_bindings(bgp_speaker_id)
+
+    def test_reschedule_bgp_speaker_bound_to_down_dragent(self):
+        agents = self._create_and_set_agents_down([self.host1, self.host2])
+        self._schedule_bind_bgp_speaker([agents[0]], self.bgp_speaker_id)
+        self._kill_bgp_dragent([self.host1])
+        self.plugin.remove_bgp_speaker_from_down_dragents()
+        binds = self._get_dragent_bgp_speaker_bindings(self.bgp_speaker_id)
+        self.assertEqual(binds[0].agent_id, agents[1].id)
+
+    def test_no_schedule_with_non_available_dragent(self):
+        agents = self._create_and_set_agents_down([self.host1, self.host2])
+        self._schedule_bind_bgp_speaker([agents[0]], self.bgp_speaker_id)
+        self._kill_bgp_dragent([self.host1, self.host2])
+        self.plugin.remove_bgp_speaker_from_down_dragents()
+        binds = self._get_dragent_bgp_speaker_bindings(self.bgp_speaker_id)
+        self.assertEqual(binds, [])
+
+    def test_schedule_unbind_bgp_speaker(self):
+        agents = self._create_and_set_agents_down([self.host1, self.host2])
+        self._schedule_bind_bgp_speaker([agents[0]], self.bgp_speaker_id)
+        self._kill_bgp_dragent([self.host1, self.host2])
+        self.plugin.remove_bgp_speaker_from_down_dragents()
+        binds = self._get_dragent_bgp_speaker_bindings(self.bgp_speaker_id)
+        self.assertEqual(binds, [])
+        # schedule a unbind bgp speaker
+        agents = self._create_and_set_agents_down([self.host1])
+        self.scheduler.schedule_all_unscheduled_bgp_speakers(self.ctx)
+        binds = self._get_dragent_bgp_speaker_bindings(self.bgp_speaker_id)
+        self.assertEqual(binds[0].agent_id, agents[0].id)
