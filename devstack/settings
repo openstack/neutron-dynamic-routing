@@ -27,13 +27,25 @@ DR_MODE=${DR_MODE:-allinone}
 
 case $DR_MODE in
     allinone)
-        enable_service q-dr q-dr-agent
+        if is_neutron_legacy_enabled; then
+            enable_service q-dr q-dr-agent
+        else
+            enable_service neutron-dr neutron-dr-agent
+        fi
         ;;
     dr_plugin)
-        enable_service q-dr
+        if is_neutron_legacy_enabled; then
+            enable_service q-dr
+        else
+            enable_service neutron-dr
+        fi
         ;;
     dr_agent)
-        enable_service q-dr-agent
+        if is_neutron_legacy_enabled; then
+            enable_service q-dr-agent
+        else
+            enable_service neutron-dr-agent
+        fi
         ;;
 esac
 

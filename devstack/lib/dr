@@ -43,12 +43,9 @@ function configure_dr_agent_scheduler_driver {
 
 function dr_install {
     setup_develop $NEUTRON_DYNAMIC_ROUTING_DIR
-    if is_service_enabled q-dr && is_service_enabled q-svc; then
+    if is_service_enabled q-dr neutron-dr && is_service_enabled q-svc neutron-api; then
         sudo install -d -o $STACK_USER $NEUTRON_CONF_DIR/policy.d
         cp -v $NEUTRON_DYNAMIC_ROUTING_DIR/etc/neutron/policy.d/dynamic_routing.conf $NEUTRON_CONF_DIR/policy.d
-        if is_protocol_enabled BGP; then
-            _neutron_service_plugin_class_add $BGP_PLUGIN
-        fi
     fi
 }
 
@@ -62,7 +59,12 @@ function dr_generate_config_files {
 }
 
 function dr_post_configure {
-    if is_service_enabled q-dr-agent; then
+    if is_service_enabled q-dr neutron-dr && is_service_enabled q-svc neutron-api; then
+        if is_protocol_enabled BGP; then
+            neutron_service_plugin_class_add $BGP_PLUGIN
+        fi
+    fi
+    if is_service_enabled q-dr-agent neutron-dr-agent; then
         dr_generate_config_files
         if is_protocol_enabled BGP; then
             configure_dr_agent_bgp_config
@@ -85,8 +87,14 @@ function start_dr_agent {
     fi
 
     agent_process=$process$bgp_parameter
-    if is_service_enabled q-dr-agent; then
-        run_process q-dr-agent "$agent_process"
+    if is_neutron_legacy_enabled; then
+        if is_service_enabled q-dr-agent; then
+            run_process q-dr-agent "$agent_process"
+        fi
+    else
+        if is_service_enabled neutron-dr-agent; then
+            run_process neutron-dr-agent "$agent_process"
+        fi
     fi
 }
 
@@ -96,5 +104,9 @@ function start_dr_agent {
 
 #This API will be called for unstack
 function stop_dr_agent {
-    stop_process q-dr-agent
+    if is_neutron_legacy_enabled; then
+        stop_process q-dr-agent
+    else
+        stop_process neutron-dr-agent
+    fi
 }
