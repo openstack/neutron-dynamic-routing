@@ -20,6 +20,7 @@ from oslo_config import cfg
 from neutron_lib.api.definitions import portbindings
 from neutron_lib import constants as n_const
 from neutron_lib import exceptions as n_exc
+from neutron_lib.plugins import constants as plugin_constants
 from neutron_lib.plugins import directory
 from oslo_utils import uuidutils
 
@@ -1314,6 +1315,6 @@ class Ml2BgpTests(test_plugin.Ml2PluginV2TestCase,
 
     def setUp(self):
         super(Ml2BgpTests, self).setUp()
-        self.l3plugin = directory.get_plugin(n_const.L3)
+        self.l3plugin = directory.get_plugin(plugin_constants.L3)
         self.bgp_plugin = bgp_plugin.BgpPlugin()
         self.plugin = directory.get_plugin()
