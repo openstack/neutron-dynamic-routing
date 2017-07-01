@@ -117,7 +117,7 @@ Optional Arguments
   repeat this option.
 
 BGP Speaker Show
-----------------
+~~~~~~~~~~~~~~~~
 
 .. code-block:: console
 

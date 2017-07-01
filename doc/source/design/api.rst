@@ -32,7 +32,8 @@ in neutron. Using the ReST interface, a cloud administrator can define routing
 peers and advertise neutron routes outside the OpenStack domain.
 
 .. note::
- Currently, only the support for BGP dynamic routing protocol is available.
+
+   Currently, only the support for BGP dynamic routing protocol is available.
 
 Data Model
 ----------
@@ -86,7 +87,8 @@ Different ReST interface are exposed for realizing different dynamic protocol
 functionality.
 
 .. note::
-Only an administrator have the access to the exposed API's.
+
+   Only an administrator have the access to the exposed API's.
 
 
 BGP

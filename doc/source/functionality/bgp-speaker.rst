@@ -83,6 +83,7 @@ One needs to ensure below points for setting a BGP connection.
       automatically as the highest IP address configured for the local interfaces.
       Just a suggestion, please make sure that it is the same as the ``peer_ip``
       which you configure in Neutron for distinguishing easily.
+
  ``local_as``
      Autonomous System number can be same or different from the AS_id of external
      BGP router. AS_id will be same for iBGP and different for eBGP sessions.
@@ -150,12 +151,12 @@ Then the following operation could be done.
   The same logic with below, but it is reverse.
 
 If you don't want use the specific BGP Speaker anymore, you can use CLI:
-  ``neutron bgp-speaker-delete <SPEAKER NAME/ID>``
+``neutron bgp-speaker-delete <SPEAKER NAME/ID>``
 
 BGP Plugin will find all the associated Dragent and send RPC ``bgp_speaker_remove_end``
 to make the Dragents to clean the ``BGP Speaker`` instances. This is the same
 with CLI:
- ``neutron bgp-dragent-speaker-remove <DRAGENT ID> <SPEAKER NAME/ID>``
+``neutron bgp-dragent-speaker-remove <DRAGENT ID> <SPEAKER NAME/ID>``
 BGP Plugin just send rpc ``bgp_speaker_remove_end`` to the specific Dragent.
 
 Advertisement
