@@ -22,7 +22,14 @@
       '''''''  Heading 4
       (Avoid deeper levels because they do not render well.)
 
-============
-Contributing
-============
-.. include:: ../../CONTRIBUTING.rst
+====================
+Administration Guide
+====================
+
+.. toctree::
+    :maxdepth: 2
+
+    system-design
+    bgp-speaker
+    route-advertisement
+    agent-scheduler

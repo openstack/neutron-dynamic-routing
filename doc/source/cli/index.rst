@@ -22,10 +22,22 @@
       '''''''  Heading 4
       (Avoid deeper levels because they do not render well.)
 
-=====
-Usage
-=====
+Command-Line Interface
+======================
 
-To use neutron-dynamic-routing in a project::
+Neutron client has provided the command-line interfaces (CLI) to realize dynamic routing
+services supported by neutron-dynamic-routing project.
 
-    import neutron_dynamic_routing
+Current implementation only supports the command line interfaces for BGP functionality.
+For query on what specific :command:`neutron bgp` commands are supported,
+enter:
+
+.. code-block:: console
+
+    $ neutron help | grep bgp
+
+.. toctree::
+   :maxdepth: 2
+   :glob:
+
+   *

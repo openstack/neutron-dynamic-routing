@@ -22,26 +22,7 @@
       '''''''  Heading 4
       (Avoid deeper levels because they do not render well.)
 
-===================================================
-Welcome to neutron-dynamic-routing's documentation!
-===================================================
-
-.. include:: ../../README.rst
-
-Contents
-========
-
-.. toctree::
-    :maxdepth: 2
-
-    install/index
-    admin/index
-    reference/index
-    cli/index
-    contributor/index
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`search`
+============
+Contributing
+============
+.. include:: ../../../CONTRIBUTING.rst

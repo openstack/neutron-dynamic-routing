@@ -22,6 +22,7 @@
       '''''''  Heading 4
       (Avoid deeper levels because they do not render well.)
 
+=====
 Agent
 =====
 
@@ -90,4 +91,4 @@ Here is an example to associate/disassociate a BGP Speaker to/from a DRAgent.
 .. note:: Currently, auto-scheduling is not supported.
 
 ReST API's for neutron-dynamic-routing scheduler is defined in the
-API document :doc:`api`
+API document :doc:`/reference/index`
