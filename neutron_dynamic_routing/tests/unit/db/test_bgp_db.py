@@ -13,21 +13,20 @@
 # under the License.
 
 import contextlib
+
 import mock
 import netaddr
-from oslo_config import cfg
-
+from neutron.db import l3_dvr_ha_scheduler_db
+from neutron.extensions import external_net
+from neutron.tests.unit.extensions import test_l3
+from neutron.tests.unit.plugins.ml2 import test_plugin
 from neutron_lib.api.definitions import portbindings
 from neutron_lib import constants as n_const
 from neutron_lib import exceptions as n_exc
 from neutron_lib.plugins import constants as plugin_constants
 from neutron_lib.plugins import directory
+from oslo_config import cfg
 from oslo_utils import uuidutils
-
-from neutron.db import l3_dvr_ha_scheduler_db
-from neutron.extensions import external_net
-from neutron.tests.unit.extensions import test_l3
-from neutron.tests.unit.plugins.ml2 import test_plugin
 
 from neutron_dynamic_routing.extensions import bgp
 from neutron_dynamic_routing.services.bgp import bgp_plugin

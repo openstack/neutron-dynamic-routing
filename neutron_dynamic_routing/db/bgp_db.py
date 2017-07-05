@@ -13,20 +13,8 @@
 # under the License.
 
 import itertools
+
 import netaddr
-
-from oslo_db import exception as oslo_db_exc
-from oslo_utils import uuidutils
-import sqlalchemy as sa
-from sqlalchemy import and_
-from sqlalchemy import orm
-from sqlalchemy.orm import aliased
-from sqlalchemy.orm import exc as sa_exc
-
-from neutron_lib.api import validators
-from neutron_lib import constants as lib_consts
-from neutron_lib.db import model_base
-from neutron_lib import exceptions as n_exc
 
 from neutron.db import api as db_api
 from neutron.db import common_db_mixin as common_db
@@ -37,6 +25,18 @@ from neutron.db.models import l3_attrs as l3_attrs_db
 from neutron.db import models_v2
 from neutron.extensions import l3 as l3_ext
 from neutron.plugins.ml2 import models as ml2_models
+
+from neutron_lib.api import validators
+from neutron_lib import constants as lib_consts
+from neutron_lib.db import model_base
+from neutron_lib import exceptions as n_exc
+from oslo_db import exception as oslo_db_exc
+from oslo_utils import uuidutils
+import sqlalchemy as sa
+from sqlalchemy import and_
+from sqlalchemy import orm
+from sqlalchemy.orm import aliased
+from sqlalchemy.orm import exc as sa_exc
 
 from neutron_dynamic_routing._i18n import _
 from neutron_dynamic_routing.extensions import bgp as bgp_ext
