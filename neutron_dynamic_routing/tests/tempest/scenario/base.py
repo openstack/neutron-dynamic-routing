@@ -38,6 +38,7 @@ AS = collections.namedtuple('AS', 'asn, router_id, adv_net')
 CHECKTIME = 180
 CHECKTIME_INFO = 60
 CHECKTIME_INT = 1
+BRIDGE_TYPE = ctn_base.BRIDGE_TYPE_DOCKER
 
 
 def _setup_client_args(auth_provider):

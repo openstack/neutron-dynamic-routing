@@ -71,13 +71,16 @@ EOF
 }
 
 function configure_docker_test_env {
-    if ! pip freeze | grep ryu > /dev/null
-    then
-        sudo pip install -c https://git.openstack.org/cgit/openstack/requirements/plain/upper-constraints.txt ryu
-    fi
-    RYU_PATH=`pip show ryu | grep Location | cut -d' ' -f2`/ryu
+    local docker_pkg
+
     sudo bash -c 'echo "tempest ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers'
-    bash $RYU_PATH/tests/integrated/common/install_docker_test_pkg.sh --sudo-pip
+    sudo apt-get update
+    if apt-cache search docker-engine | grep docker-engine; then
+        docker_pkg=docker-engine
+    else
+        docker_pkg=docker.io
+    fi
+    sudo apt-get install -y $docker_pkg
 }
 
 function do_devstack_gate {
@@ -111,9 +114,7 @@ then
 
 elif [[ "$VENV" == dsvm-api* ]]
 then
-    configure_docker_test_env
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"NETWORK_API_EXTENSIONS=all"
-
     $GATE_DEST/devstack-gate/devstack-vm-gate.sh
 
 elif [[ "$VENV" == dsvm-scenario* ]]
