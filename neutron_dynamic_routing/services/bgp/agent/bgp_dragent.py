@@ -46,7 +46,7 @@ class BgpDrAgent(manager.Manager):
     api.rpc.agentnotifiers.bgp_dr_rpc_agent_api.BgpDrAgentNotifyApi as the
     client side to execute the methods here. For more information about
     changing rpc interfaces, see
-    http://docs.openstack.org/developer/neutron/devref/rpc_api.html.
+    https://docs.openstack.org/neutron/latest/contributor/internals/rpc_api.html.
 
     API version history:
         1.0 initial Version

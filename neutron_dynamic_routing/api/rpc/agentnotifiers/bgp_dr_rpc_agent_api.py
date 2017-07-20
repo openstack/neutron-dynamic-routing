@@ -26,7 +26,7 @@ class BgpDrAgentNotifyApi(object):
     This class implements the client side of an rpc interface.  The server side
     is neutron_dynamic_routing.services.bgp.agent.bgp_dragent.BgpDrAgent. For
     more information about rpc interfaces, please see
-    http://docs.openstack.org/developer/neutron/devref/rpc_api.html.
+    https://docs.openstack.org/neutron/latest/contributor/internals/rpc_api.html.
     """
 
     def __init__(self, topic=bgp_consts.BGP_DRAGENT):

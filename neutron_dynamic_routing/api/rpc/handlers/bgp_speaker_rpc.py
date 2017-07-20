@@ -26,7 +26,8 @@ class BgpSpeakerRpcCallback(object):
     The client side of this interface can be found in
     neutron_dynamic_routing.services.bgp.agent.bgp_dragent.BgpDrPluginApi.
     For more information about changing RPC interfaces,
-    see http://docs.openstack.org/developer/neutron/devref/rpc_api.html.
+    see https://docs.openstack.org/neutron/latest/
+    contributor/internals/rpc_api.html.
     """
 
     # API version history:

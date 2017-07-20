@@ -42,7 +42,7 @@ It advertises three classes of routes:
 
 For details refer to `Route Advertisement <../functionality/route-advertisement.html>`_.
 
-Neutron dynamic routing consists of `service plug-in <http://docs.openstack.org/developer/neutron/devref/plugin-api.html>`_
+Neutron dynamic routing consists of `service plug-in <https://docs.openstack.org/neutron/latest/contributor/internals/plugin-api.html>`_
 and agent. The service plug-in implements the Networking service extension and
 the agent manages dynamic routing protocol peering sessions. The plug-in communicates
 with the agent through RPC.
