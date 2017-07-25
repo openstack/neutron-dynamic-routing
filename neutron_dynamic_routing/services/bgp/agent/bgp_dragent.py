@@ -16,6 +16,7 @@
 import collections
 
 from neutron_lib import context
+from neutron_lib.utils import runtime
 from oslo_config import cfg
 from oslo_log import log as logging
 import oslo_messaging
@@ -94,7 +95,7 @@ class BgpDrAgent(manager.Manager):
         self.sync_state(self.context)
         self.periodic_resync(self.context)
 
-    @utils.synchronized('bgp-dragent')
+    @runtime.synchronized('bgp-dragent')
     def sync_state(self, context, full_sync=None, bgp_speakers=None):
         try:
             hosted_bgp_speakers = self.plugin_rpc.get_bgp_speakers(context)
@@ -174,7 +175,7 @@ class BgpDrAgent(manager.Manager):
         LOG.debug("Started periodic resync.")
         self._periodic_resync_helper(context)
 
-    @utils.synchronized('bgp-dr-agent')
+    @runtime.synchronized('bgp-dr-agent')
     def bgp_speaker_create_end(self, context, payload):
         """Handle bgp_speaker_create_end notification event."""
         bgp_speaker_id = payload['bgp_speaker']['id']
@@ -183,7 +184,7 @@ class BgpDrAgent(manager.Manager):
                   {'speaker_id': bgp_speaker_id})
         self.add_bgp_speaker_helper(bgp_speaker_id)
 
-    @utils.synchronized('bgp-dr-agent')
+    @runtime.synchronized('bgp-dr-agent')
     def bgp_speaker_remove_end(self, context, payload):
         """Handle bgp_speaker_remove_end notification event."""
 
@@ -193,7 +194,7 @@ class BgpDrAgent(manager.Manager):
                   {'speaker_id': bgp_speaker_id})
         self.remove_bgp_speaker_from_dragent(bgp_speaker_id)
 
-    @utils.synchronized('bgp-dr-agent')
+    @runtime.synchronized('bgp-dr-agent')
     def bgp_peer_association_end(self, context, payload):
         """Handle bgp_peer_association_end notification event."""
 
@@ -206,7 +207,7 @@ class BgpDrAgent(manager.Manager):
                    'peer_id': bgp_peer_id})
         self.add_bgp_peer_helper(bgp_speaker_id, bgp_peer_id)
 
-    @utils.synchronized('bgp-dr-agent')
+    @runtime.synchronized('bgp-dr-agent')
     def bgp_peer_disassociation_end(self, context, payload):
         """Handle bgp_peer_disassociation_end notification event."""
 
@@ -219,7 +220,7 @@ class BgpDrAgent(manager.Manager):
                    'peer_ip': bgp_peer_ip})
         self.remove_bgp_peer_from_bgp_speaker(bgp_speaker_id, bgp_peer_ip)
 
-    @utils.synchronized('bgp-dr-agent')
+    @runtime.synchronized('bgp-dr-agent')
     def bgp_routes_advertisement_end(self, context, payload):
         """Handle bgp_routes_advertisement_end notification event."""
 
@@ -230,7 +231,7 @@ class BgpDrAgent(manager.Manager):
         routes = payload['advertise_routes']['routes']
         self.add_routes_helper(bgp_speaker_id, routes)
 
-    @utils.synchronized('bgp-dr-agent')
+    @runtime.synchronized('bgp-dr-agent')
     def bgp_routes_withdrawal_end(self, context, payload):
         """Handle bgp_routes_withdrawal_end notification event."""
 
