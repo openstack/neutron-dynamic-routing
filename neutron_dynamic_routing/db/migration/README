@@ -1,2 +1,2 @@
 For details refer to:
-http://docs.openstack.org/developer/neutron/devref/alembic_migrations.html#independent-sub-project-tables
+https://docs.openstack.org/neutron/latest/contributor/alembic_migrations.html#independent-sub-project-tables
