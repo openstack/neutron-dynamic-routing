@@ -255,7 +255,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
         with db_api.context_manager.reader.using(context):
             query = context.session.query(BgpPeer)
             query = query.filter(*filters)
-            return [self._make_bgp_peer_dict(x) for x in query.all()]
+            return [self._make_bgp_peer_dict(x, fields) for x in query.all()]
 
     def get_bgp_peer(self, context, bgp_peer_id, fields=None):
         bgp_peer_db = self._get_bgp_peer(context, bgp_peer_id)
