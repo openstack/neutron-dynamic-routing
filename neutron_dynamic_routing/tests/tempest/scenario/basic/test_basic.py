@@ -35,8 +35,7 @@ class BgpSpeakerBasicTest(base.BgpSpeakerBasicTestJSONBase):
         TNet = s_base.Net(name='', net=subnet, mask=self.TPool.prefixlen,
                           cidr=subnet + mask, router=None)
         TSubNet = s_base.SubNet(name='', cidr=TNet.cidr, mask=TNet.mask)
-        MyRouter = s_base.Router(name='my-router' + str(num), gw='',
-                                 dist=False)
+        MyRouter = s_base.Router(name='my-router' + str(num), gw='')
         ext_net_id = self.create_bgp_network(
             4, self.MyScope,
             self.PNet, self.PPool, self.PSubNet,
@@ -56,8 +55,7 @@ class BgpSpeakerBasicTest(base.BgpSpeakerBasicTestJSONBase):
         TNet = s_base.Net(name='', net=subnet, mask=self.TPool.prefixlen,
                           cidr=subnet + mask, router=None)
         TSubNet = s_base.SubNet(name='', cidr=TNet.cidr, mask=TNet.mask)
-        MyRouter = s_base.Router(name='my-router' + str(num), gw='',
-                                 dist=False)
+        MyRouter = s_base.Router(name='my-router' + str(num), gw='')
         ext_net_id = self.create_bgp_network(
             4, self.MyScope,
             self.PNet, self.PPool, self.PSubNet,

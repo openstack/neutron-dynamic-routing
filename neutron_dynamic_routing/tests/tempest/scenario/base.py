@@ -33,7 +33,7 @@ Scope = collections.namedtuple('Scope', 'name')
 Pool = collections.namedtuple('Pool', 'name, prefixlen, prefixes')
 Net = collections.namedtuple('Net', 'name, net, mask, cidr, router')
 SubNet = collections.namedtuple('SubNet', 'name, cidr, mask')
-Router = collections.namedtuple('Router', 'name, gw, dist')
+Router = collections.namedtuple('Router', 'name, gw')
 AS = collections.namedtuple('AS', 'asn, router_id, adv_net')
 CHECKTIME = 180
 CHECKTIME_INFO = 60
@@ -213,8 +213,7 @@ class BgpSpeakerScenarioTestJSONBase(base.BaseAdminNetworkTest):
             ext_gw_info = {'network_id': ext_net_id}
             router_cr = self.admin_client.create_router(
                 router.name,
-                external_gateway_info=ext_gw_info,
-                distributed=router.dist)['router']
+                external_gateway_info=ext_gw_info)['router']
             self.admin_routers.append(router_cr)
             self.admin_client.add_router_interface_with_subnet_id(
                 router_cr['id'],
