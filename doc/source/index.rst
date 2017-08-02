@@ -36,6 +36,7 @@ Contents
 
     install/index
     admin/index
+    configuration/index
     reference/index
     cli/index
     contributor/index
