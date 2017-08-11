@@ -7,5 +7,6 @@
 
    README.rst
    unreleased
+   pike
    ocata
    newton
