@@ -32,7 +32,7 @@ class BgpSpeakerProtoTestBase(base.BgpSpeakerScenarioTestJSONBase):
         TNet = base.Net(name='', net=subnet, mask=self.TPool.prefixlen,
                         cidr=subnet + mask, router=None)
         TSubNet = base.SubNet(name='', cidr=TNet.cidr, mask=TNet.mask)
-        MyRouter = base.Router(name='my-router' + str(num), gw='', dist=False)
+        MyRouter = base.Router(name='my-router' + str(num), gw='')
         ext_net_id = self.create_bgp_network(
             ip_version, self.MyScope,
             self.PNet, self.PPool, self.PSubNet,
@@ -51,7 +51,7 @@ class BgpSpeakerProtoTestBase(base.BgpSpeakerScenarioTestJSONBase):
         TNet = base.Net(name='', net=subnet, mask=self.TPool.prefixlen,
                         cidr=subnet + mask, router=None)
         TSubNet = base.SubNet(name='', cidr=TNet.cidr, mask=TNet.mask)
-        MyRouter = base.Router(name='my-router' + str(num), gw='', dist=False)
+        MyRouter = base.Router(name='my-router' + str(num), gw='')
         ext_net_id = self.create_bgp_network(
             ip_version, self.MyScope,
             self.PNet, self.PPool, self.PSubNet,
@@ -77,8 +77,7 @@ class BgpSpeakerProtoTestBase(base.BgpSpeakerScenarioTestJSONBase):
             TNet = base.Net(name='', net=subnet, mask=self.TPool.prefixlen,
                             cidr=subnet + mask, router=None)
             TSubNet = base.SubNet(name='', cidr=TNet.cidr, mask=TNet.mask)
-            MyRouter = base.Router(name='my-router' + str(num),
-                                   gw='', dist=False)
+            MyRouter = base.Router(name='my-router' + str(num), gw='')
             tnets.append([TNet, TSubNet, MyRouter])
             tnets_cidr.append(TNet.cidr)
         ext_net_id = self.create_bgp_network(
@@ -107,7 +106,7 @@ class BgpSpeakerProtoTestBase(base.BgpSpeakerScenarioTestJSONBase):
         TNet = base.Net(name='', net=subnet, mask=self.TPool.prefixlen,
                         cidr=subnet + mask, router=None)
         TSubNet = base.SubNet(name='', cidr=TNet.cidr, mask=TNet.mask)
-        MyRouter = base.Router(name='my-router' + str(num), gw='', dist=False)
+        MyRouter = base.Router(name='my-router' + str(num), gw='')
         ext_net_id = self.create_bgp_network(
             ip_version, self.MyScope,
             self.PNet, self.PPool, self.PSubNet,
@@ -129,7 +128,7 @@ class BgpSpeakerProtoTestBase(base.BgpSpeakerScenarioTestJSONBase):
         TNet = base.Net(name='', net=subnet, mask=self.TPool.prefixlen,
                         cidr=subnet + mask, router=None)
         TSubNet = base.SubNet(name='', cidr=TNet.cidr, mask=TNet.mask)
-        MyRouter = base.Router(name='my-router' + str(num), gw='', dist=False)
+        MyRouter = base.Router(name='my-router' + str(num), gw='')
         ext_net_id = self.create_bgp_network(
             ip_version, self.MyScope,
             self.PNet, self.PPool, self.PSubNet,
