@@ -158,7 +158,7 @@ Service Test
 
 1. As the dynamic routing is only supported by admin, source the devstack admin credentials::
 
-    $ source devstack/openrc admin admin
+    $ . devstack/openrc admin admin
 
 2. Verify the neutron dynamic routing agent is running.
 
