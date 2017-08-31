@@ -76,7 +76,7 @@ class BgpSpeakerIpv6Test(test_base.BgpSpeakerProtoTestBase):
 
     @classmethod
     def resource_setup_container(cls):
-        cls.brdc = ctn_base.Bridge(name='br-docker',
+        cls.brdc = ctn_base.Bridge(name='br-docker-ipv6',
                                    subnet='2001:db8:a000::/64',
                                    start_ip='2001:db8:a000::8000',
                                    end_ip='2001:db8:a000::fffe',
@@ -88,7 +88,7 @@ class BgpSpeakerIpv6Test(test_base.BgpSpeakerProtoTestBase):
         # This keeps data which passes to a quagga container.
         cls.dr = ctn_base.BGPContainer(name='dr', asn=int(cls.L_AS.asn),
                                        router_id=cls.L_AS.router_id)
-        cls.dr.set_addr_info(bridge='br-docker', ipv6=cls.public_gw)
+        cls.dr.set_addr_info(bridge='br-docker-ipv6', ipv6=cls.public_gw)
         # quagga container
         cls.dockerimg = ctn_base.DockerImage()
         cls.q_img = cls.dockerimg.create_quagga(check_exist=True)
