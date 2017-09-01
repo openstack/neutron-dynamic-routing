@@ -14,6 +14,7 @@
 
 import netaddr
 
+from tempest.common import utils
 from tempest.lib import decorators
 from tempest.lib import exceptions as lib_exc
 
@@ -27,9 +28,12 @@ class BgpSpeakerTestJSONNegative(test_base.BgpSpeakerTestJSONBase):
     @decorators.attr(type=['negative', 'smoke'])
     @decorators.idempotent_id('75e9ee2f-6efd-4320-bff7-ae24741c8b06')
     def test_create_bgp_speaker_illegal_local_asn(self):
+        wrong_asn = 65537
+        if utils.is_extension_enabled('bgp_4byte_asn', 'network'):
+            wrong_asn = 4294967296
         self.assertRaises(lib_exc.BadRequest,
                           self.create_bgp_speaker,
-                          local_as='65537')
+                          local_as=wrong_asn)
 
     @decorators.attr(type=['negative', 'smoke'])
     @decorators.idempotent_id('6742ec2e-382a-4453-8791-13a19b47cd13')

@@ -28,11 +28,11 @@ def validate_as_num(param, as_num):
         raise bgp_driver_exc.InvalidParamType(param=param,
                                               param_type='integer')
 
-    if not (bgp_consts.MIN_ASNUM <= as_num <= bgp_consts.MAX_ASNUM):
-        # Must be in [AS_NUM_MIN, AS_NUM_MAX] range.
+    if not (bgp_consts.MIN_ASNUM <= as_num <= bgp_consts.MAX_4BYTE_ASNUM):
+        # Must be in [AS_NUM_MIN, MAX_4BYTE_ASNUM] range.
         allowed_range = ('[' +
                          str(bgp_consts.MIN_ASNUM) + '-' +
-                         str(bgp_consts.MAX_ASNUM) +
+                         str(bgp_consts.MAX_4BYTE_ASNUM) +
                          ']')
         raise bgp_driver_exc.InvalidParamRange(param=param,
                                                range=allowed_range)

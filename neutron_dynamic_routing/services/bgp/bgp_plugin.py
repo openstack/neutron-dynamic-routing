@@ -32,6 +32,7 @@ from neutron_dynamic_routing.api.rpc.handlers import bgp_speaker_rpc as bs_rpc
 from neutron_dynamic_routing.db import bgp_db
 from neutron_dynamic_routing.db import bgp_dragentscheduler_db
 from neutron_dynamic_routing.extensions import bgp as bgp_ext
+from neutron_dynamic_routing.extensions import bgp_4byte_asn
 from neutron_dynamic_routing.extensions import bgp_dragentscheduler as dras_ext
 from neutron_dynamic_routing.services.bgp.common import constants as bgp_consts
 
@@ -44,7 +45,8 @@ class BgpPlugin(service_base.ServicePluginBase,
                 bgp_dragentscheduler_db.BgpDrAgentSchedulerDbMixin):
 
     supported_extension_aliases = [bgp_ext.BGP_EXT_ALIAS,
-                                   dras_ext.BGP_DRAGENT_SCHEDULER_EXT_ALIAS]
+                                   dras_ext.BGP_DRAGENT_SCHEDULER_EXT_ALIAS,
+                                   bgp_4byte_asn.BGP_4BYTE_ASN_EXT_ALIAS]
 
     def __init__(self):
         super(BgpPlugin, self).__init__()

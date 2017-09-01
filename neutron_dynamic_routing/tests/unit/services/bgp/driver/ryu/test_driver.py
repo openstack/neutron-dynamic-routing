@@ -191,7 +191,9 @@ class TestRyuBgpDriver(base.BaseTestCase):
         self.assertRaises(bgp_driver_exc.InvalidParamRange,
                           self.ryu_bgp_driver.add_bgp_speaker, -1)
         self.assertRaises(bgp_driver_exc.InvalidParamRange,
-                          self.ryu_bgp_driver.add_bgp_speaker, 65536)
+                          self.ryu_bgp_driver.add_bgp_speaker, 4294967296)
+        # valid when enables 4 byte AS number
+        self.ryu_bgp_driver.add_bgp_speaker(65536)
 
     def test_add_bgp_peer_with_invalid_paramtype(self):
         # Test with an invalid asnum data-type
@@ -237,7 +239,9 @@ class TestRyuBgpDriver(base.BaseTestCase):
                           FAKE_LOCAL_AS1, FAKE_PEER_IP, -1)
         self.assertRaises(bgp_driver_exc.InvalidParamRange,
                           self.ryu_bgp_driver.add_bgp_peer,
-                          FAKE_LOCAL_AS1, FAKE_PEER_IP, 65536)
+                          FAKE_LOCAL_AS1, FAKE_PEER_IP, 4294967296)
+        # valid when enables 4 byte AS number
+        self.ryu_bgp_driver.add_bgp_peer(FAKE_LOCAL_AS1, FAKE_PEER_IP, 65536)
 
     def test_add_bgp_peer_without_adding_speaker(self):
         self.assertRaises(bgp_driver_exc.BgpSpeakerNotAdded,

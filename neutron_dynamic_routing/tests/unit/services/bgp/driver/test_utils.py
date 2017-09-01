@@ -52,19 +52,19 @@ class TestValidateMethod(base.BaseTestCase):
     def test_validate_as_num_with_invalid_max_range(self):
         allowed_range = ('\[' +
                          str(bgp_consts.MIN_ASNUM) + '-' +
-                         str(bgp_consts.MAX_ASNUM) +
+                         str(bgp_consts.MAX_4BYTE_ASNUM) +
                          '\]')
         with self.assertRaisesRegex(
                 bgp_driver_exc.InvalidParamRange,
                 EXC_INV_PARAMRANGE % {'param': 'local_as',
                                       'range': allowed_range}):
             bgp_driver_utils.validate_as_num('local_as',
-                                             bgp_consts.MAX_ASNUM + 1)
+                                             bgp_consts.MAX_4BYTE_ASNUM + 1)
 
     def test_validate_as_num_with_invalid_min_range(self):
         allowed_range = ('\[' +
                          str(bgp_consts.MIN_ASNUM) + '-' +
-                         str(bgp_consts.MAX_ASNUM) +
+                         str(bgp_consts.MAX_4BYTE_ASNUM) +
                          '\]')
         with self.assertRaisesRegex(
                 bgp_driver_exc.InvalidParamRange,

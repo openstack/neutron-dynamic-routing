@@ -93,7 +93,7 @@ class BgpSpeaker(model_base.BASEV2,
     __tablename__ = 'bgp_speakers'
 
     name = sa.Column(sa.String(255), nullable=False)
-    local_as = sa.Column(sa.Integer, nullable=False, autoincrement=False)
+    local_as = sa.Column(sa.BigInteger(), nullable=False, autoincrement=False)
     advertise_floating_ip_host_routes = sa.Column(sa.Boolean, nullable=False)
     advertise_tenant_networks = sa.Column(sa.Boolean, nullable=False)
     peers = orm.relationship(BgpSpeakerPeerBinding,
@@ -118,7 +118,7 @@ class BgpPeer(model_base.BASEV2,
     name = sa.Column(sa.String(255), nullable=False)
     peer_ip = sa.Column(sa.String(64),
                         nullable=False)
-    remote_as = sa.Column(sa.Integer, nullable=False, autoincrement=False)
+    remote_as = sa.Column(sa.BigInteger(), nullable=False, autoincrement=False)
     auth_type = sa.Column(sa.String(16), nullable=False)
     password = sa.Column(sa.String(255), nullable=True)
 

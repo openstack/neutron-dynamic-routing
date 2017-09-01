@@ -25,3 +25,4 @@ SUPPORTED_AUTH_TYPES = ['none', 'md5']
 # Supported AS number range
 MIN_ASNUM = 1
 MAX_ASNUM = 65535
+MAX_4BYTE_ASNUM = 4294967295
