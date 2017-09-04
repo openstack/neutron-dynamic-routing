@@ -132,6 +132,16 @@ class BgpDrAgentSchedulerBase(BgpDrAgentFilter):
                            dr_resources.BGP_SPEAKER,
                            events.AFTER_CREATE)
 
+    def schedule_all_unscheduled_bgp_speakers(self, context):
+        """Call schedule_unscheduled_bgp_speakers for all hosts.
+        """
+
+        with context.session.begin(subtransactions=True):
+            query = context.session.query(agent_model.Agent.host).distinct()
+            for agent in query:
+                self.schedule_unscheduled_bgp_speakers(context, agent[0])
+        return True
+
     def schedule_unscheduled_bgp_speakers(self, context, host):
         """Schedule unscheduled BgpSpeaker to a BgpDrAgent.
         """

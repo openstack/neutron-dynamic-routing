@@ -66,6 +66,24 @@ class BgpDrAgentSchedulerDbMixin(bgp_dras_ext.BgpDrSchedulerPluginBase,
 
     bgp_drscheduler = None
 
+    def add_periodic_dragent_status_check(self):
+        if self.bgp_drscheduler:
+            self.add_agent_status_check_worker(
+                self.remove_bgp_speaker_from_down_dragents)
+            self.add_agent_status_check_worker(
+                self.schedule_all_unscheduled_bgp_speakers)
+        else:
+            LOG.warning(_LW("Cannot schedule BgpSpeaker to DrAgent. "
+                            "Reason: No scheduler registered."))
+
+    def schedule_all_unscheduled_bgp_speakers(self, context):
+        if self.bgp_drscheduler:
+            return self.bgp_drscheduler.schedule_all_unscheduled_bgp_speakers(
+                context)
+        else:
+            LOG.warning(_LW("Cannot schedule BgpSpeaker to DrAgent. "
+                            "Reason: No scheduler registered."))
+
     def schedule_unscheduled_bgp_speakers(self, context, host):
         if self.bgp_drscheduler:
             return self.bgp_drscheduler.schedule_unscheduled_bgp_speakers(
@@ -117,7 +135,43 @@ class BgpDrAgentSchedulerDbMixin(bgp_dras_ext.BgpDrSchedulerPluginBase,
 
         self._bgp_rpc.bgp_speaker_created(context, speaker_id, agent_db.host)
 
-    def remove_bgp_speaker_from_dragent(self, context, agent_id, speaker_id):
+    def remove_bgp_speaker_from_down_dragents(self):
+        self.reschedule_resources_from_down_agents(
+            agent_type=bgp_consts.AGENT_TYPE_BGP_ROUTING,
+            get_down_bindings=self.get_down_bgp_speaker_bindings,
+            agent_id_attr='agent_id',
+            resource_id_attr='bgp_speaker_id',
+            resource_name='bgp_speaker',
+            reschedule_resource=self.reschedule_bgp_speaker,
+            rescheduling_failed=bgp_dras_ext.BgpSpeakerRescheduleError)
+
+    def get_down_bgp_speaker_bindings(self, context, agent_dead_limit):
+        cutoff = self.get_cutoff_time(agent_dead_limit)
+        query = (
+            context.session.query(BgpSpeakerDrAgentBinding).
+            join(agent_model.Agent).
+            filter(agent_model.Agent.heartbeat_timestamp < cutoff,
+                   agent_model.Agent.admin_state_up))
+        down_bindings = [b for b in query]
+        return down_bindings
+
+    def reschedule_bgp_speaker(self, context, bgp_speaker_id):
+        dragent = self.get_dragents_hosting_bgp_speakers(
+            context, [bgp_speaker_id])[0]
+        bgp_speaker = self.get_bgp_speaker(context, bgp_speaker_id)
+        dragent_id = dragent.id
+        with db_api.context_manager.writer.using(context):
+            self._remove_bgp_speaker_from_dragent(
+                context, dragent_id, bgp_speaker_id)
+            self.schedule_bgp_speaker(context, bgp_speaker)
+        new_dragents = self.get_dragents_hosting_bgp_speakers(
+            context, [bgp_speaker_id])
+        if new_dragents == [] or new_dragents[0].id == dragent.id:
+            raise bgp_dras_ext.BgpSpeakerRescheduleError(
+                bgp_speaker_id=bgp_speaker_id,
+                failure_reason="no eligible dr agent found")
+
+    def _remove_bgp_speaker_from_dragent(self, context, agent_id, speaker_id):
         with db_api.context_manager.writer.using(context):
             agent_db = self._get_agent(context, agent_id)
             is_agent_bgp = (agent_db['agent_type'] ==
@@ -139,6 +193,9 @@ class BgpDrAgentSchedulerDbMixin(bgp_dras_ext.BgpDrSchedulerPluginBase,
                       {'bgp_speaker_id': speaker_id,
                        'agent_id': agent_id})
 
+    def remove_bgp_speaker_from_dragent(self, context, agent_id, speaker_id):
+        self._remove_bgp_speaker_from_dragent(context, agent_id, speaker_id)
+        agent_db = self._get_agent(context, agent_id)
         self._bgp_rpc.bgp_speaker_removed(context, speaker_id, agent_db.host)
 
     def get_dragents_hosting_bgp_speakers(self, context, bgp_speaker_ids,
