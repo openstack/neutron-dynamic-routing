@@ -30,7 +30,7 @@ class BgpSpeakerIpv4Test(test_base.BgpSpeakerProtoTestBase):
 
     RAS_MAX = 3
     ip_version = 4
-    public_gw = '192.168.10.1'
+    public_gw = '192.168.11.1'
     MyScope = base.Scope(name='my-scope')
     PNet = base.Net(name='', net='172.24.6.0', mask=24,
                     cidr='172.24.6.0/24', router=None)
@@ -76,10 +76,10 @@ class BgpSpeakerIpv4Test(test_base.BgpSpeakerProtoTestBase):
 
     @classmethod
     def resource_setup_container(cls):
-        cls.brdc = ctn_base.Bridge(name='br-docker',
-                                   subnet='192.168.10.0/24',
-                                   start_ip='192.168.10.128',
-                                   end_ip='192.168.10.254',
+        cls.brdc = ctn_base.Bridge(name='br-docker-ipv4',
+                                   subnet='192.168.11.0/24',
+                                   start_ip='192.168.11.128',
+                                   end_ip='192.168.11.254',
                                    self_ip=True,
                                    fixed_ip=cls.public_gw + '/24',
                                    br_type=base.BRIDGE_TYPE)
@@ -88,7 +88,7 @@ class BgpSpeakerIpv4Test(test_base.BgpSpeakerProtoTestBase):
         # This keeps data which passes to a quagga container.
         cls.dr = ctn_base.BGPContainer(name='dr', asn=int(cls.L_AS.asn),
                                        router_id=cls.L_AS.router_id)
-        cls.dr.set_addr_info(bridge='br-docker', ipv4=cls.public_gw)
+        cls.dr.set_addr_info(bridge='br-docker-ipv4', ipv4=cls.public_gw)
         # quagga container
         cls.dockerimg = ctn_base.DockerImage()
         cls.q_img = cls.dockerimg.create_quagga(check_exist=True)

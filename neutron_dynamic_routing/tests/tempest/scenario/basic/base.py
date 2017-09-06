@@ -68,7 +68,7 @@ class BgpSpeakerBasicTestJSONBase(base.BgpSpeakerScenarioTestJSONBase):
 
     @classmethod
     def resource_setup_container(cls):
-        cls.brdc = ctn_base.Bridge(name='br-docker',
+        cls.brdc = ctn_base.Bridge(name='br-docker-basic',
                                    subnet='192.168.10.0/24',
                                    start_ip='192.168.10.128',
                                    end_ip='192.168.10.254',
@@ -80,7 +80,7 @@ class BgpSpeakerBasicTestJSONBase(base.BgpSpeakerScenarioTestJSONBase):
         # This keeps data which passes to a quagga container.
         cls.dr = ctn_base.BGPContainer(name='dr', asn=int(cls.L_AS.asn),
                                        router_id=cls.L_AS.router_id)
-        cls.dr.set_addr_info(bridge='br-docker', ipv4=cls.public_gw)
+        cls.dr.set_addr_info(bridge='br-docker-basic', ipv4=cls.public_gw)
         # quagga container
         cls.dockerimg = ctn_base.DockerImage()
         cls.q_img = cls.dockerimg.create_quagga(check_exist=True)
