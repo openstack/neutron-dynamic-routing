@@ -18,7 +18,6 @@ import sys
 from oslo_config import cfg
 from oslo_service import service
 
-from neutron.agent.linux import external_process
 from neutron.common import config as common_config
 from neutron.conf.agent import common as config
 from neutron import service as neutron_service
@@ -32,7 +31,7 @@ def register_options():
     config.register_root_helper(cfg.CONF)
     cfg.CONF.register_opts(bgp_dragent_config.BGP_DRIVER_OPTS, 'BGP')
     cfg.CONF.register_opts(bgp_dragent_config.BGP_PROTO_CONFIG_OPTS, 'BGP')
-    cfg.CONF.register_opts(external_process.OPTS)
+    config.register_external_process_opts(cfg.CONF)
 
 
 def main():

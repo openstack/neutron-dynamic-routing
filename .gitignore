@@ -28,6 +28,7 @@ subunit.log
 !/.gitreview
 !/.mailmap
 !/.pylintrc
+!/.stestr.conf
 !/.testr.conf
 
 # Files created by releasenotes build
