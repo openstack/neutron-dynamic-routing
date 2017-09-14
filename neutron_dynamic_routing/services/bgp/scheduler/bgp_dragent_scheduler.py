@@ -21,7 +21,7 @@ from oslo_log import log as logging
 from sqlalchemy.orm import exc
 from sqlalchemy import sql
 
-from neutron.db import agents_db
+from neutron.agent.common import utils
 from neutron.db.models import agent as agent_model
 from neutron.scheduler import base_resource_filter
 from neutron.scheduler import base_scheduler
@@ -159,7 +159,7 @@ class BgpDrAgentSchedulerBase(BgpDrAgentFilter):
                 LOG.debug('No enabled BgpDrAgent on host %s', host)
                 return False
 
-            if agents_db.AgentDbMixin.is_agent_down(
+            if utils.is_agent_down(
                     bgp_dragent.heartbeat_timestamp):
                 LOG.warning(_LW('BgpDrAgent %s is down'), bgp_dragent.id)
                 return False
