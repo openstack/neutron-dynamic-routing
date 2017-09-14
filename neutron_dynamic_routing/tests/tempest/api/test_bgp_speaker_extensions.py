@@ -13,10 +13,10 @@
 #    under the License.
 
 import netaddr
+from tempest.common import utils
 from tempest import config
 from tempest.lib import decorators
 from tempest.lib import exceptions as lib_exc
-from tempest import test
 
 from neutron.tests.tempest.api import base
 from neutron.tests.tempest.common import tempest_fixtures as fixtures
@@ -80,7 +80,7 @@ class BgpSpeakerTestJSONBase(base.BaseAdminNetworkTest):
     @classmethod
     def resource_setup(cls):
         super(BgpSpeakerTestJSONBase, cls).resource_setup()
-        if not test.is_extension_enabled('bgp', 'network'):
+        if not utils.is_extension_enabled('bgp', 'network'):
             msg = "BGP Speaker extension is not enabled."
             raise cls.skipException(msg)
 

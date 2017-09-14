@@ -20,8 +20,8 @@ import time
 
 import netaddr
 
+from tempest.common import utils
 from tempest import config
-from tempest import test
 
 from neutron.tests.tempest.api import base
 from neutron_dynamic_routing.tests.tempest import bgp_client
@@ -86,7 +86,7 @@ class BgpSpeakerScenarioTestJSONBase(base.BaseAdminNetworkTest):
     @classmethod
     def resource_setup(cls):
         super(BgpSpeakerScenarioTestJSONBase, cls).resource_setup()
-        if not test.is_extension_enabled('bgp', 'network'):
+        if not utils.is_extension_enabled('bgp', 'network'):
             msg = "BGP Speaker extension is not enabled."
             raise cls.skipException(msg)
 
