@@ -80,7 +80,7 @@ class BgpSpeakerTestJSONBase(base.BaseAdminNetworkTest):
     @classmethod
     def resource_setup(cls):
         super(BgpSpeakerTestJSONBase, cls).resource_setup()
-        if not test.is_extension_enabled('bgp_speaker', 'network'):
+        if not test.is_extension_enabled('bgp', 'network'):
             msg = "BGP Speaker extension is not enabled."
             raise cls.skipException(msg)
 
