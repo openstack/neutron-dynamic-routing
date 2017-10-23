@@ -15,6 +15,7 @@
 
 import collections
 
+from neutron_lib.agent import constants as agent_consts
 from neutron_lib import context
 from neutron_lib.utils import runtime
 from oslo_config import cfg
@@ -25,7 +26,6 @@ from oslo_service import periodic_task
 from oslo_utils import importutils
 
 from neutron.agent import rpc as agent_rpc
-from neutron.common import constants as n_const
 from neutron.common import rpc as n_rpc
 from neutron.common import topics
 from neutron.common import utils
@@ -682,7 +682,7 @@ class BgpDrAgentWithStateReport(BgpDrAgent):
             ctx = context.get_admin_context_without_session()
             agent_status = self.state_rpc.report_state(ctx, self.agent_state,
                                                        True)
-            if agent_status == n_const.AGENT_REVIVED:
+            if agent_status == agent_consts.AGENT_REVIVED:
                 LOG.info(_LI("Agent has just been revived. "
                              "Scheduling full sync"))
                 self.schedule_full_resync(
