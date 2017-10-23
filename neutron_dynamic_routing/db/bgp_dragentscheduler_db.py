@@ -13,6 +13,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from neutron_lib import context as ncontext
 from neutron_lib.db import model_base
 from oslo_config import cfg
 from oslo_db import exception as db_exc
@@ -76,7 +77,8 @@ class BgpDrAgentSchedulerDbMixin(bgp_dras_ext.BgpDrSchedulerPluginBase,
             LOG.warning(_LW("Cannot schedule BgpSpeaker to DrAgent. "
                             "Reason: No scheduler registered."))
 
-    def schedule_all_unscheduled_bgp_speakers(self, context):
+    def schedule_all_unscheduled_bgp_speakers(self):
+        context = ncontext.get_admin_context()
         if self.bgp_drscheduler:
             return self.bgp_drscheduler.schedule_all_unscheduled_bgp_speakers(
                 context)
