@@ -16,11 +16,11 @@
 import abc
 
 from neutron.api import extensions
-from neutron.api.v2 import base
 from neutron.api.v2 import resource
 from neutron.extensions import agent
 from neutron import wsgi
 from neutron_lib.api import extensions as api_extensions
+from neutron_lib.api import faults
 from neutron_lib import exceptions as n_exc
 from neutron_lib.plugins import directory
 from oslo_log import log as logging
@@ -129,14 +129,14 @@ class Bgp_dragentscheduler(api_extensions.ExtensionDescriptor):
                       collection_name="agents")
 
         controller = resource.Resource(BgpDrSchedulerController(),
-                                       base.FAULT_MAP)
+                                       faults.FAULT_MAP)
         exts.append(extensions.ResourceExtension(BGP_DRINSTANCES,
                                                  controller, parent))
 
         parent = dict(member_name="bgp_speaker",
                       collection_name="bgp-speakers")
         controller = resource.Resource(BgpDrAgentController(),
-                                       base.FAULT_MAP)
+                                       faults.FAULT_MAP)
         exts.append(extensions.ResourceExtension(BGP_DRAGENTS,
                                                  controller, parent))
         return exts
