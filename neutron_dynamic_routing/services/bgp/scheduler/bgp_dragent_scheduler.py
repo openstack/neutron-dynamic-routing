@@ -18,11 +18,11 @@ from neutron_lib.callbacks import registry
 from neutron_lib import context as nl_context
 from oslo_db import exception as db_exc
 from oslo_log import log as logging
-from sqlalchemy.orm import exc
 from sqlalchemy import sql
 
 from neutron.agent.common import utils
 from neutron.db.models import agent as agent_model
+from neutron.objects import agent as agent_object
 from neutron.scheduler import base_resource_filter
 from neutron.scheduler import base_scheduler
 
@@ -75,7 +75,7 @@ class BgpDrAgentFilter(base_resource_filter.BaseResourceFilter):
     def _get_active_dragents(self, plugin, context):
         """Return a list of active BgpDrAgents."""
         with context.session.begin(subtransactions=True):
-            active_dragents = plugin.get_agents_db(
+            active_dragents = plugin.get_agent_objects(
                 context, filters={
                     'agent_type': [bgp_consts.AGENT_TYPE_BGP_ROUTING],
                     'admin_state_up': [True]})
@@ -148,14 +148,12 @@ class BgpDrAgentSchedulerBase(BgpDrAgentFilter):
 
         LOG.debug('Started auto-scheduling on host %s', host)
         with context.session.begin(subtransactions=True):
-            query = context.session.query(agent_model.Agent)
-            query = query.filter_by(
+            bgp_dragent = agent_object.Agent.get_object(
+                context,
                 agent_type=bgp_consts.AGENT_TYPE_BGP_ROUTING,
                 host=host,
-                admin_state_up=sql.true())
-            try:
-                bgp_dragent = query.one()
-            except (exc.NoResultFound):
+                admin_state_up=True)
+            if not bgp_dragent:
                 LOG.debug('No enabled BgpDrAgent on host %s', host)
                 return False
 
