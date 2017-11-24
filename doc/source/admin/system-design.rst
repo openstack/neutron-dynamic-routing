@@ -40,7 +40,7 @@ It advertises three classes of routes:
 * Prefix routes for directly routable tenant networks with address scopes, the
   nexthop is the centralized router, the same for DVR and CVR.
 
-For details refer to `Route Advertisement <../functionality/route-advertisement.html>`_.
+For details refer to `Route Advertisement <./route-advertisement.html>`_.
 
 Neutron dynamic routing consists of `service plug-in <https://docs.openstack.org/neutron/latest/contributor/internals/plugin-api.html>`_
 and agent. The service plug-in implements the Networking service extension and
@@ -100,7 +100,7 @@ protocols are supported.
 BGP
 +++
 Three kinds of APIs are available for BGP functionality.For details refer to the
-`API document <./api.html>`_.
+`API document <../reference/index.html>`_.
 
 * BGP Speaker APIs to advertise Neutron routes outside the Openstack network.
 * BGP Peer APIs to form peers with the remote routers.
@@ -123,7 +123,7 @@ Dynamic Routing Agent (DR Agent)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Dynamic routing can reside on hosts with or without other Networking service agents.
 It manages and configures different dynamic routing stack through
-`Common Driver API <./drivers.html>`_.
+`Common Driver API <../contributor/dragent-drivers.html>`_.
 
 .. note::
  Currently, only integration with `Ryu <http://ryu.readthedocs.io/en/latest/library_bgp_speaker.html>`_

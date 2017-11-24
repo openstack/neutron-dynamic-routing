@@ -26,8 +26,8 @@ BGP Speaker
 ===========
 BGP Speaker acts as a route server using BGP routing protocol. It advertises
 routes to the BGP peers which are added to the BGP Speaker. Now there is a
-framework that allows different `BGP drivers <../design/drivers.html>`_
-to be plugged into a `dynamic routing agent <../design/agent-scheduler.html>`_.
+framework that allows different `BGP drivers <../contributor/dragent-drivers.html>`_
+to be plugged into a `dynamic routing agent <./agent-scheduler.html>`_.
 
 Currently, BGP Speaker only advertises routes for a network to which it is associated.
 A BGP Speaker requires association with a "gateway" network to determine eligible routes.
@@ -125,7 +125,7 @@ and pass on the configuration request to the dynamic routing agent for further p
 The implementation of a BGP Speaker is driver specific. During the driver interface
 initialization process, needed configurations are read from the configuration file
 and BGP Speaker object instance is created. For details refer to
-`BGP drivers <../design/drivers.html>`_.
+`BGP drivers <../contributor/dragent-drivers.html>`_.
 
 BGP Speaker Life Cycle
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -165,4 +165,4 @@ For details refer to `Route Advertisement <./route-advertisement.html>`_.
 
 How to work
 -----------
-For details refer to `Testing <../others/testing.html>`_.
+For details refer to `Testing <../contributor/testing.html>`_.
