@@ -17,7 +17,6 @@ from neutron_lib.plugins import directory
 from oslo_config import cfg
 from oslo_utils import importutils
 
-from neutron.api.v2 import attributes
 from neutron.extensions import agent
 from neutron.tests.unit.db import test_db_base_plugin_v2 as test_db_base_plugin
 from neutron.tests.unit.extensions import test_agent
@@ -35,11 +34,8 @@ from webob import exc
 class BgpDrSchedulerTestExtensionManager(object):
 
     def get_resources(self):
-        attributes.RESOURCE_ATTRIBUTE_MAP.update(
-            agent.RESOURCE_ATTRIBUTE_MAP)
-        resources = agent.Agent.get_resources()
-        resources.extend(bgp_dras_ext.Bgp_dragentscheduler.get_resources())
-        return resources
+        return (agent.Agent.get_resources() +
+                bgp_dras_ext.Bgp_dragentscheduler.get_resources())
 
     def get_actions(self):
         return []

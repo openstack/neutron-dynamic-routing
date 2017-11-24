@@ -17,11 +17,11 @@ import abc
 
 from neutron.api import extensions
 from neutron.api.v2 import resource
-from neutron.extensions import agent
 from neutron import wsgi
 from neutron_lib.api import extensions as api_extensions
 from neutron_lib.api import faults
 from neutron_lib import exceptions as n_exc
+from neutron_lib.exceptions import agent as agent_exc
 from neutron_lib.plugins import directory
 from oslo_log import log as logging
 import six
@@ -40,7 +40,7 @@ BGP_DRAGENT = 'bgp-dragent'
 BGP_DRAGENTS = BGP_DRAGENT + 's'
 
 
-class DrAgentInvalid(agent.AgentNotFound):
+class DrAgentInvalid(agent_exc.AgentNotFound):
     message = _("BgpDrAgent %(id)s is invalid or has been disabled.")
 
 
