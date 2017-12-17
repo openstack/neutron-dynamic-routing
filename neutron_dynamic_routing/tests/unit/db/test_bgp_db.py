@@ -776,6 +776,8 @@ class BgpTests(BgpEntityCreationMixin):
                                                  fixed_port_data)
             fip_data = {'floatingip': {'floating_network_id': gw_net_id,
                                        'tenant_id': tenant_id,
+                                       'subnet_id': None,
+                                       'floating_ip_address': None,
                                        'port_id': fixed_port['id']}}
             fip = self.l3plugin.create_floatingip(self.context, fip_data)
             fip_prefix = fip['floating_ip_address'] + '/32'
@@ -828,6 +830,8 @@ class BgpTests(BgpEntityCreationMixin):
                                                  fixed_port_data)
             fip_data = {'floatingip': {'floating_network_id': gw_net_id,
                                        'tenant_id': tenant_id,
+                                       'subnet_id': None,
+                                       'floating_ip_address': None,
                                        'port_id': fixed_port['id']}}
             fip = self.l3plugin.create_floatingip(self.context, fip_data)
             fip_prefix = fip['floating_ip_address'] + '/32'
@@ -892,6 +896,8 @@ class BgpTests(BgpEntityCreationMixin):
                                                                  'test-host')
             fip_data = {'floatingip': {'floating_network_id': gw_net_id,
                                        'tenant_id': tenant_id,
+                                       'subnet_id': None,
+                                       'floating_ip_address': None,
                                        'port_id': fixed_port['id']}}
             fip = self.l3plugin.create_floatingip(self.context, fip_data)
             fip_prefix = fip['floating_ip_address'] + '/32'
@@ -957,6 +963,8 @@ class BgpTests(BgpEntityCreationMixin):
                                                                  'test-host')
             fip_data = {'floatingip': {'floating_network_id': gw_net_id,
                                        'tenant_id': tenant_id,
+                                       'subnet_id': None,
+                                       'floating_ip_address': None,
                                        'port_id': fixed_port['id']}}
             fip = self.l3plugin.create_floatingip(self.context, fip_data)
             fip_prefix = fip['floating_ip_address'] + '/32'
@@ -1013,6 +1021,8 @@ class BgpTests(BgpEntityCreationMixin):
                                                                  'test-host')
             fip_data = {'floatingip': {'floating_network_id': gw_net_id,
                                        'tenant_id': tenant_id,
+                                       'subnet_id': None,
+                                       'floating_ip_address': None,
                                        'port_id': fixed_port['id']}}
             fip = self.l3plugin.create_floatingip(self.context, fip_data)
             fip_prefix = fip['floating_ip_address'] + '/32'
@@ -1059,6 +1069,8 @@ class BgpTests(BgpEntityCreationMixin):
                                                  fixed_port_data)
             fip_data = {'floatingip': {'floating_network_id': gw_net_id,
                                        'tenant_id': tenant_id,
+                                       'subnet_id': None,
+                                       'floating_ip_address': None,
                                        'port_id': fixed_port['id']}}
             fip = self.l3plugin.create_floatingip(self.context, fip_data)
             fip_prefix = fip['floating_ip_address'] + '/32'
@@ -1143,6 +1155,8 @@ class BgpTests(BgpEntityCreationMixin):
         for port_id in port_ids:
             fip_data = {'floatingip': {'floating_network_id': ext_net_id,
                                        'tenant_id': tenant_id,
+                                       'subnet_id': None,
+                                       'floating_ip_address': None,
                                        'port_id': port_id}}
             fip = self.l3plugin.create_floatingip(self.context, fip_data)
             fips.append(fip)
@@ -1285,6 +1299,8 @@ class BgpTests(BgpEntityCreationMixin):
             dvr_gw_ip = fip_gw['fixed_ips'][0]['ip_address']
             fip_data = {'floatingip': {'floating_network_id': gw_net_id,
                                        'tenant_id': tenant_id,
+                                       'subnet_id': None,
+                                       'floating_ip_address': None,
                                        'port_id': ports[0]['id']}}
             fip = self.l3plugin.create_floatingip(self.context, fip_data)
             fip_address = fip['floating_ip_address']
