@@ -42,9 +42,6 @@
           DEVSTACK_LOCAL_CONFIG="NEUTRON_CREATE_INITIAL_NETWORKS=False"
           DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-dynamic-routing git://git.openstack.org/openstack/neutron-dynamic-routing"
           DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-tempest-plugin git://git.openstack.org/openstack/neutron-tempest-plugin"
-          if [ "ipv4" == "basic" ]; then
-              DEVSTACK_LOCAL_CONFIG+=$'\n'"BGP_SCHEDULER_DRIVER=neutron_dynamic_routing.services.bgp.scheduler.bgp_dragent_scheduler.ChanceScheduler"
-          fi
           export DEVSTACK_LOCAL_CONFIG
 
           function gate_hook {
