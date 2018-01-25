@@ -31,8 +31,9 @@ class BgpDriverBase(object):
         """Add a BGP speaker.
 
         :param speaker_as: Specifies BGP Speaker autonomous system number.
-                           Must be an integer between MIN_ASNUM and MAX_ASNUM.
-        :type speaker_as: integer
+                           Must be an biginteger between MIN_ASNUM and
+                           MAX_4BYTE_ASNUM.
+        :type speaker_as: biginteger
         :raises: BgpSpeakerAlreadyScheduled, BgpSpeakerMaxScheduled,
                  InvalidParamType, InvalidParamRange
         """
@@ -42,8 +43,9 @@ class BgpDriverBase(object):
         """Deletes BGP speaker.
 
         :param speaker_as: Specifies BGP Speaker autonomous system number.
-                           Must be an integer between MIN_ASNUM and MAX_ASNUM.
-        :type speaker_as: integer
+                           Must be an biginteger between MIN_ASNUM and
+                           MAX_4BYTE_ASNUM.
+        :type speaker_as: biginteger
         :raises: BgpSpeakerNotAdded
         """
 
@@ -53,13 +55,15 @@ class BgpDriverBase(object):
         """Add a new BGP peer.
 
         :param speaker_as: Specifies BGP Speaker autonomous system number.
-                           Must be an integer between MIN_ASNUM and MAX_ASNUM.
-        :type speaker_as: integer
+                           Must be an biginteger between MIN_ASNUM and
+                           MAX_4BYTE_ASNUM.
+        :type speaker_as: biginteger
         :param peer_ip: Specifies the IP address of the peer.
         :type peer_ip: string
         :param peer_as: Specifies Autonomous Number of the peer.
-                        Must be an integer between MIN_ASNUM and MAX_ASNUM.
-        :type peer_as: integer
+                        Must be an biginteger between MIN_ASNUM and
+                        MAX_4BYTE_ASNUM.
+        :type peer_as: biginteger
         :param auth_type: Specifies authentication type.
                           By default, authentication will be disabled.
         :type auth_type: value in SUPPORTED_AUTH_TYPES
@@ -75,8 +79,9 @@ class BgpDriverBase(object):
         """Delete a BGP peer associated with the given peer IP
 
         :param speaker_as: Specifies BGP Speaker autonomous system number.
-                           Must be an integer between MIN_ASNUM and MAX_ASNUM.
-        :type speaker_as: integer
+                           Must be an biginteger between MIN_ASNUM and
+                           MAX_4BYTE_ASNUM.
+        :type speaker_as: biginteger
         :param peer_ip: Specifies the IP address of the peer. Must be the
                         string representation of an IP address.
         :type peer_ip: string
@@ -88,8 +93,9 @@ class BgpDriverBase(object):
         """Add a new prefix to advertise.
 
         :param speaker_as: Specifies BGP Speaker autonomous system number.
-                           Must be an integer between MIN_ASNUM and MAX_ASNUM.
-        :type speaker_as: integer
+                           Must be an biginteger between MIN_ASNUM and
+                           MAX_4BYTE_ASNUM.
+        :type speaker_as: biginteger
         :param cidr: CIDR of the network to advertise. Must be the string
                      representation of an IP network (e.g., 10.1.1.0/24)
         :type cidr: string
@@ -104,8 +110,9 @@ class BgpDriverBase(object):
         """Withdraw an advertised prefix.
 
         :param speaker_as: Specifies BGP Speaker autonomous system number.
-                           Must be an integer between MIN_ASNUM and MAX_ASNUM.
-        :type speaker_as: integer
+                           Must be an biginteger between MIN_ASNUM and
+                           MAX_4BYTE_ASNUM.
+        :type speaker_as: biginteger
         :param cidr: CIDR of the network to withdraw. Must be the string
                      representation of an IP network (e.g., 10.1.1.0/24)
         :type cidr: string
@@ -120,8 +127,9 @@ class BgpDriverBase(object):
         """Collect BGP Speaker statistics.
 
         :param speaker_as: Specifies BGP Speaker autonomous system number.
-                           Must be an integer between MIN_ASNUM and MAX_ASNUM.
-        :type speaker_as: integer
+                           Must be an biginteger between MIN_ASNUM and
+                           MAX_4BYTE_ASNUM.
+        :type speaker_as: biginteger
         :raises: BgpSpeakerNotAdded
         :returns: bgp_speaker_stats: string
         """
@@ -131,13 +139,14 @@ class BgpDriverBase(object):
         """Collect BGP Peer statistics.
 
         :param speaker_as: Specifies BGP Speaker autonomous system number.
-                           Must be an integer between MIN_ASNUM and MAX_ASNUM.
-        :type speaker_as: integer
+                           Must be an biginteger between MIN_ASNUM and
+                           MAX_4BYTE_ASNUM.
+        :type speaker_as: biginteger
         :param peer_ip: Specifies the IP address of the peer.
         :type peer_ip: string
         :param peer_as: Specifies the AS number of the peer. Must be an
-                        integer between MIN_ASNUM and MAX_ASNUM.
-        :type peer_as: integer                    .
+                        biginteger between MIN_ASNUM and MAX_4BYTE_ASNUM.
+        :type peer_as: biginteger                    .
         :raises: BgpSpeakerNotAdded, BgpPeerNotAdded
         :returns: bgp_peer_stats: string
         """
