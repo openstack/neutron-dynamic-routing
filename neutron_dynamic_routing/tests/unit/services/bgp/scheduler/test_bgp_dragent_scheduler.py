@@ -60,8 +60,8 @@ class TestBgpDrAgentSchedulerBaseTestCase(testlib_api.SqlTestCase):
                                 'name': 'fake_bgp_speaker',
                                 'ip_version': '4',
                                 'local_as': '123',
-                                'advertise_floating_ip_host_routes': '0',
-                                'advertise_tenant_networks': '0',
+                                'advertise_floating_ip_host_routes': False,
+                                'advertise_tenant_networks': False,
                                 'peers': [],
                                 'networks': []}}
         cls._save_bgp_speaker(self.ctx, bgp_speaker_body, uuid=bgp_speaker_id)

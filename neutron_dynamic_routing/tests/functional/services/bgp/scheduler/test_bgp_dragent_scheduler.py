@@ -151,8 +151,8 @@ class TestAutoSchedule(testlib_api.SqlTestCase,
             'bgp_speaker': {'name': 'fake_bgp_speaker',
                             'ip_version': '4',
                             'local_as': '123',
-                            'advertise_floating_ip_host_routes': '0',
-                            'advertise_tenant_networks': '0',
+                            'advertise_floating_ip_host_routes': False,
+                            'advertise_tenant_networks': False,
                             'peers': [],
                             'networks': []}}
         i = 1
