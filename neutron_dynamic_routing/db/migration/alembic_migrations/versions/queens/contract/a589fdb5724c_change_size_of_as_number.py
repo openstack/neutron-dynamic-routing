@@ -26,6 +26,11 @@ down_revision = '4cf8bc3edb66'
 from alembic import op
 import sqlalchemy as sa
 
+from neutron.db import migration
+
+# milestone identifier, used by neutron-db-manage
+neutron_milestone = [migration.QUEENS]
+
 
 def upgrade():
     op.alter_column('bgp_speakers', 'local_as', nullable=False,
