@@ -72,3 +72,34 @@ class BgpSpeakerBasicTest(base.BgpSpeakerBasicTestJSONBase):
         self.check_remote_as_state(self.dr, self.r_ass[0],
                                    ctn_base.BGP_FSM_ACTIVE,
                                    init_state=ctn_base.BGP_FSM_ESTABLISHED)
+
+    @decorators.idempotent_id('aa6c565c-ded3-413b-8dc9-3928b3b0e38f')
+    def test_remove_add_speaker_agent(self):
+        self.bgp_peer_args[0]['peer_ip'] = self.r_as_ip[0].split('/')[0]
+        num, subnet = self.tnet_gen.next()
+        mask = '/' + str(self.TPool.prefixlen)
+        TNet = s_base.Net(name='', net=subnet, mask=self.TPool.prefixlen,
+                          cidr=subnet + mask, router=None)
+        TSubNet = s_base.SubNet(name='', cidr=TNet.cidr, mask=TNet.mask)
+        MyRouter = s_base.Router(name='my-router' + str(num), gw='')
+        ext_net_id = self.create_bgp_network(
+            4, self.MyScope,
+            self.PNet, self.PPool, self.PSubNet,
+            self.TPool, [[TNet, TSubNet, MyRouter]])
+        speaker_id, peers_ids = self.create_and_add_peers_to_speaker(
+            ext_net_id,
+            self.bgp_speaker_args,
+            [self.bgp_peer_args[0]])
+        self.check_remote_as_state(self.dr, self.r_ass[0],
+                                   ctn_base.BGP_FSM_ESTABLISHED)
+        agent_list = self.bgp_client.list_dragents_for_bgp_speaker(
+            speaker_id)['agents']
+        self.assertEqual(1, len(agent_list))
+        agent_id = agent_list[0]['id']
+        self.bgp_client.remove_bgp_speaker_from_dragent(agent_id, speaker_id)
+        self.check_remote_as_state(self.dr, self.r_ass[0],
+                                   ctn_base.BGP_FSM_ACTIVE,
+                                   init_state=ctn_base.BGP_FSM_ESTABLISHED)
+        self.bgp_client.add_bgp_speaker_to_dragent(agent_id, speaker_id)
+        self.check_remote_as_state(self.dr, self.r_ass[0],
+                                   ctn_base.BGP_FSM_ESTABLISHED)
