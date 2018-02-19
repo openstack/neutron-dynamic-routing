@@ -118,6 +118,13 @@ class BgpSpeakerClientJSON(rest_client.RestClient):
         self.expected_success(200, resp.status)
         return rest_client.ResponseBody(resp, body)
 
+    def list_dragents_for_bgp_speaker(self, bgp_speaker_id):
+        uri = 'v2.0/bgp-speakers/%s/bgp-dragents' % bgp_speaker_id
+        resp, body = self.get(uri)
+        self.expected_success(200, resp.status)
+        body = jsonutils.loads(body)
+        return rest_client.ResponseBody(resp, body)
+
     def add_bgp_speaker_to_dragent(self, agent_id, bgp_speaker_id):
         uri = 'v2.0/agents/%s/bgp-drinstances' % agent_id
         update_body = {"bgp_speaker_id": bgp_speaker_id}
@@ -125,4 +132,10 @@ class BgpSpeakerClientJSON(rest_client.RestClient):
         resp, body = self.post(uri, update_body)
         self.expected_success(201, resp.status)
         body = jsonutils.loads(body)
+        return rest_client.ResponseBody(resp, body)
+
+    def remove_bgp_speaker_from_dragent(self, agent_id, bgp_speaker_id):
+        uri = 'v2.0/agents/%s/bgp-drinstances/%s' % (agent_id, bgp_speaker_id)
+        resp, body = self.delete(uri)
+        self.expected_success(204, resp.status)
         return rest_client.ResponseBody(resp, body)

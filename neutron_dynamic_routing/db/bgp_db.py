@@ -148,7 +148,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
     def get_bgp_speaker_with_advertised_routes(self, context,
                                                bgp_speaker_id):
         bgp_speaker_attrs = ['id', 'local_as', 'tenant_id']
-        bgp_peer_attrs = ['peer_ip', 'remote_as', 'password']
+        bgp_peer_attrs = ['peer_ip', 'remote_as', 'auth_type', 'password']
         with db_api.context_manager.reader.using(context):
             bgp_speaker = self.get_bgp_speaker(context, bgp_speaker_id,
                                                fields=bgp_speaker_attrs)
