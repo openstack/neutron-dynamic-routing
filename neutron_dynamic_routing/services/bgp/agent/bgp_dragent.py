@@ -400,10 +400,12 @@ class BgpDrAgent(manager.Manager):
 
         LOG.debug('Calling driver interface for adding BGP peer %(peer_ip)s '
                   'remote_as=%(remote_as)s to BGP Speaker running for '
-                  'local_as=%(local_as)d',
+                  'local_as=%(local_as)d '
+                  'auth_type=%(auth_type)s',
                   {'peer_ip': bgp_peer['peer_ip'],
                    'remote_as': bgp_peer['remote_as'],
-                   'local_as': bgp_speaker_as})
+                   'local_as': bgp_speaker_as,
+                   'auth_type': bgp_peer['auth_type']})
         try:
             self.dr_driver_cls.add_bgp_peer(bgp_speaker_as,
                                             bgp_peer['peer_ip'],
