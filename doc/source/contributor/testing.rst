@@ -324,7 +324,7 @@ Service Test
 
     .. code-block:: console
 
-        $ neutron subnet-create --name selfservice --subnetpool private \
+        $ neutron subnet-create --name selfservice --subnetpool selfservice \
           --prefixlen 24 private
         Created a new subnet:
         +-------------------+--------------------------------------------+
@@ -433,7 +433,7 @@ Service Test
     .. code-block:: console
 
         $ neutron bgp-speaker-network-add bgp-speaker provider
-        Added network provider to BGP speaker bgpspeaker.
+        Added network provider to BGP speaker bgp-speaker.
 
     * Verify the association of the provider network with the BGP speaker.
 
@@ -441,7 +441,7 @@ Service Test
 
     .. code-block:: console
 
-        $ neutron bgp-speaker-show bgpspeaker
+        $ neutron bgp-speaker-show bgp-speaker
         +-----------------------------------+--------------------------------------+
         | Field                             | Value                                |
         +-----------------------------------+--------------------------------------+
@@ -460,7 +460,7 @@ Service Test
 
     .. code-block:: console
 
-        $ neutron bgp-speaker-advertiseroute-list bgpspeaker
+        $ neutron bgp-speaker-advertiseroute-list bgp-speaker
         +-------------+------------+
         | destination | next_hop   |
         +-------------+------------+
