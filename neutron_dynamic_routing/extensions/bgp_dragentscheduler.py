@@ -54,7 +54,7 @@ class DrAgentAssociationError(n_exc.Conflict):
                 "to a BGP speaker.")
 
 
-class BgpSpeakerRescheduleError(n_exc.Invalid):
+class BgpSpeakerRescheduleError(n_exc.Conflict):
     message = _("Failed rescheduling %(bgp_speaker_id)s: "
                 "%(failure_reason)s.")
 
