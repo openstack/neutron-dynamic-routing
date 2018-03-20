@@ -10,7 +10,8 @@
    additions are following::
 
      cd devstack
-     cat << EOF >> local.conf
+     cat << EOF > local.conf
+     > [[local|localrc]]
      > enable_plugin neutron-dynamic-routing https://git.openstack.org/openstack/neutron-dynamic-routing
      > EOF
 
@@ -20,21 +21,23 @@
 
 Notes:
 
-1. In default case, neutron-dynamic-routing is installed in allinone mode.
+1. In the default case, neutron-dynamic-routing is installed in allinone mode.
    In multiple nodes environment, for controller node::
      cd devstack
-     cat << EOF >> local.conf
+     cat << EOF > local.conf
+     > [[local|localrc]]
      > enable_plugin neutron-dynamic-routing https://git.openstack.org/openstack/neutron-dynamic-routing
      > DR_MODE=dr_plugin
      > EOF
 
    For the nodes where you want to run dr-agent::
      cd devstack
-     cat << EOF >> local.conf
+     cat << EOF > local.conf
+     > [[local|localrc]]
      > enable_plugin neutron-dynamic-routing https://git.openstack.org/openstack/neutron-dynamic-routing
      > DR_MODE=dr_agent
      > EOF
 
-2. In default case, protocol BGP is enabled for neutron-dynamic-routing.
+2. In the default case, protocol BGP is enabled for neutron-dynamic-routing.
    You can change "DR_SUPPORTED_PROTOCOLS" in "devstack/settings" to protocols wanted.
 

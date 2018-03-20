@@ -26,8 +26,8 @@ Testing
 =======
 
 Dynamic routing enables advertisement of self-service network prefixes to physical network
-devices that support dynamic routing protocol such as routers. Neutron dynamic routing project that
-consists of a service plugin-in and agent can advertise neutron private network to outside of
+devices that support a dynamic routing protocol, such as routers. The Neutron dynamic routing project
+consists of a service plugin-in and an agent that can advertise Neutron private network to outside of
 OpenStack. This document will describe how to test the Dynamic Routing functionalities, introduce
 what the environment architecture is for dynamic routing test and show how to setup dynamic routing
 environment using Devstack.
@@ -35,9 +35,9 @@ environment using Devstack.
 Environment Architecture
 -------------------------
 
-Using the following example architecture as a test environment to deploy neutron-dynamic-routing in
-your environment. The example architecture will deploy an all-in-one OpenStack and pick up an Ubuntu
-VM running Quagga as a router outside of OpenStack . See following::
+Use the following example architecture as a test environment to deploy neutron-dynamic-routing in
+your environment. The example architecture will deploy an all-in-one OpenStack and connect to an Ubuntu
+VM running Quagga as a router outside of OpenStack. See following::
 
 
 
@@ -49,11 +49,12 @@ VM running Quagga as a router outside of OpenStack . See following::
                                  |                                  +--------------+
                                  |                                         |
                                  |10.156.18.21                             |       External Network(172.24.4.0/24)
-                --------------------------------------------------------------------------------------------------                                        |ETH0    |br-ex
+                --------------------------------------------------------------------------------------------------
+                                 |eth0
                         +---------------------------------------+
-                        |        |        |                     |
-                        |        |        |                     |
-                        |        |        +-------+             |
+                        |        |                              |
+                        |        |        br-ex                 |
+                        |        +----------------+             |
                         |        |                |172.24.4.1   |
                         |  +------------+     +-------+         |
                         |  |            |     |Router |         |
@@ -75,7 +76,7 @@ Devstack Setup
 
     git clone https://git.openstack.org/openstack-dev/devstack.git
 
-2. Enable neutron-dynamic-routing::
+2. Enable neutron-dynamic-routing by including this in your local.conf file::
 
     [[local|localrc]]
     enable_plugin neutron-dynamic-routing https://git.openstack.org/openstack/neutron-dynamic-routing
@@ -103,9 +104,9 @@ it on Ubuntu Linux.
     $ sudo chown quagga.quagga /etc/quagga/zebra.conf
     $ sudo chmod 640 /etc/quagga/zebra.conf
 
-3. Update quagga deamon file.
+3. Update quagga daemon file.
 
-   You can enable/disable the daemons routing in the /etc/quagga/daemons file. Update /etc/quagga/deamons to enable zebra and bgp::
+   You can enable/disable the daemons routing in the /etc/quagga/daemons file. Update /etc/quagga/daemons to enable zebra and bgp::
 
     zebra=yes
     bgpd=yes
@@ -160,17 +161,17 @@ Service Test
 
     $ . devstack/openrc admin admin
 
-2. Verify the neutron dynamic routing agent is running.
+2. Verify that the neutron dynamic routing agent is running.
 
-.. code-block:: console
+    .. code-block:: console
 
-    $ neutron agent-list --agent-type 'BGP dynamic routing agent'
-    +--------------------+--------------------+--------------------+-------------------+-------+----------------+---------------------+
-    | id                 | agent_type         | host               | availability_zone | alive | admin_state_up | binary              |
-    +--------------------+--------------------+--------------------+-------------------+-------+----------------+---------------------+
-    | 69ad386f-e055-4284 | BGP dynamic        | yang-devstack-     |                   | :-)   | True           | neutron-bgp-dragent |
-    | -8c8e-ef9bd540705c | routing agent      | ubuntu-1604        |                   |       |                |                     |
-    +--------------------+--------------------+--------------------+-------------------+-------+----------------+---------------------+
+        $ openstack network agent list --agent-type bgp
+        +--------------------+--------------------+--------------------+-------------------+-------+-------+---------------------+
+        | ID                 | Agent Type         | Host               | Availability Zone | Alive | State | Binary              |
+        +--------------------+--------------------+--------------------+-------------------+-------+-------+---------------------+
+        | 69ad386f-e055-4284 | BGP dynamic        | yang-devstack-     |                   | :-)   | UP    | neutron-bgp-dragent |
+        | -8c8e-ef9bd540705c | routing agent      | ubuntu-1604        |                   |       |       |                     |
+        +--------------------+--------------------+--------------------+-------------------+-------+-------+---------------------+
 
 
 3. Create an address scope.
@@ -180,16 +181,15 @@ Service Test
 
     .. code-block:: console
 
-        $ neutron address-scope-create --shared public 4
-        Created a new address_scope:
+        $ openstack address scope create --ip-version 4 --share public
         +------------+--------------------------------------+
         | Field      | Value                                |
         +------------+--------------------------------------+
         | id         | c02c358a-9d35-43ea-8313-986b3e4a91c0 |
         | ip_version | 4                                    |
         | name       | public                               |
+        | project_id | b3ac05ef10bf441fbf4aa17f16ae1e6d     |
         | shared     | True                                 |
-        | tenant_id  | b3ac05ef10bf441fbf4aa17f16ae1e6d     |
         +------------+--------------------------------------+
 
 4. Create subnet pools. The provider and tenant networks use different pools.
@@ -521,12 +521,8 @@ Service Test
 
     * Schedule the BGP speaker to ``BGP dynamic routing agent``
 
-    BGP speakers require manual scheduling to an agent. BGP speakers only form peering sessions.
-
-    .. code-block:: console
-
-        $ neutron bgp-speaker-network-add bgp-speaker provider
-        Added network provider to BGP speaker bgpspeaker.
+    The first BGP speaker is scheduled to the first dynamic routing agent automatically.
+    So for a simple setup, there is nothing to be done here.
 
     * Verify scheduling of the BGP speaker to the agent.
 
