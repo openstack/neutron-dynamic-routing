@@ -85,10 +85,12 @@
             voting: false
         - neutron-dynamic-routing-dsvm-tempest-scenario-ipv6:
             voting: false
+        - openstack-tox-lower-constraints
     gate:
       jobs:
         - neutron-dynamic-routing-dsvm-functional
         - neutron-dynamic-routing-dsvm-tempest-api
+        - openstack-tox-lower-constraints
     experimental:
       jobs:
         - neutron-dynamic-routing-dsvm-tempest-with-ryu-master-scenario-ipv4
