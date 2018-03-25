@@ -17,7 +17,6 @@ function is_protocol_enabled {
 
 function configure_dr_agent_bgp_config {
     cp $NEUTRON_DYNAMIC_ROUTING_DIR/etc/bgp_dragent.ini.sample $DR_AGENT_BGP_CONF_FILE
-    iniset $DR_AGENT_BGP_CONF_FILE DEFAULT verbose True
     iniset $DR_AGENT_BGP_CONF_FILE DEFAULT debug $ENABLE_DEBUG_LOG_LEVEL
     iniset $DR_AGENT_BGP_CONF_FILE bgp bgp_router_id $BGP_ROUTER_ID
 }
