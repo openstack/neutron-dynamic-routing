@@ -18,8 +18,9 @@ from tempest import config
 from tempest.lib import decorators
 from tempest.lib import exceptions as lib_exc
 
-from neutron.tests.tempest.api import base
-from neutron.tests.tempest.common import tempest_fixtures as fixtures
+from neutron_tempest_plugin.api import base
+from neutron_tempest_plugin.common import tempest_fixtures as fixtures
+
 from neutron_dynamic_routing.tests.tempest import bgp_client
 
 CONF = config.CONF

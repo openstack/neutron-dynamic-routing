@@ -23,9 +23,10 @@ import netaddr
 from tempest.common import utils
 from tempest import config
 
-from neutron.tests.tempest.api import base
-from neutron_dynamic_routing.tests.tempest import bgp_client
+from neutron_tempest_plugin.api import base
 from ryu.tests.integrated.common import docker_base as ctn_base
+
+from neutron_dynamic_routing.tests.tempest import bgp_client
 
 CONF = config.CONF
 
