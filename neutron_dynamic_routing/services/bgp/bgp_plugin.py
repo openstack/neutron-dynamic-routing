@@ -56,9 +56,6 @@ class BgpPlugin(service_base.ServicePluginBase,
         self._register_callbacks()
         self.add_periodic_dragent_status_check()
 
-    def get_plugin_name(self):
-        return PLUGIN_NAME
-
     def get_plugin_type(self):
         return bgp_ext.BGP_EXT_ALIAS
 
