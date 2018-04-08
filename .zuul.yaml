@@ -8,6 +8,11 @@
       - openstack-infra/devstack-gate
       - openstack/neutron
       - openstack/neutron-dynamic-routing
+    irrelevant-files:
+      - ^.*\.rst$
+      - ^doc/.*$
+      - ^releasenotes/.*$
+
 
 - job:
     name: neutron-dynamic-routing-dsvm-tempest-api
@@ -21,6 +26,10 @@
       - openstack/neutron-dynamic-routing
       - openstack/neutron-tempest-plugin
       - openstack/tempest
+    irrelevant-files:
+      - ^.*\.rst$
+      - ^doc/.*$
+      - ^releasenotes/.*$
 
 - job:
     name: neutron-dynamic-routing-dsvm-tempest-scenario-basic
@@ -34,6 +43,10 @@
       - openstack/neutron-dynamic-routing
       - openstack/neutron-tempest-plugin
       - openstack/tempest
+    irrelevant-files:
+      - ^.*\.rst$
+      - ^doc/.*$
+      - ^releasenotes/.*$
 
 - job:
     name: neutron-dynamic-routing-dsvm-tempest-scenario-ipv4
@@ -47,6 +60,10 @@
       - openstack/neutron-dynamic-routing
       - openstack/neutron-tempest-plugin
       - openstack/tempest
+    irrelevant-files:
+      - ^.*\.rst$
+      - ^doc/.*$
+      - ^releasenotes/.*$
 
 - job:
     name: neutron-dynamic-routing-dsvm-tempest-scenario-ipv6
@@ -60,6 +77,10 @@
       - openstack/neutron-dynamic-routing
       - openstack/neutron-tempest-plugin
       - openstack/tempest
+    irrelevant-files:
+      - ^.*\.rst$
+      - ^doc/.*$
+      - ^releasenotes/.*$
 
 - job:
     name: neutron-dynamic-routing-dsvm-tempest-with-ryu-master-scenario-ipv4
