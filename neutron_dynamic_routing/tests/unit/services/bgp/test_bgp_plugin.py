@@ -34,7 +34,7 @@ class TestBgpPlugin(base.BaseTestCase):
                                   'agentnotifiers.bgp_dr_rpc_agent_api.'
                                   'BgpDrAgentNotifyApi')
         bgp_notify_p.start()
-        rpc_conn_p = mock.patch('neutron.common.rpc.create_connection')
+        rpc_conn_p = mock.patch('neutron.common.rpc.Connection')
         rpc_conn_p.start()
         admin_ctx_p = mock.patch('neutron_lib.context.get_admin_context')
         self.admin_ctx_m = admin_ctx_p.start()

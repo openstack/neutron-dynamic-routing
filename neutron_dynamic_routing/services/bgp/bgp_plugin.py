@@ -66,7 +66,7 @@ class BgpPlugin(service_base.ServicePluginBase,
 
     def _setup_rpc(self):
         self.topic = bgp_consts.BGP_PLUGIN
-        self.conn = n_rpc.create_connection()
+        self.conn = n_rpc.Connection()
         self.agent_notifiers[bgp_consts.AGENT_TYPE_BGP_ROUTING] = (
             bgp_dr_rpc_agent_api.BgpDrAgentNotifyApi()
         )
