@@ -195,7 +195,8 @@ class BgpSpeakerScenarioTestJSONBase(base.BaseAdminNetworkTest):
             mask_bits=exsubnet.mask,
             ip_version=ip_version,
             client=self.admin_client,
-            subnetpool_id=ext_subnetpool['id'])
+            subnetpool_id=ext_subnetpool['id'],
+            reserve_cidr=False)
         # tenant network
         tenant_subnetpool = self.create_subnetpool(
             tpool.name,
@@ -209,7 +210,8 @@ class BgpSpeakerScenarioTestJSONBase(base.BaseAdminNetworkTest):
                 cidr=netaddr.IPNetwork(tsubnet.cidr),
                 mask_bits=tsubnet.mask,
                 ip_version=ip_version,
-                subnetpool_id=tenant_subnetpool['id'])
+                subnetpool_id=tenant_subnetpool['id'],
+                reserve_cidr=False)
             # router
             ext_gw_info = {'network_id': ext_net_id}
             router_cr = self.admin_client.create_router(
