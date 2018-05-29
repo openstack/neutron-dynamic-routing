@@ -127,27 +127,35 @@ class BgpEntityCreationMixin(object):
                                               tenant_prefix='192.168.0.0/16',
                                               address_scope=None,
                                               distributed=False,
-                                              ha=False):
-        prefixes = [gw_prefix, tenant_prefix]
+                                              ha=False,
+                                              ext_net_use_addr_scope=True,
+                                              tenant_net_use_addr_scope=True):
         gw_ip_net = netaddr.IPNetwork(gw_prefix)
         tenant_ip_net = netaddr.IPNetwork(tenant_prefix)
-        subnetpool_args = {'tenant_id': tenant_id,
-                           'name': 'bgp-pool'}
-        if address_scope:
-            subnetpool_args['address_scope_id'] = address_scope['id']
+        ext_pool_args = {'tenant_id': tenant_id,
+                         'name': 'bgp-pool'}
+        tenant_pool_args = ext_pool_args.copy()
+
+        if address_scope and ext_net_use_addr_scope:
+            ext_pool_args['address_scope_id'] = address_scope['id']
+
+        if address_scope and tenant_net_use_addr_scope:
+            tenant_pool_args['address_scope_id'] = address_scope['id']
 
         with self.gw_network(external=True) as ext_net,\
             self.network() as int_net,\
-            self.subnetpool(prefixes, **subnetpool_args) as pool:
-            subnetpool_id = pool['subnetpool']['id']
+            self.subnetpool([gw_prefix], **ext_pool_args) as ext_pool,\
+            self.subnetpool([tenant_prefix], **tenant_pool_args) as int_pool:
+            ext_subnetpool_id = ext_pool['subnetpool']['id']
+            int_subnetpool_id = int_pool['subnetpool']['id']
             gw_net_id = ext_net['network']['id']
             with self.subnet(ext_net,
                              cidr=gw_prefix,
-                             subnetpool_id=subnetpool_id,
+                             subnetpool_id=ext_subnetpool_id,
                              ip_version=gw_ip_net.version),\
                 self.subnet(int_net,
                             cidr=tenant_prefix,
-                            subnetpool_id=subnetpool_id,
+                            subnetpool_id=int_subnetpool_id,
                             ip_version=tenant_ip_net.version) as int_subnet:
                 ext_gw_info = {'network_id': gw_net_id}
                 with self.router(external_gateway_info=ext_gw_info,
@@ -895,6 +903,7 @@ class BgpTests(BgpEntityCreationMixin):
                                        'port_id': fixed_port['id']}}
             fip = self.l3plugin.create_floatingip(self.context, fip_data)
             fip_prefix = fip['floating_ip_address'] + '/32'
+            fixed_prefix = fixed_port['fixed_ips'][0]['ip_address'] + '/32'
             with self.bgp_speaker(4, 1234, networks=[gw_net_id]) as speaker:
                 bgp_speaker_id = speaker['id']
                 routes = self.bgp_plugin.get_routes_by_bgp_speaker_id(
@@ -903,9 +912,10 @@ class BgpTests(BgpEntityCreationMixin):
                 routes = list(routes)
                 cvr_gw_ip = ext_gw_info['external_fixed_ips'][0]['ip_address']
                 dvr_gw_ip = fip_gw['fixed_ips'][0]['ip_address']
-                self.assertEqual(2, len(routes))
+                self.assertEqual(3, len(routes))
                 tenant_route_verified = False
                 fip_route_verified = False
+                fixed_ip_route_verified = False
                 for route in routes:
                     if route['destination'] == tenant_prefix:
                         self.assertEqual(cvr_gw_ip, route['next_hop'])
@@ -913,8 +923,12 @@ class BgpTests(BgpEntityCreationMixin):
                     if route['destination'] == fip_prefix:
                         self.assertEqual(dvr_gw_ip, route['next_hop'])
                         fip_route_verified = True
+                    if route['destination'] == fixed_prefix:
+                        self.assertEqual(dvr_gw_ip, route['next_hop'])
+                        fixed_ip_route_verified = True
                 self.assertTrue(tenant_route_verified)
                 self.assertTrue(fip_route_verified)
+                self.assertTrue(fixed_ip_route_verified)
 
     def test__get_dvr_fip_host_routes_by_binding(self):
         gw_prefix = '172.16.10.0/24'
@@ -1301,6 +1315,195 @@ class BgpTests(BgpEntityCreationMixin):
 
     def test__get_fip_next_hop_dvr(self):
         self._test__get_fip_next_hop(distributed=True)
+
+    def _test__get_dvr_fixed_ip_routes_by_bgp_speaker(self,
+                                                      ext_use_scope,
+                                                      tenant_use_scope):
+        gw_prefix = '172.16.10.0/24'
+        tenant_prefix = '10.10.10.0/24'
+        tenant_id = _uuid()
+        scope_data = {'tenant_id': tenant_id, 'ip_version': 4,
+                      'shared': True, 'name': 'bgp-scope'}
+        scope = self.plugin.create_address_scope(
+                                            self.context,
+                                            {'address_scope': scope_data})
+        with self.router_with_external_and_tenant_networks(
+                        tenant_id=tenant_id,
+                        gw_prefix=gw_prefix,
+                        tenant_prefix=tenant_prefix,
+                        address_scope=scope,
+                        distributed=True,
+                        ext_net_use_addr_scope=ext_use_scope,
+                        tenant_net_use_addr_scope=tenant_use_scope) as res:
+            router, ext_net, int_net = res
+            gw_net_id = ext_net['network']['id']
+            tenant_net_id = int_net['network']['id']
+            fixed_port_data = {'port':
+                               {'name': 'test',
+                                'network_id': tenant_net_id,
+                                'tenant_id': tenant_id,
+                                'admin_state_up': True,
+                                'device_id': _uuid(),
+                                'device_owner': 'compute:nova',
+                                'mac_address': n_const.ATTR_NOT_SPECIFIED,
+                                'fixed_ips': n_const.ATTR_NOT_SPECIFIED,
+                                portbindings.HOST_ID: 'test-host'}}
+            fixed_port = self.plugin.create_port(self.context,
+                                             fixed_port_data)
+            fixed_ip_prefix = fixed_port['fixed_ips'][0]['ip_address'] + '/32'
+            self.plugin.create_or_update_agent(self.context,
+                                           {'agent_type': 'L3 agent',
+                                            'host': 'test-host',
+                                            'binary': 'neutron-l3-agent',
+                                            'topic': 'test'})
+            fip_gw = self.l3plugin.create_fip_agent_gw_port_if_not_exists(
+                                                             self.context,
+                                                             gw_net_id,
+                                                             'test-host')
+            with self.bgp_speaker(4, 1234, networks=[gw_net_id]) as speaker:
+                bgp_speaker_id = speaker['id']
+                routes = self.bgp_plugin._get_dvr_fixed_ip_routes_by_bgp_speaker(  # noqa
+                                                           self.context,
+                                                           bgp_speaker_id)
+                routes = list(routes)
+                dvr_gw_ip = fip_gw['fixed_ips'][0]['ip_address']
+                if ext_use_scope and tenant_use_scope:
+                    self.assertEqual(1, len(routes))
+                    self.assertEqual(dvr_gw_ip, routes[0]['next_hop'])
+                    self.assertEqual(fixed_ip_prefix, routes[0]['destination'])
+                else:
+                    self.assertEqual(0, len(routes))
+
+    def test__get_dvr_fixed_ip_routes_by_bgp_speaker_same_scope(self):
+        self._test__get_dvr_fixed_ip_routes_by_bgp_speaker(True, True)
+
+    def test__get_dvr_fixed_ip_routes_by_bgp_speaker_different_scope(self):
+        self._test__get_dvr_fixed_ip_routes_by_bgp_speaker(True, False)
+        self._test__get_dvr_fixed_ip_routes_by_bgp_speaker(False, True)
+
+    def test__get_dvr_fixed_ip_routes_by_bgp_speaker_no_scope(self):
+        self._test__get_dvr_fixed_ip_routes_by_bgp_speaker(False, False)
+
+    def test_get_external_networks_for_port_same_address_scope_v4(self):
+        tenant_id = _uuid()
+        scope_data = {'tenant_id': tenant_id, 'ip_version': 4,
+                      'shared': True, 'name': 'bgp-scope'}
+        self._test_get_external_networks_for_port('172.10.2.0/24',
+                                                  '10.0.0.0/24',
+                                                  scope_data, tenant_id,
+                                                  True, True)
+        self._test_get_external_networks_for_port('172.10.2.0/24',
+                                                  '10.0.0.0/24',
+                                                  scope_data, tenant_id,
+                                                  True, True, False)
+
+    def test_get_external_networks_for_port_different_address_scope_v4(self):
+        tenant_id = _uuid()
+        scope_data = {'tenant_id': tenant_id, 'ip_version': 4,
+                      'shared': True, 'name': 'bgp-scope'}
+        self._test_get_external_networks_for_port('172.10.2.0/24',
+                                                  '10.0.0.0/24',
+                                                  scope_data, tenant_id,
+                                                  True, False)
+        self._test_get_external_networks_for_port('172.10.2.0/24',
+                                                  '10.0.0.0/24',
+                                                  scope_data, tenant_id,
+                                                  True, False, False)
+        self._test_get_external_networks_for_port('172.10.2.0/24',
+                                                  '10.0.0.0/24',
+                                                  scope_data, tenant_id,
+                                                  False, True)
+        self._test_get_external_networks_for_port('172.10.2.0/24',
+                                                  '10.0.0.0/24',
+                                                  scope_data, tenant_id,
+                                                  False, True, False)
+
+    def test_get_external_networks_for_port_same_address_scope_v6(self):
+        tenant_id = _uuid()
+        scope_data = {'tenant_id': tenant_id, 'ip_version': 6,
+                      'shared': True, 'name': 'bgp-scope'}
+        self._test_get_external_networks_for_port('2001:1234:1234::/64',
+                                                  '2001:1234:4321::/64',
+                                                  scope_data, tenant_id,
+                                                  True, True)
+        self._test_get_external_networks_for_port('2001:1234:1234::/64',
+                                                  '2001:1234:4321::/64',
+                                                  scope_data, tenant_id,
+                                                  True, True, False)
+
+    def test_get_external_networks_for_port_different_address_scope_v6(self):
+        tenant_id = _uuid()
+        scope_data = {'tenant_id': tenant_id, 'ip_version': 6,
+                      'shared': True, 'name': 'bgp-scope'}
+        self._test_get_external_networks_for_port('2001:1234:1234::/64',
+                                                  '2001:1234:4321::/64',
+                                                  scope_data, tenant_id,
+                                                  True, False)
+        self._test_get_external_networks_for_port('2001:1234:1234::/64',
+                                                  '2001:1234:4321::/64',
+                                                  scope_data, tenant_id,
+                                                  True, False, False)
+        self._test_get_external_networks_for_port('2001:1234:1234::/64',
+                                                  '2001:1234:4321::/64',
+                                                  scope_data, tenant_id,
+                                                  False, True)
+        self._test_get_external_networks_for_port('2001:1234:1234::/64',
+                                                  '2001:1234:4321::/64',
+                                                  scope_data, tenant_id,
+                                                  False, True, False)
+
+    def _test_get_external_networks_for_port(self, gw_prefix, tenant_prefix,
+                                             scope_data, tenant_id,
+                                             external_use_address_scope,
+                                             project_use_address_scope,
+                                             match_address_scopes=True):
+        scope = None
+        if scope_data:
+            scope = self.plugin.create_address_scope(
+                                            self.context,
+                                            {'address_scope': scope_data})
+
+        with self.router_with_external_and_tenant_networks(
+                tenant_id=tenant_id,
+                gw_prefix=gw_prefix,
+                tenant_prefix=tenant_prefix,
+                address_scope=scope,
+                distributed=True,
+                ext_net_use_addr_scope=external_use_address_scope,
+                tenant_net_use_addr_scope=project_use_address_scope) as res:
+            router, ext_net, int_net = res
+            gw_net_id = ext_net['network']['id']
+            tenant_net_id = int_net['network']['id']
+            fixed_port_data = {'port':
+                               {'name': 'test',
+                                'network_id': tenant_net_id,
+                                'tenant_id': tenant_id,
+                                'admin_state_up': True,
+                                'device_id': _uuid(),
+                                'device_owner': 'compute:nova',
+                                'mac_address': n_const.ATTR_NOT_SPECIFIED,
+                                'fixed_ips': n_const.ATTR_NOT_SPECIFIED,
+                                portbindings.HOST_ID: 'test-host'}}
+            fixed_port = self.plugin.create_port(self.context,
+                                             fixed_port_data)
+            self.plugin.create_or_update_agent(self.context,
+                                           {'agent_type': 'L3 agent',
+                                            'host': 'test-host',
+                                            'binary': 'neutron-l3-agent',
+                                            'topic': 'test'})
+            ext_nets = self.bgp_plugin.get_external_networks_for_port(
+                                    self.context,
+                                    fixed_port,
+                                    match_address_scopes=match_address_scopes)
+
+            if not match_address_scopes:
+                self.assertEqual(1, len(ext_nets))
+                self.assertEqual(gw_net_id, ext_nets[0])
+            elif external_use_address_scope and project_use_address_scope:
+                self.assertEqual(1, len(ext_nets))
+                self.assertEqual(gw_net_id, ext_nets[0])
+            else:
+                self.assertEqual(0, len(ext_nets))
 
 
 class Ml2BgpTests(test_plugin.Ml2PluginV2TestCase,

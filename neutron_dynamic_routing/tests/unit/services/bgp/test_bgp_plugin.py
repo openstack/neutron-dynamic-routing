@@ -66,6 +66,8 @@ class TestBgpPlugin(base.BaseTestCase):
                           resources.ROUTER_GATEWAY, events.AFTER_CREATE),
                 mock.call(plugin.router_gateway_callback,
                           resources.ROUTER_GATEWAY, events.AFTER_DELETE),
+                mock.call(plugin.port_callback,
+                          resources.PORT, events.AFTER_UPDATE),
             ]
             self.assertEqual(subscribe.call_args_list, expected_calls)
 
