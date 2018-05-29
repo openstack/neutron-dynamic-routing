@@ -14,6 +14,7 @@
 
 from netaddr import IPAddress
 
+from neutron_lib.api.definitions import portbindings
 from neutron_lib.callbacks import events
 from neutron_lib.callbacks import registry
 from neutron_lib.callbacks import resources
@@ -95,6 +96,9 @@ class BgpPlugin(service_base.ServicePluginBase,
         registry.subscribe(self.router_gateway_callback,
                            resources.ROUTER_GATEWAY,
                            events.AFTER_DELETE)
+        registry.subscribe(self.port_callback,
+                           resources.PORT,
+                           events.AFTER_UPDATE)
 
     def get_bgp_speakers(self, context, filters=None, fields=None,
                          sorts=None, limit=None, marker=None,
@@ -343,6 +347,36 @@ class BgpPlugin(service_base.ServicePluginBase,
             for speaker in speakers:
                 self.stop_route_advertisements(ctx, self._bgp_rpc,
                                                speaker.id, routes)
+
+    def port_callback(self, resource, event, trigger, **kwargs):
+        if event != events.AFTER_UPDATE:
+            return
+
+        original_port = kwargs['original_port']
+        updated_port = kwargs['port']
+        if not updated_port.get('fixed_ips'):
+            return
+
+        original_host = original_port.get(portbindings.HOST_ID)
+        updated_host = updated_port.get(portbindings.HOST_ID)
+        device_owner = updated_port.get('device_owner')
+
+        # if host in the port binding has changed, update next-hops
+        if original_host != updated_host and bool('compute:' in device_owner):
+            ctx = context.get_admin_context()
+            with ctx.session.begin(subtransactions=True):
+                ext_nets = self.get_external_networks_for_port(ctx,
+                                                               updated_port)
+                for ext_net in ext_nets:
+                    bgp_speakers = (
+                        self._get_bgp_speaker_ids_by_binding_network(
+                            ctx, ext_nets))
+
+                    # Refresh any affected BGP speakers
+                    for bgp_speaker in bgp_speakers:
+                        routes = self.get_advertised_routes(ctx, bgp_speaker)
+                        self.start_route_advertisements(ctx, self._bgp_rpc,
+                                                        bgp_speaker, routes)
 
     def _next_hops_from_gateway_ips(self, gw_ips):
         if gw_ips:

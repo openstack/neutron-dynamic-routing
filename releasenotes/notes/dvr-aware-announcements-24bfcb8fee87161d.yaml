@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    DVR-aware BGP announcements are now supported for IPv4. Host routes
+    for instances are announced as /32 host routes, using the appropriate
+    floating IP gateway port on the host as the next-hop. This allows
+    network traffic to bypass the centralized router on the network
+    node and ingress/egress directly on the compute node.
