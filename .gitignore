@@ -29,7 +29,6 @@ subunit.log
 !/.mailmap
 !/.pylintrc
 !/.stestr.conf
-!/.testr.conf
 !/.zuul.yaml
 
 # Files created by releasenotes build
