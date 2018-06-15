@@ -81,10 +81,11 @@ class TestBgpDrAgent(base.BaseTestCase):
                                'sync_state',
                                autospec=True) as mock_sync_state:
             with mock.patch(state_rpc_str) as state_rpc:
-                with mock.patch.object(sys, 'argv') as sys_argv:
-                    sys_argv.return_value = [
-                        'bgp_dragent', '--config-file',
-                        base.etcdir('neutron.conf')]
+                test_args = [
+                    'bgp_dragent', '--config-file',
+                    base.etcdir('neutron.conf')
+                ]
+                with mock.patch.object(sys, 'argv', test_args):
                     config.register_agent_state_opts_helper(cfg.CONF)
                     n_config.init(sys.argv[1:])
                     agent_mgr = bgp_dragent.BgpDrAgentWithStateReport(
