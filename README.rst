@@ -21,3 +21,6 @@ https://git.openstack.org/cgit/openstack/neutron-dynamic-routing
 
 Refer to Neutron documentation for more information:
 `Neutron README.rst <https://git.openstack.org/cgit/openstack/neutron/tree/README.rst>`_
+
+Release notes for the project can be found at:
+https://docs.openstack.org/releasenotes/neutron-dynamic-routing/
