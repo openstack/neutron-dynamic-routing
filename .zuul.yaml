@@ -83,6 +83,12 @@
       - openstack/tempest
 
 - project:
+    templates:
+      - check-requirements
+      - openstack-python-jobs-neutron
+      - openstack-python35-jobs-neutron
+      - publish-openstack-sphinx-docs
+      - release-notes-jobs
     check:
       jobs:
         - neutron-dynamic-routing-dsvm-functional
@@ -103,4 +109,10 @@
     periodic:
       jobs:
         - periodic-neutron-dynamic-routing-dsvm-tempest-with-ryu-master-scenario-ipv4
+        - legacy-periodic-neutron-dynamic-routing-dsvm-tempest-with-ryu-master-scenario-ipv4
 #        - legacy-periodic-neutron-dynamic-routing-dsvm-tempest-with-ryu-master-scenario-ipv4
+    post:
+      jobs:
+        - openstack-tox-cover:
+            required-projects:
+              - openstack/neutron
