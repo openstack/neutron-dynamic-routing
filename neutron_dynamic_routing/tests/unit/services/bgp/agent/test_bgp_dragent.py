@@ -74,7 +74,9 @@ class TestBgpDrAgent(base.BaseTestCase):
         self.driver_cls = self.driver_cls_p.start()
         self.context = context.get_admin_context()
 
-    def test_bgp_dragent_manager(self):
+    @mock.patch('neutron.common.config.init')
+    def test_bgp_dragent_manager(self, mock_init):
+        mock_init.return_value = '/tmp/test'
         state_rpc_str = 'neutron.agent.rpc.PluginReportStateAPI'
         # sync_state is needed for this test
         with mock.patch.object(bgp_dragent.BgpDrAgentWithStateReport,
