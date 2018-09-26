@@ -13,9 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from neutron_lib import rpc as n_rpc
 import oslo_messaging
-
-from neutron.common import rpc as n_rpc
 
 from neutron_dynamic_routing.services.bgp.common import constants as bgp_consts
 

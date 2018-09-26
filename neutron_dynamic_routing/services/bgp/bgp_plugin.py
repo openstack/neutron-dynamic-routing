@@ -19,12 +19,11 @@ from neutron_lib.callbacks import registry
 from neutron_lib.callbacks import resources
 from neutron_lib import constants as n_const
 from neutron_lib import context
+from neutron_lib import rpc as n_rpc
 from neutron_lib.services import base as service_base
 from oslo_config import cfg
 from oslo_log import log as logging
 from oslo_utils import importutils
-
-from neutron.common import rpc as n_rpc
 
 from neutron_dynamic_routing.api.rpc.agentnotifiers import bgp_dr_rpc_agent_api  # noqa
 from neutron_dynamic_routing.api.rpc.callbacks import resources as dr_resources
