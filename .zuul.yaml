@@ -98,6 +98,8 @@
 - project:
     templates:
       - check-requirements
+      - openstack-cover-jobs-neutron
+      - openstack-lower-constraints-jobs
       - openstack-python-jobs-neutron
       - openstack-python35-jobs-neutron
       - openstack-python36-jobs-neutron
@@ -113,12 +115,10 @@
             voting: false
         - neutron-dynamic-routing-dsvm-tempest-scenario-ipv6:
             voting: false
-        - openstack-tox-lower-constraints
     gate:
       jobs:
         - neutron-dynamic-routing-dsvm-functional
         - neutron-dynamic-routing-dsvm-tempest-api
-        - openstack-tox-lower-constraints
     experimental:
       jobs:
         - neutron-dynamic-routing-dsvm-tempest-with-ryu-master-scenario-ipv4
@@ -126,8 +126,3 @@
       jobs:
         - neutron-dynamic-routing-dsvm-tempest-with-ryu-master-scenario-ipv4
         - legacy-periodic-neutron-dynamic-routing-dsvm-tempest-with-ryu-master-scenario-ipv4
-    post:
-      jobs:
-        - openstack-tox-cover:
-            required-projects:
-              - openstack/neutron
