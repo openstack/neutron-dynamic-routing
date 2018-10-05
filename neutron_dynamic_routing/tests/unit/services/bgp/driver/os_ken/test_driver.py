@@ -87,7 +87,7 @@ class TestOsKenBgpDriver(base.BaseTestCase):
                                             address=FAKE_PEER_IP,
                                             remote_as=FAKE_PEER_AS,
                                             enable_ipv4=True,
-                                            enable_ipv6=False,
+                                            enable_ipv6=True,
                                             password=None,
                                             connect_mode=CONNECT_MODE_ACTIVE)
 
@@ -105,7 +105,7 @@ class TestOsKenBgpDriver(base.BaseTestCase):
             address=FAKE_PEER_IP,
             remote_as=FAKE_PEER_AS,
             enable_ipv4=True,
-            enable_ipv6=False,
+            enable_ipv6=True,
             password=encodeutils.to_utf8(FAKE_PEER_PASSWORD),
             connect_mode=CONNECT_MODE_ACTIVE)
 
@@ -125,7 +125,7 @@ class TestOsKenBgpDriver(base.BaseTestCase):
             address=FAKE_PEER_IP,
             remote_as=FAKE_PEER_AS,
             enable_ipv4=True,
-            enable_ipv6=False,
+            enable_ipv6=True,
             password=encodeutils.to_utf8(NEW_FAKE_PEER_PASSWORD),
             connect_mode=CONNECT_MODE_ACTIVE)
 
@@ -140,7 +140,7 @@ class TestOsKenBgpDriver(base.BaseTestCase):
         speaker.neighbor_add.assert_called_once_with(
                                             address=FAKE_PEER_IPV6,
                                             remote_as=FAKE_PEER_AS,
-                                            enable_ipv4=False,
+                                            enable_ipv4=True,
                                             enable_ipv6=True,
                                             password=None,
                                             connect_mode=CONNECT_MODE_ACTIVE)

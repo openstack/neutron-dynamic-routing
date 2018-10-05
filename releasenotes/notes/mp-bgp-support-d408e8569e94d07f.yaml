@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    The os-ken driver now supports announcement of IPv6 prefixes
+    over IPv4 sessions and vice-versa. Peers can opt in/out with
+    MP-BGP capabilities configured on the peer end of BGP sessions
+    established with the os-ken driver.
