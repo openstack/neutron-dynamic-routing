@@ -33,7 +33,7 @@ realize the required dynamic routing protocol functionality. For details,
 please refer to the system design document :doc:`system-design`
 
 .. note::
- One DRAgent can support multiple drivers but currently ONLY Ryu is
+ One DRAgent can support multiple drivers but currently ONLY os-ken is
  integrated successfully.
 
 

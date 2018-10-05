@@ -81,7 +81,7 @@ The following figure shows the architecture of this feature::
     |  +---------------------+  |     |  +---------------------+  |
     |            |              |     |            |              |
     |  +---------+-----------+  |     |  +---------+-----------+  |
-    |  | Ryu     |  Other    |  |     |  | Ryu     |  Other    |  |
+    |  | os-ken  |  Other    |  |     |  | os-ken  |  Other    |  |
     |  | Driver  |  Drivers  |  |     |  | Driver  |  Drivers  |  |
     |  +---------+-----------+  |     |  +---------+-----------+  |
     |                           |     |                           |
@@ -126,5 +126,5 @@ It manages and configures different dynamic routing stack through
 `Common Driver API <../contributor/dragent-drivers.html>`_.
 
 .. note::
- Currently, only integration with `Ryu <http://ryu.readthedocs.io/en/latest/library_bgp_speaker.html>`_
+ Currently, only integration with `os-ken <https://docs.openstack.org/os-ken/latest/>`_
  is supported. Future releases will add the support for Quagga, Bird, etc.

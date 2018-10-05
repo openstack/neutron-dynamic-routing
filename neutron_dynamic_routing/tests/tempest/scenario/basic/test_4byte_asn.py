@@ -17,8 +17,8 @@ from tempest.lib import decorators
 from neutron_dynamic_routing.tests.tempest.scenario import base
 from neutron_dynamic_routing.tests.tempest.scenario import base_test_proto as test_base  # noqa
 
-from ryu.tests.integrated.common import docker_base as ctn_base
-from ryu.tests.integrated.common import quagga
+from os_ken.tests.integrated.common import docker_base as ctn_base
+from os_ken.tests.integrated.common import quagga
 
 CONF = config.CONF
 

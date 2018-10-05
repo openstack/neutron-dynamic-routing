@@ -23,7 +23,7 @@ function configure_dr_agent_bgp_config {
 
 function configure_dr_agent_bgp_driver {
     if [ -z "$BGP_SPEAKER_DRIVER" ] ; then
-        BGP_SPEAKER_DRIVER=$RYU_BGP_SPEAKER_DRIVER
+        BGP_SPEAKER_DRIVER=$OSKEN_BGP_SPEAKER_DRIVER
     fi
     iniset $DR_AGENT_BGP_CONF_FILE bgp bgp_speaker_driver $BGP_SPEAKER_DRIVER
 }

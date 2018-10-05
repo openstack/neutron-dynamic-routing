@@ -15,8 +15,8 @@
 #    under the License.
 
 from neutron_dynamic_routing.tests.tempest.scenario import base
-from ryu.tests.integrated.common import docker_base as ctn_base
-from ryu.tests.integrated.common import quagga
+from os_ken.tests.integrated.common import docker_base as ctn_base
+from os_ken.tests.integrated.common import quagga
 
 
 class BgpSpeakerBasicTestJSONBase(base.BgpSpeakerScenarioTestJSONBase):

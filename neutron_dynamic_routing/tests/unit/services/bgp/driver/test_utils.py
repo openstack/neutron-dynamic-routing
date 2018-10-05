@@ -24,7 +24,7 @@ from neutron_dynamic_routing.services.bgp.common import constants as bgp_consts 
 FAKE_IP = '2.2.2.5'
 FAKE_IPV6 = '2001:db8::'
 FAKE_LOCAL_AS = 12345
-FAKE_RYU_SPEAKER = {}
+FAKE_OS_KEN_SPEAKER = {}
 EXC_INV_PARAMTYPE = "Parameter %(param)s must be of %(param_type)s type."
 EXC_INV_PARAMRANGE = "%(param)s must be in %(range)s range."
 EXC_PASSWORD_NOTSPEC = "Password not specified for authentication " + \
@@ -152,25 +152,25 @@ class TestBgpMultiSpeakerCache(base.BaseTestCase):
 
     def setUp(self):
         super(TestBgpMultiSpeakerCache, self).setUp()
-        self.expected_cache = {FAKE_LOCAL_AS: FAKE_RYU_SPEAKER}
+        self.expected_cache = {FAKE_LOCAL_AS: FAKE_OS_KEN_SPEAKER}
         self.bs_cache = bgp_driver_utils.BgpMultiSpeakerCache()
 
     def test_put_bgp_speaker(self):
-        self.bs_cache.put_bgp_speaker(FAKE_LOCAL_AS, FAKE_RYU_SPEAKER)
+        self.bs_cache.put_bgp_speaker(FAKE_LOCAL_AS, FAKE_OS_KEN_SPEAKER)
         self.assertEqual(self.expected_cache, self.bs_cache.cache)
 
     def test_remove_bgp_speaker(self):
-        self.bs_cache.put_bgp_speaker(FAKE_LOCAL_AS, FAKE_RYU_SPEAKER)
+        self.bs_cache.put_bgp_speaker(FAKE_LOCAL_AS, FAKE_OS_KEN_SPEAKER)
         self.assertEqual(1, len(self.bs_cache.cache))
         self.bs_cache.remove_bgp_speaker(FAKE_LOCAL_AS)
         self.assertEqual(0, len(self.bs_cache.cache))
 
     def test_get_bgp_speaker(self):
-        self.bs_cache.put_bgp_speaker(FAKE_LOCAL_AS, FAKE_RYU_SPEAKER)
+        self.bs_cache.put_bgp_speaker(FAKE_LOCAL_AS, FAKE_OS_KEN_SPEAKER)
         self.assertEqual(
-            FAKE_RYU_SPEAKER,
+            FAKE_OS_KEN_SPEAKER,
             self.bs_cache.get_bgp_speaker(FAKE_LOCAL_AS))
 
     def test_get_hosted_bgp_speakers_count(self):
-        self.bs_cache.put_bgp_speaker(FAKE_LOCAL_AS, FAKE_RYU_SPEAKER)
+        self.bs_cache.put_bgp_speaker(FAKE_LOCAL_AS, FAKE_OS_KEN_SPEAKER)
         self.assertEqual(1, self.bs_cache.get_hosted_bgp_speakers_count())

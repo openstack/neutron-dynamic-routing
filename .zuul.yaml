@@ -83,10 +83,10 @@
       - ^releasenotes/.*$
 
 - job:
-    name: neutron-dynamic-routing-dsvm-tempest-with-ryu-master-scenario-ipv4
+    name: neutron-dynamic-routing-dsvm-tempest-with-os-ken-master-scenario-ipv4
     parent: legacy-dsvm-base
-    run: playbooks/neutron-dynamic-routing-dsvm-tempest-with-ryu-master-scenario-ipv4/run.yaml
-    post-run: playbooks/neutron-dynamic-routing-dsvm-tempest-with-ryu-master-scenario-ipv4/post.yaml
+    run: playbooks/neutron-dynamic-routing-dsvm-tempest-with-os-ken-master-scenario-ipv4/run.yaml
+    post-run: playbooks/neutron-dynamic-routing-dsvm-tempest-with-os-ken-master-scenario-ipv4/post.yaml
     timeout: 7800
     required-projects:
       - openstack-infra/devstack-gate
@@ -121,8 +121,8 @@
         - neutron-dynamic-routing-dsvm-tempest-api
     experimental:
       jobs:
-        - neutron-dynamic-routing-dsvm-tempest-with-ryu-master-scenario-ipv4
+        - neutron-dynamic-routing-dsvm-tempest-with-os-ken-master-scenario-ipv4
     periodic:
       jobs:
-        - neutron-dynamic-routing-dsvm-tempest-with-ryu-master-scenario-ipv4
+        - neutron-dynamic-routing-dsvm-tempest-with-os-ken-master-scenario-ipv4
         - legacy-periodic-neutron-dynamic-routing-dsvm-tempest-with-ryu-master-scenario-ipv4

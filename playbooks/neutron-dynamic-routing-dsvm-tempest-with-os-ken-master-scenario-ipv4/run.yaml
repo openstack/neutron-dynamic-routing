@@ -1,6 +1,6 @@
 - hosts: all
-  name: Autoconverted job legacy-neutron-dynamic-routing-dsvm-tempest-with-ryu-master-scenario-ipv4
-    from old job gate-neutron-dynamic-routing-dsvm-tempest-with-ryu-master-scenario-ipv4-nv
+  name: Autoconverted job legacy-neutron-dynamic-routing-dsvm-tempest-with-os-ken-master-scenario-ipv4
+    from old job gate-neutron-dynamic-routing-dsvm-tempest-with-os-ken-master-scenario-ipv4-nv
   tasks:
 
     - name: Ensure legacy workspace directory
@@ -48,11 +48,11 @@
           export DEVSTACK_LOCAL_CONFIG
 
           function gate_hook {
-              local ryu_path=$BASE/new/ryu_master
-              if [[ ! -d $ryu_path ]]; then
-                  git clone https://github.com/osrg/ryu $ryu_path
+              local os_ken_path=$BASE/new/os_ken_master
+              if [[ ! -d $os_ken_path ]]; then
+                  git clone git://git.openstack.org/openstack/os-ken $os_ken_path
               fi
-              sudo pip install -e $ryu_path
+              sudo pip install -e $os_ken_path
               bash -xe $BASE/new/neutron-dynamic-routing/neutron_dynamic_routing/tests/contrib/gate_hook.sh dsvm-scenario
           }
           export -f gate_hook

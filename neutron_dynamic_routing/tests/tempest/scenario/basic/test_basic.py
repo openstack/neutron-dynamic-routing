@@ -20,7 +20,7 @@ from tempest.lib import decorators
 from neutron_dynamic_routing.tests.tempest.scenario import base as s_base
 from neutron_dynamic_routing.tests.tempest.scenario.basic import base
 
-from ryu.tests.integrated.common import docker_base as ctn_base
+from os_ken.tests.integrated.common import docker_base as ctn_base
 
 CONF = config.CONF
 

@@ -24,7 +24,7 @@ from tempest.common import utils
 from tempest import config
 
 from neutron_tempest_plugin.api import base
-from ryu.tests.integrated.common import docker_base as ctn_base
+from os_ken.tests.integrated.common import docker_base as ctn_base
 
 from neutron_dynamic_routing.tests.tempest import bgp_client
 

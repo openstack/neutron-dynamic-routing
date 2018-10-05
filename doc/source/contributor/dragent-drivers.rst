@@ -46,14 +46,14 @@ functionality of a dynamic routing protocol::
                 |               |               |
                 |               |               |
                 |  +------------+------------+  |
-                |  |  Ryu       |  Other     |  |
+                |  |  os-ken    |  Other     |  |
                 |  |  Driver    |  Drivers   |  |
                 |  +------------+------------+  |
                 |                               |
                 +-------------------------------+
 
 .. note::
- In the first release, only the integration with Ryu is supported. Later release will
+ In the first release, only the integration with os-ken is supported. Later release will
  have support for Quagga, Bird etc. Besides, BGP is the only protocol supported now
  but support for more dynamic routing protocols might come in the future.
 
@@ -66,8 +66,8 @@ BGP Driver
 ~~~~~~~~~~
 There are two configuration parameters related to BGP which are specified in ``bgp_dragent.ini``.
 
-* bgp_speaker_driver, to define BGP speaker driver class. Default is Ryu
-  (neutron_dynamic_routing.services.bgp.agent.driver.ryu.driver.RyuBgpDriver).
+* bgp_speaker_driver, to define BGP speaker driver class. Default is os-ken
+  (neutron_dynamic_routing.services.bgp.agent.driver.os_ken.driver.OsKenBgpDriver).
 * bgp_router_id, to define BGP identity (typically an IPv4 address). Default is
   a unique loopback interface IP address.
 

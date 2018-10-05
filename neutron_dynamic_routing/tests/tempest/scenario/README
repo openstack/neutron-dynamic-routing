@@ -28,7 +28,7 @@ diagram:
        container   +---------+  +---------+
 
 
-docker container environment is provided by test tool of ryu.
+docker container environment is provided by test tool of os-ken.
 It has the following functions:
 - build and remove a container image.
 - run, stop and remove a container.

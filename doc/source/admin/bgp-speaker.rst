@@ -129,12 +129,12 @@ and BGP Speaker object instance is created. For details refer to
 
 BGP Speaker Life Cycle
 ~~~~~~~~~~~~~~~~~~~~~~
-Now we support RyuBgpDriver, BGP Speaker will be processed by Dragent. When
+Now we support OsKenBgpDriver, BGP Speaker will be processed by Dragent. When
 associating a BGP Speaker with an active Dragent, the plugin will send an RPC
 message to the agent for calling driver in order to create a BGP Speaker instance.
 
-In RyuBgpDriver, the created instance ``BGP Speaker`` will setup by router-id
-and ASN, then Ryu will setup new context with speaker configuration and listeners
+In OsKenBgpDriver, the created instance ``BGP Speaker`` will setup by router-id
+and ASN, then os-ken will setup new context with speaker configuration and listeners
 which monitor whether the related peers are alive.
 
 Then the following operation could be done.
@@ -144,7 +144,7 @@ Then the following operation could be done.
   instance, so it will be still the db operation until the speaker is associated with
   dragent, and all the peers connection before will be setup by ``BGP Speaker``
   creation. If add peers into speaker which is running, Dragent will call driver
-  to add peer dynamically. For RyuBgpDriver, it will register a new neighbor
+  to add peer dynamically. For OsKenBgpDriver, it will register a new neighbor
   based on your peer configuration and try to establish a session with the peer.
 
 * Delete peers from BGP Speaker

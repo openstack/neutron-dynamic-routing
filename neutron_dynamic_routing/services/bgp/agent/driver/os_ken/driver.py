@@ -13,10 +13,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from os_ken.services.protocols.bgp import bgpspeaker
+from os_ken.services.protocols.bgp.rtconf.neighbors import CONNECT_MODE_ACTIVE
 from oslo_log import log as logging
 from oslo_utils import encodeutils
-from ryu.services.protocols.bgp import bgpspeaker
-from ryu.services.protocols.bgp.rtconf.neighbors import CONNECT_MODE_ACTIVE
 
 from neutron_lib import constants as lib_consts
 
@@ -48,14 +48,14 @@ def best_path_change_cb(event):
               'is_withdraw': event.is_withdraw})
 
 
-class RyuBgpDriver(base.BgpDriverBase):
-    """BGP speaker implementation via Ryu."""
+class OsKenBgpDriver(base.BgpDriverBase):
+    """BGP speaker implementation via os-ken."""
 
     def __init__(self, cfg):
-        LOG.info(_LI('Initializing Ryu driver for BGP Speaker functionality.'))
+        LOG.info(_LI('Initializing os-ken driver for BGP functionality.'))
         self._read_config(cfg)
 
-        # Note: Even though Ryu can only support one BGP speaker as of now,
+        # Note: Even though os-ken can only support one BGP speaker as of now,
         # we have tried making the framework generic for the future purposes.
         self.cache = utils.BgpMultiSpeakerCache()
 
@@ -66,8 +66,8 @@ class RyuBgpDriver(base.BgpDriverBase):
                           'functional working.'))
         else:
             self.routerid = cfg.bgp_router_id
-            LOG.info(_LI('Initialized Ryu BGP Speaker driver interface with '
-                         'bgp_router_id=%s'), self.routerid)
+            LOG.info(_LI('Initialized os-ken BGP Speaker driver interface '
+                         'with bgp_router_id=%s'), self.routerid)
 
     def add_bgp_speaker(self, speaker_as):
         curr_speaker = self.cache.get_bgp_speaker(speaker_as)
@@ -76,7 +76,7 @@ class RyuBgpDriver(base.BgpDriverBase):
                                                     current_as=speaker_as,
                                                     rtid=self.routerid)
 
-        # Ryu can only support One speaker
+        # os-ken can only support One speaker
         if self.cache.get_hosted_bgp_speakers_count() == 1:
             raise bgp_driver_exc.BgpSpeakerMaxScheduled(count=1)
 
@@ -84,7 +84,7 @@ class RyuBgpDriver(base.BgpDriverBase):
         # speaker_as must be an integer in the allowed range.
         utils.validate_as_num('local_as', speaker_as)
 
-        # Notify Ryu about BGP Speaker addition.
+        # Notify os-ken about BGP Speaker addition.
         # Please note: Since, only the route-advertisement support is
         # implemented we are explicitly setting the bgp_server_port
         # attribute to 0 which disables listening on port 179.
@@ -104,7 +104,7 @@ class RyuBgpDriver(base.BgpDriverBase):
         if not curr_speaker:
             raise bgp_driver_exc.BgpSpeakerNotAdded(local_as=speaker_as,
                                                     rtid=self.routerid)
-        # Notify Ryu about BGP Speaker deletion
+        # Notify os-ken about BGP Speaker deletion
         curr_speaker.shutdown()
         LOG.info(_LI('Removed BGP Speaker for local_as=%(as)d with '
                      'router_id=%(rtid)s.'),
@@ -125,7 +125,7 @@ class RyuBgpDriver(base.BgpDriverBase):
         if password is not None:
             password = encodeutils.to_utf8(password)
 
-        # Notify Ryu about BGP Peer addition
+        # Notify os-ken about BGP Peer addition
         if ip_version == lib_consts.IP_VERSION_4:
             enable_ipv4 = True
             enable_ipv6 = False
@@ -150,7 +150,7 @@ class RyuBgpDriver(base.BgpDriverBase):
         # Validate peer_ip. It must be a string.
         utils.validate_ip_addr(peer_ip)
 
-        # Notify Ryu about BGP Peer removal
+        # Notify os-ken about BGP Peer removal
         curr_speaker.neighbor_del(address=peer_ip)
         LOG.info(_LI('Removed BGP Peer %(peer)s from BGP Speaker '
                      'running for local_as=%(local_as)d.'),
@@ -166,7 +166,7 @@ class RyuBgpDriver(base.BgpDriverBase):
         utils.validate_string(cidr)
         utils.validate_string(nexthop)
 
-        # Notify Ryu about route advertisement
+        # Notify os-ken about route advertisement
         curr_speaker.prefix_add(prefix=cidr, next_hop=nexthop)
         LOG.info(_LI('Route cidr=%(prefix)s, nexthop=%(nexthop)s is '
                      'advertised for BGP Speaker running for '
@@ -181,7 +181,7 @@ class RyuBgpDriver(base.BgpDriverBase):
         # Validate cidr. It must be a string.
         utils.validate_string(cidr)
 
-        # Notify Ryu about route withdrawal
+        # Notify os-ken about route withdrawal
         curr_speaker.prefix_del(prefix=cidr)
         LOG.info(_LI('Route cidr=%(prefix)s is withdrawn from BGP Speaker '
                      'running for local_as=%(local_as)d.'),
