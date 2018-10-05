@@ -18,8 +18,6 @@ from oslo_utils import encodeutils
 from ryu.services.protocols.bgp import bgpspeaker
 from ryu.services.protocols.bgp.rtconf.neighbors import CONNECT_MODE_ACTIVE
 
-from neutron_lib import constants as lib_consts
-
 from neutron_dynamic_routing._i18n import _LE, _LI
 from neutron_dynamic_routing.services.bgp.agent.driver import base
 from neutron_dynamic_routing.services.bgp.agent.driver import exceptions as bgp_driver_exc  # noqa
@@ -120,22 +118,15 @@ class RyuBgpDriver(base.BgpDriverBase):
 
         # Validate peer_ip and peer_as.
         utils.validate_as_num('remote_as', peer_as)
-        ip_version = utils.validate_ip_addr(peer_ip)
+        utils.validate_ip_addr(peer_ip)
         utils.validate_auth(auth_type, password)
         if password is not None:
             password = encodeutils.to_utf8(password)
 
-        # Notify Ryu about BGP Peer addition
-        if ip_version == lib_consts.IP_VERSION_4:
-            enable_ipv4 = True
-            enable_ipv6 = False
-        else:
-            enable_ipv4 = False
-            enable_ipv6 = True
         curr_speaker.neighbor_add(address=peer_ip,
                                   remote_as=peer_as,
-                                  enable_ipv4=enable_ipv4,
-                                  enable_ipv6=enable_ipv6,
+                                  enable_ipv4=True,
+                                  enable_ipv6=True,
                                   password=password,
                                   connect_mode=CONNECT_MODE_ACTIVE)
         LOG.info(_LI('Added BGP Peer %(peer)s for remote_as=%(as)d to '
