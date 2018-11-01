@@ -43,6 +43,8 @@
           DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-dynamic-routing git://git.openstack.org/openstack/neutron-dynamic-routing"
           DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-tempest-plugin git://git.openstack.org/openstack/neutron-tempest-plugin"
           export DEVSTACK_LOCAL_CONFIG
+          # NOTE(frickler): Some tests are failing when running in parallel, likely due collisions in the docker setup
+          export TEMPEST_CONCURRENCY=1
 
           function gate_hook {
               bash -xe $BASE/new/neutron-dynamic-routing/neutron_dynamic_routing/tests/contrib/gate_hook.sh dsvm-scenario
