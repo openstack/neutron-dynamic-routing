@@ -16,7 +16,6 @@ import itertools
 
 import netaddr
 
-from neutron.db import api as db_api
 from neutron.db import common_db_mixin as common_db
 from neutron.db import l3_dvr_db
 from neutron.db.models import address_scope as address_scope_db
@@ -27,6 +26,7 @@ from neutron.plugins.ml2 import models as ml2_models
 
 from neutron_lib.api import validators
 from neutron_lib import constants as lib_consts
+from neutron_lib.db import api as db_api
 from neutron_lib.db import model_base
 from neutron_lib import exceptions as n_exc
 from neutron_lib.exceptions import l3 as l3_exc
@@ -133,7 +133,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
     def get_bgp_speakers(self, context, filters=None, fields=None,
                          sorts=None, limit=None, marker=None,
                          page_reverse=False):
-        with db_api.context_manager.reader.using(context):
+        with db_api.CONTEXT_READER.using(context):
             return self._get_collection(context, BgpSpeaker,
                                         self._make_bgp_speaker_dict,
                                         filters=filters, fields=fields,
@@ -141,7 +141,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
                                         page_reverse=page_reverse)
 
     def get_bgp_speaker(self, context, bgp_speaker_id, fields=None):
-        with db_api.context_manager.reader.using(context):
+        with db_api.CONTEXT_READER.using(context):
             bgp_speaker = self._get_bgp_speaker(context, bgp_speaker_id)
             return self._make_bgp_speaker_dict(bgp_speaker, fields)
 
@@ -149,7 +149,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
                                                bgp_speaker_id):
         bgp_speaker_attrs = ['id', 'local_as', 'tenant_id']
         bgp_peer_attrs = ['peer_ip', 'remote_as', 'auth_type', 'password']
-        with db_api.context_manager.reader.using(context):
+        with db_api.CONTEXT_READER.using(context):
             bgp_speaker = self.get_bgp_speaker(context, bgp_speaker_id,
                                                fields=bgp_speaker_attrs)
             res = dict((k, bgp_speaker[k]) for k in bgp_speaker_attrs)
@@ -163,7 +163,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
 
     def update_bgp_speaker(self, context, bgp_speaker_id, bgp_speaker):
         bp = bgp_speaker[bgp_ext.BGP_SPEAKER_BODY_KEY_NAME]
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             bgp_speaker_db = self._get_bgp_speaker(context, bgp_speaker_id)
             bgp_speaker_db.update(bp)
 
@@ -173,7 +173,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
     def _save_bgp_speaker(self, context, bgp_speaker, uuid):
         ri = bgp_speaker[bgp_ext.BGP_SPEAKER_BODY_KEY_NAME]
         ri['tenant_id'] = context.tenant_id
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             res_keys = ['local_as', 'tenant_id', 'name', 'ip_version',
                         'advertise_floating_ip_host_routes',
                         'advertise_tenant_networks']
@@ -198,7 +198,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
 
     def add_gateway_network(self, context, bgp_speaker_id, network_info):
         network_id = self._get_id_for(network_info, 'network_id')
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             try:
                 self._save_bgp_speaker_network_binding(context,
                                                        bgp_speaker_id,
@@ -210,7 +210,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
         return {'network_id': network_id}
 
     def remove_gateway_network(self, context, bgp_speaker_id, network_info):
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             network_id = self._get_id_for(network_info, 'network_id')
             self._remove_bgp_speaker_network_binding(context,
                                                      bgp_speaker_id,
@@ -218,7 +218,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
         return {'network_id': network_id}
 
     def delete_bgp_speaker(self, context, bgp_speaker_id):
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             bgp_speaker_db = self._get_bgp_speaker(context, bgp_speaker_id)
             context.session.delete(bgp_speaker_db)
 
@@ -229,7 +229,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
         if auth_type == 'md5' and not password:
             raise bgp_ext.InvalidBgpPeerMd5Authentication()
 
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             res_keys = ['tenant_id', 'name', 'remote_as', 'peer_ip',
                         'auth_type', 'password']
             res = dict((k, ri[k]) for k in res_keys)
@@ -252,7 +252,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
                                      bgp_speaker_id, fields=None):
         filters = [BgpSpeakerPeerBinding.bgp_speaker_id == bgp_speaker_id,
                    BgpSpeakerPeerBinding.bgp_peer_id == BgpPeer.id]
-        with db_api.context_manager.reader.using(context):
+        with db_api.CONTEXT_READER.using(context):
             query = context.session.query(BgpPeer)
             query = query.filter(*filters)
             return [self._make_bgp_peer_dict(x, fields) for x in query.all()]
@@ -262,13 +262,13 @@ class BgpDbMixin(common_db.CommonDbMixin):
         return self._make_bgp_peer_dict(bgp_peer_db, fields=fields)
 
     def delete_bgp_peer(self, context, bgp_peer_id):
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             bgp_peer_db = self._get_bgp_peer(context, bgp_peer_id)
             context.session.delete(bgp_peer_db)
 
     def update_bgp_peer(self, context, bgp_peer_id, bgp_peer):
         bp = bgp_peer[bgp_ext.BGP_PEER_BODY_KEY_NAME]
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             bgp_peer_db = self._get_bgp_peer(context, bgp_peer_id)
             if ((bp.get('password') is not None) and
                 (bgp_peer_db['auth_type'] == 'none')):
@@ -286,7 +286,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
             raise bgp_ext.BgpSpeakerNotFound(id=bgp_speaker_id)
 
     def _get_bgp_speaker_ids_by_router(self, context, router_id):
-        with db_api.context_manager.reader.using(context):
+        with db_api.CONTEXT_READER.using(context):
             network_binding = aliased(BgpSpeakerNetworkBinding)
             r_port = aliased(l3_db.RouterPort)
             query = context.session.query(network_binding.bgp_speaker_id)
@@ -299,7 +299,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
             return [binding.bgp_speaker_id for binding in query.all()]
 
     def _get_bgp_speaker_ids_by_binding_network(self, context, network_id):
-        with db_api.context_manager.reader.using(context):
+        with db_api.CONTEXT_READER.using(context):
             query = context.session.query(
                                       BgpSpeakerNetworkBinding.bgp_speaker_id)
             query = query.filter(
@@ -322,7 +322,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
         return uuid
 
     def _get_bgp_peers_by_bgp_speaker_binding(self, context, bgp_speaker_id):
-        with db_api.context_manager.reader.using(context):
+        with db_api.CONTEXT_READER.using(context):
             query = context.session.query(BgpPeer)
             query = query.filter(
                      BgpSpeakerPeerBinding.bgp_speaker_id == bgp_speaker_id,
@@ -331,7 +331,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
 
     def _save_bgp_speaker_peer_binding(self, context, bgp_speaker_id,
                                        bgp_peer_id):
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             try:
                 bgp_speaker = self._get_by_id(context, BgpSpeaker,
                                               bgp_speaker_id)
@@ -361,7 +361,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
 
     def _remove_bgp_speaker_peer_binding(self, context, bgp_speaker_id,
                                          bgp_peer_id):
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
 
             try:
                 binding = self._get_bgp_speaker_peer_binding(context,
@@ -377,7 +377,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
                                           context,
                                           bgp_speaker_id,
                                           network_id):
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             try:
                 bgp_speaker = self._get_by_id(context, BgpSpeaker,
                                               bgp_speaker_id)
@@ -398,7 +398,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
 
     def _remove_bgp_speaker_network_binding(self, context,
                                             bgp_speaker_id, network_id):
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
 
             try:
                 binding = self._get_bgp_speaker_network_binding(
@@ -452,7 +452,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
         return self._fields(res, fields)
 
     def _get_address_scope_ids_for_bgp_speaker(self, context, bgp_speaker_id):
-        with db_api.context_manager.reader.using(context):
+        with db_api.CONTEXT_READER.using(context):
             binding = aliased(BgpSpeakerNetworkBinding)
             address_scope = aliased(address_scope_db.AddressScope)
             query = context.session.query(address_scope)
@@ -466,7 +466,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
 
     def get_routes_by_bgp_speaker_id(self, context, bgp_speaker_id):
         """Get all routes that should be advertised by a BgpSpeaker."""
-        with db_api.context_manager.reader.using(context):
+        with db_api.CONTEXT_READER.using(context):
             net_routes = self._get_tenant_network_routes_by_bgp_speaker(
                                                                context,
                                                                bgp_speaker_id)
@@ -481,7 +481,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
     def get_routes_by_bgp_speaker_binding(self, context,
                                           bgp_speaker_id, network_id):
         """Get all routes for the given bgp_speaker binding."""
-        with db_api.context_manager.reader.using(context):
+        with db_api.CONTEXT_READER.using(context):
             fip_routes = self._get_central_fip_host_routes_by_binding(
                                                                context,
                                                                network_id,
@@ -520,7 +520,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
     def _get_central_fip_host_routes_by_router(self, context, router_id,
                                                bgp_speaker_id):
         """Get floating IP host routes with the given router as nexthop."""
-        with db_api.context_manager.reader.using(context):
+        with db_api.CONTEXT_READER.using(context):
             dest_alias = aliased(l3_db.FloatingIP,
                                  name='destination')
             next_hop_alias = aliased(models_v2.IPAllocation,
@@ -555,7 +555,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
 
     def _get_dvr_fip_host_routes_by_router(self, context, bgp_speaker_id,
                                            router_id):
-        with db_api.context_manager.reader.using(context):
+        with db_api.CONTEXT_READER.using(context):
             gw_query = self._get_gateway_query(context, bgp_speaker_id)
 
             fip_query = self._get_fip_query(context, bgp_speaker_id)
@@ -571,7 +571,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
     def _get_central_fip_host_routes_by_binding(self, context,
                                                 network_id, bgp_speaker_id):
         """Get all floating IP host routes for the given network binding."""
-        with db_api.context_manager.reader.using(context):
+        with db_api.CONTEXT_READER.using(context):
             # Query the DB for floating IP's and the IP address of the
             # gateway port
             dest_alias = aliased(l3_db.FloatingIP,
@@ -609,7 +609,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
 
     def _get_dvr_fip_host_routes_by_binding(self, context, network_id,
                                             bgp_speaker_id):
-        with db_api.context_manager.reader.using(context):
+        with db_api.CONTEXT_READER.using(context):
             BgpBinding = BgpSpeakerNetworkBinding
 
             gw_query = self._get_gateway_query(context, bgp_speaker_id)
@@ -628,7 +628,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
     def _get_central_fip_host_routes_by_bgp_speaker(self, context,
                                                     bgp_speaker_id):
         """Get all the floating IP host routes advertised by a BgpSpeaker."""
-        with db_api.context_manager.reader.using(context):
+        with db_api.CONTEXT_READER.using(context):
             dest_alias = aliased(l3_db.FloatingIP,
                                  name='destination')
             next_hop_alias = aliased(models_v2.IPAllocation,
@@ -705,7 +705,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
     def _get_dvr_fip_host_routes_by_bgp_speaker(self, context,
                                                 bgp_speaker_id):
         router_attrs = l3_attrs_db.RouterExtraAttributes
-        with db_api.context_manager.reader.using(context):
+        with db_api.CONTEXT_READER.using(context):
             gw_query = self._get_gateway_query(context, bgp_speaker_id)
             fip_query = self._get_fip_query(context, bgp_speaker_id)
 
@@ -734,7 +734,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
                                               network_id, bgp_speaker_id):
         """Get all tenant network routes for the given network."""
 
-        with db_api.context_manager.reader.using(context):
+        with db_api.CONTEXT_READER.using(context):
             tenant_networks_query = self._tenant_networks_by_network_query(
                                                                context,
                                                                network_id,
@@ -753,7 +753,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
                                              bgp_speaker_id):
         """Get all tenant network routes with the given router as nexthop."""
 
-        with db_api.context_manager.reader.using(context):
+        with db_api.CONTEXT_READER.using(context):
             scopes = self._get_address_scope_ids_for_bgp_speaker(
                                                                context,
                                                                bgp_speaker_id)
@@ -800,7 +800,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
                                                   bgp_speaker_id):
         """Get all tenant network routes to be advertised by a BgpSpeaker."""
 
-        with db_api.context_manager.reader.using(context):
+        with db_api.CONTEXT_READER.using(context):
             tenant_nets_q = self._tenant_networks_by_bgp_speaker_query(
                                                                context,
                                                                bgp_speaker_id)
@@ -937,7 +937,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
            models_v2.IPAllocation.subnet_id == models_v2.Subnet.id]
 
     def _tenant_prefixes_by_router(self, context, router_id, bgp_speaker_id):
-        with db_api.context_manager.reader.using(context):
+        with db_api.CONTEXT_READER.using(context):
             query = context.session.query(models_v2.Subnet.cidr.distinct())
             filters = self._tenant_prefixes_by_router_filters(router_id,
                                                               bgp_speaker_id)
@@ -965,7 +965,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
                                              context,
                                              router_port_id,
                                              bgp_speaker_id):
-        with db_api.context_manager.reader.using(context):
+        with db_api.CONTEXT_READER.using(context):
             query = context.session.query(models_v2.Subnet.cidr.distinct())
             filters = self._tenant_prefixes_by_router_filters(router_port_id,
                                                               bgp_speaker_id)
@@ -988,7 +988,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
 
     def _bgp_speakers_for_gateway_network(self, context, network_id):
         """Return all BgpSpeakers for the given gateway network"""
-        with db_api.context_manager.reader.using(context):
+        with db_api.CONTEXT_READER.using(context):
             query = context.session.query(BgpSpeaker)
             query = query.filter(
                   BgpSpeakerNetworkBinding.network_id == network_id,
@@ -998,7 +998,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
     def _bgp_speakers_for_gw_network_by_family(self, context,
                                                network_id, ip_version):
         """Return the BgpSpeaker by given gateway network and ip_version"""
-        with db_api.context_manager.reader.using(context):
+        with db_api.CONTEXT_READER.using(context):
             query = context.session.query(BgpSpeaker)
             query = query.filter(
                   BgpSpeakerNetworkBinding.network_id == network_id,
