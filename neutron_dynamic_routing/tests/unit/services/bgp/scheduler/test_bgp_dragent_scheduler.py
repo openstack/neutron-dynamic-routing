@@ -90,10 +90,6 @@ class TestSchedulerCallback(TestBgpDrAgentSchedulerBaseTestCase):
         bgp_notify_p.start()
         rpc_conn_p = mock.patch('neutron.common.rpc.Connection')
         rpc_conn_p.start()
-        admin_ctx_p = mock.patch('neutron_lib.context.get_admin_context')
-        admin_ctx_p = mock.patch('neutron_lib.context.get_admin_context')
-        self.admin_ctx_m = admin_ctx_p.start()
-        self.admin_ctx_m.return_value = self.ctx
         self.plugin = bgp_plugin.BgpPlugin()
         self.scheduler = bgp_dras.ChanceScheduler()
 
@@ -127,7 +123,7 @@ class TestSchedulerCallback(TestBgpDrAgentSchedulerBaseTestCase):
                 dr_resources.BGP_SPEAKER,
                 events.AFTER_CREATE,
                 self.scheduler, payload)
-            sched_bgp.assert_called_once_with(self.ctx,
+            sched_bgp.assert_called_once_with(mock.ANY,
                                               payload['bgp_speaker'])
 
     def test_schedule_bgp_speaker_callback_with_invalid_event(self):
@@ -305,9 +301,6 @@ class TestRescheduleBgpSpeaker(TestBgpDrAgentSchedulerBaseTestCase,
         bgp_notify_p.start()
         rpc_conn_p = mock.patch('neutron.common.rpc.Connection')
         rpc_conn_p.start()
-        admin_ctx_p = mock.patch('neutron_lib.context.get_admin_context')
-        self.admin_ctx_m = admin_ctx_p.start()
-        self.admin_ctx_m.return_value = self.ctx
         self.plugin = bgp_plugin.BgpPlugin()
         self.scheduler = bgp_dras.ChanceScheduler()
         self.host1 = 'host-a'
