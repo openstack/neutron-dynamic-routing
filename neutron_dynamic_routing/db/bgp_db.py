@@ -28,6 +28,7 @@ from neutron.plugins.ml2 import models as ml2_models
 from neutron_lib.api import validators
 from neutron_lib import constants as lib_consts
 from neutron_lib.db import model_base
+from neutron_lib.db import model_query
 from neutron_lib import exceptions as n_exc
 from neutron_lib.exceptions import l3 as l3_exc
 from oslo_db import exception as oslo_db_exc
@@ -433,14 +434,14 @@ class BgpDbMixin(common_db.CommonDbMixin):
 
     def _get_bgp_speaker_peer_binding(self, context,
                                       bgp_speaker_id, bgp_peer_id):
-        query = self._model_query(context, BgpSpeakerPeerBinding)
+        query = model_query.query_with_hooks(context, BgpSpeakerPeerBinding)
         return query.filter(
                         BgpSpeakerPeerBinding.bgp_speaker_id == bgp_speaker_id,
                         BgpSpeakerPeerBinding.bgp_peer_id == bgp_peer_id).one()
 
     def _get_bgp_speaker_network_binding(self, context,
                                          bgp_speaker_id, network_id):
-        query = self._model_query(context, BgpSpeakerNetworkBinding)
+        query = model_query.query_with_hooks(context, BgpSpeakerNetworkBinding)
         return query.filter(
                     BgpSpeakerNetworkBinding.bgp_speaker_id == bgp_speaker_id,
                     BgpSpeakerNetworkBinding.network_id == network_id).one()
