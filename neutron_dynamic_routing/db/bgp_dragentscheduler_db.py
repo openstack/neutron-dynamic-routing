@@ -14,6 +14,7 @@
 # under the License.
 
 from neutron_lib import context as ncontext
+from neutron_lib.db import api as db_api
 from neutron_lib.db import model_base
 from oslo_config import cfg
 from oslo_db import exception as db_exc
@@ -23,7 +24,6 @@ from sqlalchemy import orm
 from sqlalchemy.orm import exc
 
 from neutron.db import agentschedulers_db as as_db
-from neutron.db import api as db_api
 from neutron.db.models import agent as agent_model
 
 from neutron_dynamic_routing._i18n import _
@@ -122,7 +122,7 @@ class BgpDrAgentSchedulerDbMixin(bgp_dras_ext.BgpDrSchedulerPluginBase,
 
     def _save_bgp_speaker_dragent_binding(self, context,
                                           agent_id, speaker_id):
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             agent_db = self._get_agent(context, agent_id)
             agent_up = agent_db['admin_state_up']
             is_agent_bgp = (agent_db['agent_type'] ==
@@ -162,7 +162,7 @@ class BgpDrAgentSchedulerDbMixin(bgp_dras_ext.BgpDrSchedulerPluginBase,
             context, [bgp_speaker_id])[0]
         bgp_speaker = self.get_bgp_speaker(context, bgp_speaker_id)
         dragent_id = dragent.id
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             self._remove_bgp_speaker_from_dragent(
                 context, dragent_id, bgp_speaker_id)
             self.schedule_bgp_speaker(context, bgp_speaker)
@@ -174,7 +174,7 @@ class BgpDrAgentSchedulerDbMixin(bgp_dras_ext.BgpDrSchedulerPluginBase,
                 failure_reason="no eligible dr agent found")
 
     def _remove_bgp_speaker_from_dragent(self, context, agent_id, speaker_id):
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             agent_db = self._get_agent(context, agent_id)
             is_agent_bgp = (agent_db['agent_type'] ==
                             bgp_consts.AGENT_TYPE_BGP_ROUTING)
