@@ -16,13 +16,13 @@
 from neutron_lib.callbacks import events
 from neutron_lib.callbacks import registry
 from neutron_lib import context as nl_context
+from neutron_lib.objects import registry as obj_reg
 from oslo_db import exception as db_exc
 from oslo_log import log as logging
 from sqlalchemy import sql
 
 from neutron.agent.common import utils
 from neutron.db.models import agent as agent_model
-from neutron.objects import agent as agent_object
 from neutron.scheduler import base_resource_filter
 from neutron.scheduler import base_scheduler
 
@@ -148,7 +148,7 @@ class BgpDrAgentSchedulerBase(BgpDrAgentFilter):
 
         LOG.debug('Started auto-scheduling on host %s', host)
         with context.session.begin(subtransactions=True):
-            bgp_dragent = agent_object.Agent.get_object(
+            bgp_dragent = obj_reg.load_class('Agent').get_object(
                 context,
                 agent_type=bgp_consts.AGENT_TYPE_BGP_ROUTING,
                 host=host,
