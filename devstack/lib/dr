@@ -42,10 +42,6 @@ function configure_dr_agent_scheduler_driver {
 
 function dr_install {
     setup_develop $NEUTRON_DYNAMIC_ROUTING_DIR
-    if is_service_enabled q-dr neutron-dr && is_service_enabled q-svc neutron-api; then
-        sudo install -d -o $STACK_USER $NEUTRON_CONF_DIR/policy.d
-        cp -v $NEUTRON_DYNAMIC_ROUTING_DIR/etc/neutron/policy.d/dynamic_routing.conf $NEUTRON_CONF_DIR/policy.d
-    fi
 }
 
 #############################
