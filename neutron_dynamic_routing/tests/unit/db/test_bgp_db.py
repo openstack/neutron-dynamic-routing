@@ -235,8 +235,8 @@ class BgpTests(BgpEntityCreationMixin):
                                   name='speaker1'),\
                 self.bgp_speaker(sp2['ip_version'], 4321,
                                  name='speaker2'):
-                    speakers = self.bgp_plugin.get_bgp_speakers(self.context)
-                    self.assertEqual(2, len(speakers))
+                speakers = self.bgp_plugin.get_bgp_speakers(self.context)
+                self.assertEqual(2, len(speakers))
 
     def test_bgp_speaker_update_local_as(self):
         local_as_1 = 1234
@@ -639,10 +639,9 @@ class BgpTests(BgpEntityCreationMixin):
                              local_as,
                              networks=[gw_net_id],
                              advertise_fip_host_routes=fip_routes) as speaker:
-                    routes = self.bgp_plugin.get_advertised_routes(
-                                                                self.context,
-                                                                speaker['id'])
-                    return routes['advertised_routes']
+                routes = self.bgp_plugin.get_advertised_routes(
+                    self.context, speaker['id'])
+                return routes['advertised_routes']
 
     def test__tenant_prefixes_by_router_no_gateway_port(self):
         with self.network() as net1, self.network() as net2,\
@@ -734,24 +733,23 @@ class BgpTests(BgpEntityCreationMixin):
                             network=int_net,
                             ip_version=6) as int_subnet,\
                 self.router() as router:
-                    router_id = router['id']
-                    int_subnet_id = int_subnet['subnet']['id']
-                    ext_subnet_id = ext_subnet['subnet']['id']
-                    self.l3plugin.add_router_interface(self.context,
-                                                       router_id,
-                                                       {'subnet_id':
-                                                        int_subnet_id})
-                    self.l3plugin.add_router_interface(self.context,
-                                                       router_id,
-                                                       {'subnet_id':
-                                                        ext_subnet_id})
-                    with self.bgp_speaker(6, 1234,
-                                          networks=[gw_net_id]) as speaker:
-                        bgp_speaker_id = speaker['id']
-                        cidrs = self.bgp_plugin.get_routes_by_bgp_speaker_id(
-                                                               self.context,
-                                                               bgp_speaker_id)
-                        self.assertEqual(0, len(list(cidrs)))
+                router_id = router['id']
+                int_subnet_id = int_subnet['subnet']['id']
+                ext_subnet_id = ext_subnet['subnet']['id']
+                self.l3plugin.add_router_interface(self.context,
+                                                   router_id,
+                                                   {'subnet_id':
+                                                    int_subnet_id})
+                self.l3plugin.add_router_interface(self.context,
+                                                   router_id,
+                                                   {'subnet_id':
+                                                    ext_subnet_id})
+                with self.bgp_speaker(6, 1234,
+                                      networks=[gw_net_id]) as speaker:
+                    bgp_speaker_id = speaker['id']
+                    cidrs = self.bgp_plugin.get_routes_by_bgp_speaker_id(
+                        self.context, bgp_speaker_id)
+                    self.assertEqual(0, len(list(cidrs)))
 
     def test__get_routes_by_router_with_fip(self):
         gw_prefix = '172.16.10.0/24'
