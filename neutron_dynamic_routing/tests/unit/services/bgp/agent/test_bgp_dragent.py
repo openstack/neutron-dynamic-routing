@@ -66,6 +66,7 @@ class TestBgpDrAgent(base.BaseTestCase):
         super(TestBgpDrAgent, self).setUp()
         cfg.CONF.register_opts(bgp_config.BGP_DRIVER_OPTS, 'BGP')
         cfg.CONF.register_opts(bgp_config.BGP_PROTO_CONFIG_OPTS, 'BGP')
+        cfg.CONF.register_opts(config.AGENT_STATE_OPTS, 'AGENT')
         mock_log_p = mock.patch.object(bgp_dragent, 'LOG')
         self.mock_log = mock_log_p.start()
         self.driver_cls_p = mock.patch(
@@ -108,6 +109,14 @@ class TestBgpDrAgent(base.BaseTestCase):
         with mock.patch.object(bgp_dr, 'sync_state') as sync_state:
             bgp_dr.after_start()
             self.assertIsNotNone(len(sync_state.mock_calls))
+
+    def test_agent_updated(self):
+        bgp_dr = bgp_dragent.BgpDrAgentWithStateReport(HOSTNAME)
+        payload = {'admin_state_up': True}
+        with mock.patch.object(bgp_dr, 'agent_updated') as agent_updated:
+            bgp_dr.agent_updated(self.context, payload)
+            self.assertIsNotNone(len(agent_updated.mock_calls))
+            self.assertEqual(1, bgp_dr.agent_updated.call_count)
 
     def _test_sync_state_helper(self, bgp_speaker_list=None,
                                 cached_info=None,

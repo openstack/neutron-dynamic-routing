@@ -34,6 +34,14 @@ class BgpDrAgentNotifyApi(object):
         self.client = n_rpc.get_client(target)
         self.topic = topic
 
+    def agent_updated(self, context, admin_state_up, host):
+        """Tell BgpDrAgent that agent was updated.
+
+        This effectively tells the bgp_dragent to resync.
+        """
+        self._notification_host_cast(context, 'agent_updated',
+                {'admin_state_up': admin_state_up}, host)
+
     def bgp_routes_advertisement(self, context, bgp_speaker_id,
                                  routes, host):
         """Tell BgpDrAgent to begin advertising the given route.
