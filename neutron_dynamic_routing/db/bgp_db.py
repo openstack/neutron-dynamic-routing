@@ -29,6 +29,7 @@ from neutron_lib import constants as lib_consts
 from neutron_lib.db import api as db_api
 from neutron_lib.db import model_base
 from neutron_lib.db import model_query
+from neutron_lib.db import utils as db_utils
 from neutron_lib import exceptions as n_exc
 from neutron_lib.exceptions import l3 as l3_exc
 from oslo_db import exception as oslo_db_exc
@@ -135,11 +136,10 @@ class BgpDbMixin(common_db.CommonDbMixin):
                          sorts=None, limit=None, marker=None,
                          page_reverse=False):
         with db_api.CONTEXT_READER.using(context):
-            return self._get_collection(context, BgpSpeaker,
-                                        self._make_bgp_speaker_dict,
-                                        filters=filters, fields=fields,
-                                        sorts=sorts, limit=limit,
-                                        page_reverse=page_reverse)
+            return model_query.get_collection(
+                context, BgpSpeaker, self._make_bgp_speaker_dict,
+                filters=filters, fields=fields, sorts=sorts, limit=limit,
+                page_reverse=page_reverse)
 
     def get_bgp_speaker(self, context, bgp_speaker_id, fields=None):
         with db_api.CONTEXT_READER.using(context):
@@ -243,11 +243,11 @@ class BgpDbMixin(common_db.CommonDbMixin):
 
     def get_bgp_peers(self, context, fields=None, filters=None, sorts=None,
                       limit=None, marker=None, page_reverse=False):
-        return self._get_collection(context, BgpPeer,
-                                    self._make_bgp_peer_dict,
-                                    filters=filters, fields=fields,
-                                    sorts=sorts, limit=limit,
-                                    page_reverse=page_reverse)
+        return model_query.get_collection(context, BgpPeer,
+                                          self._make_bgp_peer_dict,
+                                          filters=filters, fields=fields,
+                                          sorts=sorts, limit=limit,
+                                          page_reverse=page_reverse)
 
     def get_bgp_peers_by_bgp_speaker(self, context,
                                      bgp_speaker_id, fields=None):
@@ -281,8 +281,8 @@ class BgpDbMixin(common_db.CommonDbMixin):
 
     def _get_bgp_speaker(self, context, bgp_speaker_id):
         try:
-            return self._get_by_id(context, BgpSpeaker,
-                                   bgp_speaker_id)
+            return model_query.get_by_id(context, BgpSpeaker,
+                                         bgp_speaker_id)
         except sa_exc.NoResultFound:
             raise bgp_ext.BgpSpeakerNotFound(id=bgp_speaker_id)
 
@@ -334,14 +334,14 @@ class BgpDbMixin(common_db.CommonDbMixin):
                                        bgp_peer_id):
         with db_api.CONTEXT_WRITER.using(context):
             try:
-                bgp_speaker = self._get_by_id(context, BgpSpeaker,
-                                              bgp_speaker_id)
+                bgp_speaker = model_query.get_by_id(context, BgpSpeaker,
+                                                    bgp_speaker_id)
             except sa_exc.NoResultFound:
                 raise bgp_ext.BgpSpeakerNotFound(id=bgp_speaker_id)
 
             try:
-                bgp_peer = self._get_by_id(context, BgpPeer,
-                                           bgp_peer_id)
+                bgp_peer = model_query.get_by_id(context, BgpPeer,
+                                                 bgp_peer_id)
             except sa_exc.NoResultFound:
                 raise bgp_ext.BgpPeerNotFound(id=bgp_peer_id)
 
@@ -380,14 +380,14 @@ class BgpDbMixin(common_db.CommonDbMixin):
                                           network_id):
         with db_api.CONTEXT_WRITER.using(context):
             try:
-                bgp_speaker = self._get_by_id(context, BgpSpeaker,
-                                              bgp_speaker_id)
+                bgp_speaker = model_query.get_by_id(context, BgpSpeaker,
+                                                    bgp_speaker_id)
             except sa_exc.NoResultFound:
                 raise bgp_ext.BgpSpeakerNotFound(id=bgp_speaker_id)
 
             try:
-                network = self._get_by_id(context, models_v2.Network,
-                                          network_id)
+                network = model_query.get_by_id(context, models_v2.Network,
+                                                network_id)
             except sa_exc.NoResultFound:
                 raise n_exc.NetworkNotFound(net_id=network_id)
 
@@ -421,14 +421,14 @@ class BgpDbMixin(common_db.CommonDbMixin):
         res = dict((k, bgp_speaker[k]) for k in attrs)
         res['peers'] = [x.bgp_peer_id for x in peer_bindings]
         res['networks'] = [x.network_id for x in network_bindings]
-        return self._fields(res, fields)
+        return db_utils.resource_fields(res, fields)
 
     def _make_advertised_routes_dict(self, routes):
         return {'advertised_routes': list(routes)}
 
     def _get_bgp_peer(self, context, bgp_peer_id):
         try:
-            return self._get_by_id(context, BgpPeer, bgp_peer_id)
+            return model_query.get_by_id(context, BgpPeer, bgp_peer_id)
         except sa_exc.NoResultFound:
             raise bgp_ext.BgpPeerNotFound(id=bgp_peer_id)
 
@@ -450,7 +450,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
         attrs = ['tenant_id', 'id', 'name', 'peer_ip', 'remote_as',
                  'auth_type', 'password']
         res = dict((k, bgp_peer[k]) for k in attrs)
-        return self._fields(res, fields)
+        return db_utils.resource_fields(res, fields)
 
     def _get_address_scope_ids_for_bgp_speaker(self, context, bgp_speaker_id):
         with db_api.CONTEXT_READER.using(context):
@@ -1024,7 +1024,7 @@ class BgpDbMixin(common_db.CommonDbMixin):
 
     def _get_router(self, context, router_id):
         try:
-            router = self._get_by_id(context, l3_db.Router, router_id)
+            router = model_query.get_by_id(context, l3_db.Router, router_id)
         except sa_exc.NoResultFound:
             raise l3_exc.RouterNotFound(router_id=router_id)
         return router
