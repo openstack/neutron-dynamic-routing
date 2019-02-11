@@ -88,7 +88,7 @@ class TestSchedulerCallback(TestBgpDrAgentSchedulerBaseTestCase):
                                   'agentnotifiers.bgp_dr_rpc_agent_api.'
                                   'BgpDrAgentNotifyApi')
         bgp_notify_p.start()
-        rpc_conn_p = mock.patch('neutron.common.rpc.Connection')
+        rpc_conn_p = mock.patch('neutron_lib.rpc.Connection')
         rpc_conn_p.start()
         self.plugin = bgp_plugin.BgpPlugin()
         self.scheduler = bgp_dras.ChanceScheduler()
@@ -299,7 +299,7 @@ class TestRescheduleBgpSpeaker(TestBgpDrAgentSchedulerBaseTestCase,
                                   'agentnotifiers.bgp_dr_rpc_agent_api.'
                                   'BgpDrAgentNotifyApi')
         bgp_notify_p.start()
-        rpc_conn_p = mock.patch('neutron.common.rpc.Connection')
+        rpc_conn_p = mock.patch('neutron_lib.rpc.Connection')
         rpc_conn_p.start()
         self.plugin = bgp_plugin.BgpPlugin()
         self.scheduler = bgp_dras.ChanceScheduler()
