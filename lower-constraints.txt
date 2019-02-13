@@ -52,7 +52,7 @@ msgpack-python==0.4.0
 munch==2.1.0
 netaddr==0.7.18
 netifaces==0.10.4
-neutron==13.0.0.0b2
+neutron==14.0.0.0b1
 neutron-lib==1.26.0
 openstackdocstheme==1.18.1
 openstacksdk==0.11.2
