@@ -37,6 +37,13 @@ class TestBgpDrAgentNotifyApi(base.BaseTestCase):
         self.context = context.get_admin_context()
         self.host = 'host-1'
 
+    def test_agent_updated(self):
+        admin_state_up = True
+        host = 'my-hostname'
+        self.notifier.agent_updated(self.context, admin_state_up, host)
+        self.assertEqual(1, self.mock_cast.call_count)
+        self.assertEqual(0, self.mock_call.call_count)
+
     def test_notify_dragent_bgp_routes_advertisement(self):
         bgp_speaker_id = 'bgp-speaker-1'
         routes = [{'destination': '1.1.1.1', 'next_hop': '2.2.2.2'}]
