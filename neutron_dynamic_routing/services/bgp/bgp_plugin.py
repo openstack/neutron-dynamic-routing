@@ -297,14 +297,14 @@ class BgpPlugin(service_base.ServicePluginBase,
                                                     speaker.id,
                                                     rl)
 
-    def router_gateway_callback(self, resource, event, trigger, **kwargs):
+    def router_gateway_callback(self, resource, event, trigger, payload=None):
         if event == events.AFTER_CREATE:
-            self._handle_router_gateway_after_create(**kwargs)
+            self._handle_router_gateway_after_create(payload)
         if event == events.AFTER_DELETE:
-            gw_network = kwargs['network_id']
-            router_id = kwargs['router_id']
+            gw_network = payload.metadata.get('network_id')
+            router_id = payload.resource_id
             next_hops = self._next_hops_from_gateway_ips(
-                                                        kwargs['gateway_ips'])
+                payload.metadata.get('gateway_ips'))
             ctx = context.get_admin_context()
             speakers = self._bgp_speakers_for_gateway_network(ctx, gw_network)
             for speaker in speakers:
@@ -318,14 +318,15 @@ class BgpPlugin(service_base.ServicePluginBase,
                                                                      next_hop)
                 self._handle_router_interface_after_delete(gw_network, routes)
 
-    def _handle_router_gateway_after_create(self, **kwargs):
+    def _handle_router_gateway_after_create(self, payload):
         ctx = context.get_admin_context()
-        gw_network = kwargs['network_id']
-        router_id = kwargs['router_id']
+        gw_network = payload.metadata.get('network_id')
+        router_id = payload.resource_id
         with ctx.session.begin(subtransactions=True):
             speakers = self._bgp_speakers_for_gateway_network(ctx,
                                                               gw_network)
-            next_hops = self._next_hops_from_gateway_ips(kwargs['gw_ips'])
+            next_hops = self._next_hops_from_gateway_ips(
+                payload.metadata.get('gateway_ips'))
 
             for speaker in speakers:
                 if speaker.ip_version in next_hops:
