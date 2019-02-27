@@ -259,23 +259,23 @@ class BgpPlugin(service_base.ServicePluginBase,
                                                 bgp_speaker.id,
                                                 [new_host_route])
 
-    def router_interface_callback(self, resource, event, trigger, **kwargs):
+    def router_interface_callback(self, resource, event, trigger,
+                                  payload=None):
         if event == events.AFTER_CREATE:
-            self._handle_router_interface_after_create(**kwargs)
+            self._handle_router_interface_after_create(payload)
         if event == events.AFTER_DELETE:
-            gw_network = kwargs['network_id']
+            gw_network = payload.metadata.get('network_id')
             next_hops = self._next_hops_from_gateway_ips(
-                                                        kwargs['gateway_ips'])
+                payload.metadata.get('gateway_ips'))
             ctx = context.get_admin_context()
             speakers = self._bgp_speakers_for_gateway_network(ctx, gw_network)
             for speaker in speakers:
                 routes = self._route_list_from_prefixes_and_next_hop(
-                                                kwargs['cidrs'],
-                                                next_hops[speaker.ip_version])
+                    payload.metadata['cidrs'], next_hops[speaker.ip_version])
                 self._handle_router_interface_after_delete(gw_network, routes)
 
-    def _handle_router_interface_after_create(self, **kwargs):
-        gw_network = kwargs['network_id']
+    def _handle_router_interface_after_create(self, payload):
+        gw_network = payload.metadata.get('network_id')
         if not gw_network:
             return
 
@@ -284,13 +284,11 @@ class BgpPlugin(service_base.ServicePluginBase,
             speakers = self._bgp_speakers_for_gateway_network(ctx,
                                                               gw_network)
             next_hops = self._next_hops_from_gateway_ips(
-                                                    kwargs['gateway_ips'])
+                payload.metadata.get('gateway_ips'))
 
             for speaker in speakers:
                 prefixes = self._tenant_prefixes_by_router(
-                                                      ctx,
-                                                      kwargs['router_id'],
-                                                      speaker.id)
+                    ctx, payload.resource_id, speaker.id)
                 next_hop = next_hops.get(speaker.ip_version)
                 if next_hop:
                     rl = self._route_list_from_prefixes_and_next_hop(prefixes,
