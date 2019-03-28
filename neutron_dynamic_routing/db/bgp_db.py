@@ -16,7 +16,6 @@ import itertools
 
 import netaddr
 
-from neutron.db import common_db_mixin as common_db
 from neutron.db import l3_dvr_db
 from neutron.db.models import address_scope as address_scope_db
 from neutron.db.models import l3 as l3_db
@@ -129,7 +128,7 @@ class BgpPeer(model_base.BASEV2,
     password = sa.Column(sa.String(255), nullable=True)
 
 
-class BgpDbMixin(common_db.CommonDbMixin):
+class BgpDbMixin(object):
 
     def create_bgp_speaker(self, context, bgp_speaker):
         uuid = uuidutils.generate_uuid()

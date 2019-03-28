@@ -17,7 +17,6 @@ from neutron_lib import context
 import testscenarios
 
 from neutron.db import agents_db
-from neutron.db import common_db_mixin
 from neutron.tests.unit import testlib_api
 
 from neutron_dynamic_routing.db import bgp_db
@@ -31,8 +30,7 @@ load_tests = testscenarios.load_tests_apply_scenarios
 
 class TestAutoSchedule(testlib_api.SqlTestCase,
                        bgp_dras_db.BgpDrAgentSchedulerDbMixin,
-                       agents_db.AgentDbMixin,
-                       common_db_mixin.CommonDbMixin):
+                       agents_db.AgentDbMixin):
     """Test various scenarios for schedule_unscheduled_bgp_speakers.
 
         Below is the brief description of the scenario variables
