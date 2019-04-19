@@ -5,7 +5,7 @@
     post-run: playbooks/neutron-dynamic-routing-dsvm-functional/post.yaml
     timeout: 7800
     required-projects:
-      - openstack-infra/devstack-gate
+      - openstack/devstack-gate
       - openstack/neutron
       - openstack/neutron-dynamic-routing
 
@@ -16,7 +16,7 @@
     post-run: playbooks/neutron-dynamic-routing-dsvm-tempest-api/post.yaml
     timeout: 7500
     required-projects:
-      - openstack-infra/devstack-gate
+      - openstack/devstack-gate
       - openstack/neutron
       - openstack/neutron-dynamic-routing
       - openstack/tempest
@@ -28,7 +28,7 @@
     post-run: playbooks/neutron-dynamic-routing-dsvm-tempest-scenario-basic/post.yaml
     timeout: 7800
     required-projects:
-      - openstack-infra/devstack-gate
+      - openstack/devstack-gate
       - openstack/neutron
       - openstack/neutron-dynamic-routing
       - openstack/tempest
@@ -40,7 +40,7 @@
     post-run: playbooks/neutron-dynamic-routing-dsvm-tempest-scenario-ipv4/post.yaml
     timeout: 7800
     required-projects:
-      - openstack-infra/devstack-gate
+      - openstack/devstack-gate
       - openstack/neutron
       - openstack/neutron-dynamic-routing
       - openstack/tempest
@@ -52,7 +52,7 @@
     post-run: playbooks/neutron-dynamic-routing-dsvm-tempest-scenario-ipv6/post.yaml
     timeout: 7800
     required-projects:
-      - openstack-infra/devstack-gate
+      - openstack/devstack-gate
       - openstack/neutron
       - openstack/neutron-dynamic-routing
       - openstack/tempest
@@ -64,7 +64,7 @@
     post-run: playbooks/neutron-dynamic-routing-dsvm-tempest-with-ryu-master-scenario-ipv4/post.yaml
     timeout: 7800
     required-projects:
-      - openstack-infra/devstack-gate
+      - openstack/devstack-gate
       - openstack/neutron
       - openstack/neutron-dynamic-routing
       - openstack/tempest
@@ -77,7 +77,7 @@
     timeout: 7800
     branches: master
     required-projects:
-      - openstack-infra/devstack-gate
+      - openstack/devstack-gate
       - openstack/neutron
       - openstack/neutron-dynamic-routing
       - openstack/tempest
