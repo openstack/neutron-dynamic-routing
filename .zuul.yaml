@@ -5,7 +5,7 @@
     post-run: playbooks/neutron-dynamic-routing-dsvm-functional/post.yaml
     timeout: 7800
     required-projects:
-      - openstack-infra/devstack-gate
+      - openstack/devstack-gate
       - openstack/neutron
       - openstack/neutron-dynamic-routing
     irrelevant-files:
@@ -21,7 +21,7 @@
     post-run: playbooks/neutron-dynamic-routing-dsvm-tempest-api/post.yaml
     timeout: 7500
     required-projects:
-      - openstack-infra/devstack-gate
+      - openstack/devstack-gate
       - openstack/neutron
       - openstack/neutron-dynamic-routing
       - openstack/neutron-tempest-plugin
@@ -38,7 +38,7 @@
     post-run: playbooks/neutron-dynamic-routing-dsvm-tempest-scenario-basic/post.yaml
     timeout: 7800
     required-projects:
-      - openstack-infra/devstack-gate
+      - openstack/devstack-gate
       - openstack/neutron
       - openstack/neutron-dynamic-routing
       - openstack/neutron-tempest-plugin
@@ -55,7 +55,7 @@
     post-run: playbooks/neutron-dynamic-routing-dsvm-tempest-scenario-ipv4/post.yaml
     timeout: 7800
     required-projects:
-      - openstack-infra/devstack-gate
+      - openstack/devstack-gate
       - openstack/neutron
       - openstack/neutron-dynamic-routing
       - openstack/neutron-tempest-plugin
@@ -72,7 +72,7 @@
     post-run: playbooks/neutron-dynamic-routing-dsvm-tempest-scenario-ipv6/post.yaml
     timeout: 7800
     required-projects:
-      - openstack-infra/devstack-gate
+      - openstack/devstack-gate
       - openstack/neutron
       - openstack/neutron-dynamic-routing
       - openstack/neutron-tempest-plugin
@@ -89,7 +89,7 @@
     post-run: playbooks/neutron-dynamic-routing-dsvm-tempest-with-os-ken-master-scenario-ipv4/post.yaml
     timeout: 7800
     required-projects:
-      - openstack-infra/devstack-gate
+      - openstack/devstack-gate
       - openstack/neutron
       - openstack/neutron-dynamic-routing
       - openstack/neutron-tempest-plugin
