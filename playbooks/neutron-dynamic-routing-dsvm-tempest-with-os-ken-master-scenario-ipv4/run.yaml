@@ -28,6 +28,7 @@
         cmd: |
           set -e
           set -x
+          export DEVSTACK_GATE_USE_PYTHON3=True
           export PYTHONUNBUFFERED=true
           export DEVSTACK_GATE_TEMPEST=1
           export DEVSTACK_GATE_TEMPEST_REGEX="^neutron_dynamic_routing.tests.tempest.scenario.ipv4\."

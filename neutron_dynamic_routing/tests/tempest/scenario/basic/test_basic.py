@@ -31,7 +31,7 @@ class BgpSpeakerBasicTest(base.BgpSpeakerBasicTestJSONBase):
     @decorators.idempotent_id('cc615252-c6cb-4d75-a70e-608fb2c3736a')
     def test_schedule_added_speaker(self):
         self.bgp_peer_args[0]['peer_ip'] = self.r_as_ip[0].split('/')[0]
-        num, subnet = self.tnet_gen.next()
+        num, subnet = next(self.tnet_gen)
         mask = '/' + str(self.TPool.prefixlen)
         TNet = s_base.Net(name='', net=subnet, mask=self.TPool.prefixlen,
                           cidr=subnet + mask, router=None)
@@ -51,7 +51,7 @@ class BgpSpeakerBasicTest(base.BgpSpeakerBasicTestJSONBase):
     @decorators.idempotent_id('ce98c33c-0ffa-49ae-b365-da836406793b')
     def test_unschedule_deleted_speaker(self):
         self.bgp_peer_args[0]['peer_ip'] = self.r_as_ip[0].split('/')[0]
-        num, subnet = self.tnet_gen.next()
+        num, subnet = next(self.tnet_gen)
         mask = '/' + str(self.TPool.prefixlen)
         TNet = s_base.Net(name='', net=subnet, mask=self.TPool.prefixlen,
                           cidr=subnet + mask, router=None)
@@ -77,7 +77,7 @@ class BgpSpeakerBasicTest(base.BgpSpeakerBasicTestJSONBase):
     @decorators.idempotent_id('aa6c565c-ded3-413b-8dc9-3928b3b0e38f')
     def test_remove_add_speaker_agent(self):
         self.bgp_peer_args[0]['peer_ip'] = self.r_as_ip[0].split('/')[0]
-        num, subnet = self.tnet_gen.next()
+        num, subnet = next(self.tnet_gen)
         mask = '/' + str(self.TPool.prefixlen)
         TNet = s_base.Net(name='', net=subnet, mask=self.TPool.prefixlen,
                           cidr=subnet + mask, router=None)

@@ -124,10 +124,10 @@ class BgpSpeakerScenarioTestJSONBase(base.BaseAdminNetworkTest):
         while True:
             with self.lock:
                 try:
-                    yield (i, str(subnet_gen.next()))
+                    yield (i, str(next(subnet_gen)))
                 except StopIteration:
                     subnet_gen = netaddr.iter_iprange(start, end, step=step)
-                    yield (i, str(subnet_gen.next()))
+                    yield (i, str(next(subnet_gen)))
                 i += 1
 
     def net_resource_cleanup(self):

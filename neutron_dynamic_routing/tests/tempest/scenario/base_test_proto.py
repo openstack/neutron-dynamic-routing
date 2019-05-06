@@ -27,7 +27,7 @@ class BgpSpeakerProtoTestBase(base.BgpSpeakerScenarioTestJSONBase):
 
     def _test_check_neighbor_established(self, ip_version):
         self.bgp_peer_args[0]['peer_ip'] = self.r_as_ip[0].split('/')[0]
-        num, subnet = self.tnet_gen.next()
+        num, subnet = next(self.tnet_gen)
         mask = '/' + str(self.TPool.prefixlen)
         TNet = base.Net(name='', net=subnet, mask=self.TPool.prefixlen,
                         cidr=subnet + mask, router=None)
@@ -46,7 +46,7 @@ class BgpSpeakerProtoTestBase(base.BgpSpeakerScenarioTestJSONBase):
 
     def _test_check_advertised_tenant_network(self, ip_version):
         self.bgp_peer_args[0]['peer_ip'] = self.r_as_ip[0].split('/')[0]
-        num, subnet = self.tnet_gen.next()
+        num, subnet = next(self.tnet_gen)
         mask = '/' + str(self.TPool.prefixlen)
         TNet = base.Net(name='', net=subnet, mask=self.TPool.prefixlen,
                         cidr=subnet + mask, router=None)
@@ -72,7 +72,7 @@ class BgpSpeakerProtoTestBase(base.BgpSpeakerScenarioTestJSONBase):
         tnets = []
         tnets_cidr = []
         for i in range(0, 3):
-            num, subnet = self.tnet_gen.next()
+            num, subnet = next(self.tnet_gen)
             mask = '/' + str(self.TPool.prefixlen)
             TNet = base.Net(name='', net=subnet, mask=self.TPool.prefixlen,
                             cidr=subnet + mask, router=None)
@@ -101,7 +101,7 @@ class BgpSpeakerProtoTestBase(base.BgpSpeakerScenarioTestJSONBase):
         for (bgp_peer_args, r_as_ip) in zip(self.bgp_peer_args,
                                             self.r_as_ip):
             bgp_peer_args['peer_ip'] = r_as_ip.split('/')[0]
-        num, subnet = self.tnet_gen.next()
+        num, subnet = next(self.tnet_gen)
         mask = '/' + str(self.TPool.prefixlen)
         TNet = base.Net(name='', net=subnet, mask=self.TPool.prefixlen,
                         cidr=subnet + mask, router=None)
@@ -123,7 +123,7 @@ class BgpSpeakerProtoTestBase(base.BgpSpeakerScenarioTestJSONBase):
         for (bgp_peer_args, r_as_ip) in zip(self.bgp_peer_args,
                                             self.r_as_ip):
             bgp_peer_args['peer_ip'] = r_as_ip.split('/')[0]
-        num, subnet = self.tnet_gen.next()
+        num, subnet = next(self.tnet_gen)
         mask = '/' + str(self.TPool.prefixlen)
         TNet = base.Net(name='', net=subnet, mask=self.TPool.prefixlen,
                         cidr=subnet + mask, router=None)
