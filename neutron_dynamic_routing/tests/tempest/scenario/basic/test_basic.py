@@ -16,6 +16,7 @@
 
 from tempest import config
 from tempest.lib import decorators
+from tempest.lib import exceptions as t_exc
 
 from neutron_dynamic_routing.tests.tempest.scenario import base as s_base
 from neutron_dynamic_routing.tests.tempest.scenario.basic import base
@@ -100,6 +101,17 @@ class BgpSpeakerBasicTest(base.BgpSpeakerBasicTestJSONBase):
         self.check_remote_as_state(self.dr, self.r_ass[0],
                                    ctn_base.BGP_FSM_ACTIVE,
                                    init_state=ctn_base.BGP_FSM_ESTABLISHED)
-        self.bgp_client.add_bgp_speaker_to_dragent(agent_id, speaker_id)
+
+        try:
+            self.bgp_client.add_bgp_speaker_to_dragent(agent_id, speaker_id)
+        except t_exc.Conflict:
+            # Ignore this error because the bgpspeaker may have been
+            # re-scheduled automatically between now and the last call to
+            # self.bgp_client.remove_bgp_speaker_from_dragent(). The call
+            # to check_remote_as_state() will properly assert whether the
+            # bgpspeaker was scheduled appropriately regardless of whether
+            # an exception is encountered here.
+            pass
+
         self.check_remote_as_state(self.dr, self.r_ass[0],
                                    ctn_base.BGP_FSM_ESTABLISHED)
