@@ -110,16 +110,16 @@
       jobs:
         - neutron-dynamic-routing-dsvm-functional
         - neutron-dynamic-routing-dsvm-tempest-api
-        - neutron-dynamic-routing-dsvm-tempest-scenario-basic:
-            voting: false
-        - neutron-dynamic-routing-dsvm-tempest-scenario-ipv4:
-            voting: false
-        - neutron-dynamic-routing-dsvm-tempest-scenario-ipv6:
-            voting: false
+        - neutron-dynamic-routing-dsvm-tempest-scenario-basic
+        - neutron-dynamic-routing-dsvm-tempest-scenario-ipv4
+        - neutron-dynamic-routing-dsvm-tempest-scenario-ipv6
     gate:
       jobs:
         - neutron-dynamic-routing-dsvm-functional
         - neutron-dynamic-routing-dsvm-tempest-api
+        - neutron-dynamic-routing-dsvm-tempest-scenario-basic
+        - neutron-dynamic-routing-dsvm-tempest-scenario-ipv4
+        - neutron-dynamic-routing-dsvm-tempest-scenario-ipv6
     experimental:
       jobs:
         - neutron-dynamic-routing-dsvm-tempest-with-os-ken-master-scenario-ipv4
