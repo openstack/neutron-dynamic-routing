@@ -16,11 +16,11 @@ The homepage for Neutron is: https://launchpad.net/neutron.  Use this
 site for asking for help, and filing bugs. We use a single launchpad
 page for all Neutron projects.
 
-Code is available on git.openstack.org at:
-https://git.openstack.org/cgit/openstack/neutron-dynamic-routing
+Code is available on opendev.org at:
+https://opendev.org/openstack/neutron-dynamic-routing
 
 Refer to Neutron documentation for more information:
-`Neutron README.rst <https://git.openstack.org/cgit/openstack/neutron/tree/README.rst>`_
+`Neutron README.rst <https://opendev.org/openstack/neutron/src/branch/master/README.rst>`_
 
 Release notes for the project can be found at:
 https://docs.openstack.org/releasenotes/neutron-dynamic-routing/

@@ -75,7 +75,7 @@ Common Driver API
 -----------------
 Common Driver API is needed to provide a generic and consistent interface
 to different drivers. Each driver need to implement the provided
-`base driver class <https://git.openstack.org/cgit/openstack/neutron-dynamic-routing/tree/neutron_dynamic_routing/services/bgp/agent/driver/base.py>`_.
+`base driver class <https://opendev.org/openstack/neutron-dynamic-routing/src/branch/master/neutron_dynamic_routing/services/bgp/agent/driver/base.py>`_.
 
 
 BGP

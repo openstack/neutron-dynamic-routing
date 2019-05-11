@@ -40,7 +40,7 @@ For details refer to `Route advertisement <./route-advertisement.html>`_.
 
 Address Scopes
 --------------
-`Address scopes <https://git.openstack.org/cgit/openstack/neutron/tree/doc/source/devref/address_scopes.rst>`_
+`Address scopes <https://opendev.org/openstack/neutron/src/branch/master/doc/source/contributor/internals/address_scopes.rst>`_
 provide flexible control as well as decoupling of address overlap from tenancy,
 so this kind control can provide a routable domain, the domain has itself route
 and no overlap address, it means an address scope define "a L3 routing domain".
@@ -120,7 +120,7 @@ A Sample Quagga router configuration file forming BGP peering with Neutron:
 BGP Speaker Architecture
 ------------------------
 Dynamic routing project saves BGP Speaker configuration as per the defined
-`data model <https://git.openstack.org/cgit/openstack/neutron-dynamic-routing/tree/neutron_dynamic_routing/db/bgp_db.py#n85>`_.
+`data model <https://opendev.org/openstack/neutron-dynamic-routing/src/branch/master/neutron_dynamic_routing/db/bgp_db.py#n85>`_.
 and pass on the configuration request to the dynamic routing agent for further processing.
 The implementation of a BGP Speaker is driver specific. During the driver interface
 initialization process, needed configurations are read from the configuration file
