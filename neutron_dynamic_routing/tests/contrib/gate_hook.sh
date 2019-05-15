@@ -102,7 +102,7 @@ then
     source $NEUTRON_PATH/devstack/lib/ovs
     source $NEUTRON_PATH/tools/configure_for_func_testing.sh
 
-    enable_plugin $PROJECT_NAME https://git.openstack.org/openstack/$PROJECT_NAME
+    enable_plugin $PROJECT_NAME https://opendev.org/openstack/$PROJECT_NAME
 
     # Make the workspace owned by the stack user
     sudo chown -R $STACK_USER:$STACK_USER $BASE

@@ -4,7 +4,7 @@
 
 1. Download devstack::
 
-     git clone https://git.openstack.org/openstack-dev/devstack.git
+     git clone https://opendev.org/openstack/devstack.git
 
 2. Add neutron-dynamic-routing to devstack.  The minimal set of critical local.conf
    additions are following::
@@ -12,7 +12,7 @@
      cd devstack
      cat << EOF > local.conf
      > [[local|localrc]]
-     > enable_plugin neutron-dynamic-routing https://git.openstack.org/openstack/neutron-dynamic-routing
+     > enable_plugin neutron-dynamic-routing https://opendev.org/openstack/neutron-dynamic-routing
      > EOF
 
 3. run devstack::
@@ -26,7 +26,7 @@ Notes:
      cd devstack
      cat << EOF > local.conf
      > [[local|localrc]]
-     > enable_plugin neutron-dynamic-routing https://git.openstack.org/openstack/neutron-dynamic-routing
+     > enable_plugin neutron-dynamic-routing https://opendev.org/openstack/neutron-dynamic-routing
      > DR_MODE=dr_plugin
      > EOF
 
@@ -34,7 +34,7 @@ Notes:
      cd devstack
      cat << EOF > local.conf
      > [[local|localrc]]
-     > enable_plugin neutron-dynamic-routing https://git.openstack.org/openstack/neutron-dynamic-routing
+     > enable_plugin neutron-dynamic-routing https://opendev.org/openstack/neutron-dynamic-routing
      > DR_MODE=dr_agent
      > EOF
 

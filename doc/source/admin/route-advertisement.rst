@@ -113,4 +113,4 @@ callbacks does this work.
 You could get the advertisement routes of specific BGP Speaker like:
 ``neutron bgp-speaker-advertiseroute-list <created-bgp-speaker>``
 It does a complicated db query to generate the list of advertised routes.
-For more details refer to `route advertisement db lookup <https://git.openstack.org/cgit/openstack/neutron-dynamic-routing/tree/neutron_dynamic_routing/db/bgp_db.py#n462>`_
+For more details refer to `route advertisement db lookup <https://opendev.org/openstack/neutron-dynamic-routing/src/branch/master/neutron_dynamic_routing/db/bgp_db.py#n462>`_
