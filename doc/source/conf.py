@@ -27,6 +27,7 @@ extensions = [
     'oslo_config.sphinxconfiggen',
     'oslo_policy.sphinxext',
     'oslo_policy.sphinxpolicygen',
+    'sphinxcontrib.rsvgconverter',
 ]
 
 # openstackdocstheme options
@@ -72,15 +73,31 @@ html_last_updated_fmt = '%Y-%m-%d %H:%M'
 # Output file base name for HTML help builder.
 htmlhelp_basename = '%sdoc' % project
 
+# -- Options for LaTeX output -------------------------------------------------
+
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass
-# [howto/manual]).
+# [howto/manual], torctree_only).
 latex_documents = [
     ('index',
-     '%s.tex' % project,
+     'doc-%s.tex' % project,
      u'%s Documentation' % project,
-     u'OpenStack Foundation', 'manual'),
+     u'OpenStack Foundation', 'manual',
+     # Specify toctree_only=True for a better document structure of
+     # the generated PDF file.
+     True),
 ]
+
+# Disable usage of xindy https://bugzilla.redhat.com/show_bug.cgi?id=1643664
+latex_use_xindy = False
+
+latex_domain_indices = False
+
+latex_elements = {
+    'makeindex': '',
+    'printindex': '',
+    'preamble': r'\setcounter{tocdepth}{3}',
+}
 
 # Example configuration for intersphinx: refer to the Python standard library.
 #intersphinx_mapping = {'http://docs.python.org/': None}

@@ -26,6 +26,11 @@
 Welcome to neutron-dynamic-routing's documentation!
 ===================================================
 
+.. NOTE(amotoki): toctree_only=False is specified in latex_documents
+   in doc/source/conf.py to get a better structure of the PDF doc.
+   This means the content of this file (index.rst) is NOT rendered
+   in the generated PDF file.
+
 .. include:: ../../README.rst
 
 Contents
