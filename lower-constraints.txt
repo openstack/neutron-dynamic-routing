@@ -122,7 +122,7 @@ ryu==4.24
 simplejson==3.5.1
 six==1.10.0
 snowballstemmer==1.2.1
-Sphinx==1.6.5
+sphinx==1.6.5
 sphinxcontrib-websupport==1.0.1
 SQLAlchemy==1.2.0
 sqlalchemy-migrate==0.11.0
