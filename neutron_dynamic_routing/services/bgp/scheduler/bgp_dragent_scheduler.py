@@ -38,7 +38,7 @@ BGP_SPEAKER_PER_DRAGENT = 1
 
 class BgpDrAgentFilter(base_resource_filter.BaseResourceFilter):
 
-    def bind(self, context, agents, bgp_speaker_id):
+    def bind(self, context, agents, bgp_speaker_id, force_scheduling=False):
         """Bind the BgpSpeaker to a BgpDrAgent."""
         bound_agents = agents[:]
         for agent in agents:
@@ -61,6 +61,9 @@ class BgpDrAgentFilter(base_resource_filter.BaseResourceFilter):
                        'agent_id': agent_id})
         super(BgpDrAgentFilter, self).bind(context, bound_agents,
                                            bgp_speaker_id)
+        # TODO(frickler): once neutron is released, switch to this
+        # super(BgpDrAgentFilter, self).bind(context, bound_agents,
+        #                                    bgp_speaker_id, force_scheduling)
 
     def filter_agents(self, plugin, context, bgp_speaker):
         """Return the agents that can host the BgpSpeaker."""
