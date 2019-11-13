@@ -230,7 +230,7 @@ class BgpPlugin(service_base.ServicePluginBase,
 
         ctx = context.get_admin_context()
         new_router_id = kwargs['router_id']
-        last_router_id = kwargs['last_known_router_id']
+        last_router_id = kwargs.get('last_known_router_id')
         floating_ip_address = kwargs['floating_ip_address']
         dest = floating_ip_address + '/32'
         bgp_speakers = self._bgp_speakers_for_gw_network_by_family(
