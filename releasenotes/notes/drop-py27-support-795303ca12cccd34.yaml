@@ -1,0 +1,7 @@
+---
+upgrade:
+  - |
+    Python 2.7 support has been dropped. Last release of
+    neutron-dynamic-routing to support python 2.7 is OpenStack Train. The
+    minimum version of Python now supported by neutron-dynamic-routing is
+    Python 3.6.
