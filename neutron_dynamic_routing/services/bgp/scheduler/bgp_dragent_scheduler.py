@@ -60,10 +60,7 @@ class BgpDrAgentFilter(base_resource_filter.BaseResourceFilter):
                       {'bgp_speaker_id': bgp_speaker_id,
                        'agent_id': agent_id})
         super(BgpDrAgentFilter, self).bind(context, bound_agents,
-                                           bgp_speaker_id)
-        # TODO(frickler): once neutron is released, switch to this
-        # super(BgpDrAgentFilter, self).bind(context, bound_agents,
-        #                                    bgp_speaker_id, force_scheduling)
+                                           bgp_speaker_id, force_scheduling)
 
     def filter_agents(self, plugin, context, bgp_speaker):
         """Return the agents that can host the BgpSpeaker."""
