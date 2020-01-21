@@ -1,18 +1,8 @@
 - job:
-    name: neutron-dynamic-routing-dsvm-functional
-    parent: legacy-dsvm-base
-    run: playbooks/neutron-dynamic-routing-dsvm-functional/run.yaml
-    post-run: playbooks/neutron-dynamic-routing-dsvm-functional/post.yaml
-    timeout: 7800
-    required-projects:
-      - openstack/devstack-gate
-      - openstack/neutron
-      - openstack/neutron-dynamic-routing
-    irrelevant-files:
-      - ^.*\.rst$
-      - ^doc/.*$
-      - ^releasenotes/.*$
-
+    name: neutron-dynamic-routing-functional
+    parent: neutron-functional
+    vars:
+        project_name: neutron-dynamic-routing-functional
 
 - project:
     templates:
@@ -24,11 +14,11 @@
       - release-notes-jobs-python3
     check:
       jobs:
-        - neutron-dynamic-routing-dsvm-functional
+        - neutron-dynamic-routing-functional
         - neutron-tempest-plugin-dynamic-routing
     gate:
       jobs:
-        - neutron-dynamic-routing-dsvm-functional
+        - neutron-dynamic-routing-functional
         - neutron-tempest-plugin-dynamic-routing
     periodic:
       jobs:
