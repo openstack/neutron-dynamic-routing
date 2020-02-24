@@ -23,6 +23,9 @@ from neutron.db.models import address_scope as address_scope_db
 from neutron.db.models import l3 as l3_db
 from neutron.db.models import l3_attrs as l3_attrs_db
 from neutron.db import models_v2
+from neutron.objects import ports
+from neutron.objects import subnet as subnet_obj
+from neutron.objects import subnetpool as subnetpool_obj
 from neutron.plugins.ml2 import models as ml2_models
 
 from neutron_lib.api import validators
@@ -44,6 +47,7 @@ from neutron_dynamic_routing.extensions import bgp as bgp_ext
 
 DEVICE_OWNER_ROUTER_GW = lib_consts.DEVICE_OWNER_ROUTER_GW
 DEVICE_OWNER_ROUTER_INTF = lib_consts.DEVICE_OWNER_ROUTER_INTF
+DEVICE_OWNER_DVR_INTERFACE = lib_consts.DEVICE_OWNER_DVR_INTERFACE
 
 
 class BgpSpeakerPeerBinding(model_base.BASEV2):
@@ -476,7 +480,11 @@ class BgpDbMixin(common_db.CommonDbMixin):
             dvr_fip_routes = self._get_dvr_fip_host_routes_by_bgp_speaker(
                                                                context,
                                                                bgp_speaker_id)
-            return itertools.chain(fip_routes, net_routes, dvr_fip_routes)
+            dvr_fixedip_routes = self._get_dvr_fixed_ip_routes_by_bgp_speaker(
+                                                            context,
+                                                            bgp_speaker_id)
+            return itertools.chain(fip_routes, net_routes, dvr_fip_routes,
+                                   dvr_fixedip_routes)
 
     def get_routes_by_bgp_speaker_binding(self, context,
                                           bgp_speaker_id, network_id):
@@ -668,12 +676,15 @@ class BgpDbMixin(common_db.CommonDbMixin):
 
     def _get_gateway_query(self, context, bgp_speaker_id):
         BgpBinding = BgpSpeakerNetworkBinding
+        AddressScope = address_scope_db.AddressScope
         ML2PortBinding = ml2_models.PortBinding
         IpAllocation = models_v2.IPAllocation
         Port = models_v2.Port
-        gw_query = context.session.query(Port.network_id,
-                                         ML2PortBinding.host,
-                                         IpAllocation.ip_address)
+        gw_query = context.session.query(
+                                Port.network_id,
+                                ML2PortBinding.host,
+                                IpAllocation.ip_address,
+                                AddressScope.id.label('address_scope_id'))
 
         #Subquery for FIP agent gateway ports
         gw_query = gw_query.filter(
@@ -681,6 +692,9 @@ class BgpDbMixin(common_db.CommonDbMixin):
             IpAllocation.port_id == Port.id,
             IpAllocation.subnet_id == models_v2.Subnet.id,
             models_v2.Subnet.ip_version == 4,
+            models_v2.Subnet.subnetpool_id == models_v2.SubnetPool.id,
+            models_v2.SubnetPool.address_scope_id == AddressScope.id,
+            Port.network_id == models_v2.Subnet.network_id,
             Port.device_owner == lib_consts.DEVICE_OWNER_AGENT_GW,
             Port.network_id == BgpBinding.network_id,
             BgpBinding.bgp_speaker_id == bgp_speaker_id,
@@ -701,6 +715,49 @@ class BgpDbMixin(common_db.CommonDbMixin):
             l3_db.FloatingIP.floating_network_id == BgpBinding.network_id,
             BgpBinding.bgp_speaker_id == bgp_speaker_id)
         return fip_query
+
+    def _get_dvr_fixed_ip_query(self, context, bgp_speaker_id):
+        AddressScope = address_scope_db.AddressScope
+        ML2PortBinding = ml2_models.PortBinding
+        Port = models_v2.Port
+        IpAllocation = models_v2.IPAllocation
+
+        fixed_ip_query = context.session.query(
+            ML2PortBinding.host,
+            IpAllocation.ip_address,
+            IpAllocation.subnet_id,
+            AddressScope.id.label('address_scope_id'))
+        fixed_ip_query = fixed_ip_query.filter(
+            Port.id == ML2PortBinding.port_id,
+            IpAllocation.port_id == Port.id,
+            Port.device_owner.startswith(
+                lib_consts.DEVICE_OWNER_COMPUTE_PREFIX),
+            IpAllocation.subnet_id == models_v2.Subnet.id,
+            models_v2.Subnet.subnetpool_id == models_v2.SubnetPool.id,
+            AddressScope.id == models_v2.SubnetPool.address_scope_id)
+        return fixed_ip_query
+
+    def _get_dvr_fixed_ip_routes_by_bgp_speaker(self, context,
+                                                bgp_speaker_id):
+        with db_api.context_manager.reader.using(context):
+            gw_query = self._get_gateway_query(context, bgp_speaker_id)
+            fixed_query = self._get_dvr_fixed_ip_query(context,
+                                                       bgp_speaker_id)
+            join_query = self._join_fixed_by_host_binding_to_agent_gateway(
+                                                    context,
+                                                    fixed_query.subquery(),
+                                                    gw_query.subquery())
+            return self._host_route_list_from_tuples(join_query.all())
+
+    def _join_fixed_by_host_binding_to_agent_gateway(self, context,
+                                                   fixed_subq, gw_subq):
+        join_query = context.session.query(fixed_subq.c.ip_address,
+                                           gw_subq.c.ip_address)
+        and_cond = and_(
+                gw_subq.c.host == fixed_subq.c.host,
+                gw_subq.c.address_scope_id == fixed_subq.c.address_scope_id)
+
+        return join_query.join(gw_subq, and_cond)
 
     def _get_dvr_fip_host_routes_by_bgp_speaker(self, context,
                                                 bgp_speaker_id):
@@ -1083,3 +1140,61 @@ class BgpDbMixin(common_db.CommonDbMixin):
             return
         except sa_exc.MultipleResultsFound:
             return
+
+    def get_external_networks_for_port(self, ctx, port,
+                                       match_address_scopes=True):
+        with db_api.context_manager.reader.using(ctx):
+            # Retrieve address scope info for the supplied port
+            port_fixed_ips = port.get('fixed_ips')
+            if not port_fixed_ips:
+                return []
+            subnets_filter = {'id': [x['subnet_id'] for x in port_fixed_ips]}
+            port_subnets = subnet_obj.Subnet.get_objects(ctx, **subnets_filter)
+            port_subnetpools = subnetpool_obj.SubnetPool.get_objects(
+                        ctx, id=[x.subnetpool_id for x in port_subnets])
+            port_scopes = set([x.address_scope_id for x in port_subnetpools])
+            if match_address_scopes and len(port_scopes) == 0:
+                return []
+
+            # Get all router IDs with an interface on the given port's network
+            router_iface_filters = {'device_owner':
+                                    [DEVICE_OWNER_ROUTER_INTF,
+                                     DEVICE_OWNER_DVR_INTERFACE],
+                                    'network_id': port['network_id']}
+            router_ids = [x.device_id for x in ports.Port.get_objects(
+                                                ctx, **router_iface_filters)]
+
+            # Retrieve the gateway ports for the identified routers
+            gw_port_filters = {'device_owner': DEVICE_OWNER_ROUTER_GW,
+                               'device_id': router_ids}
+            gw_ports = ports.Port.get_objects(ctx, **gw_port_filters)
+
+            # If we don't need to match address scopes, return here
+            if not match_address_scopes:
+                return list(set([x.network_id for x in gw_ports]))
+
+            # Retrieve address scope info for associated gateway networks
+            gw_fixed_ips = []
+            for gw_port in gw_ports:
+                gw_fixed_ips.extend(gw_port.fixed_ips)
+            gw_subnet_filters = {'id': [x.subnet_id for x in gw_fixed_ips]}
+            gw_subnets = subnet_obj.Subnet.get_objects(ctx,
+                                                       **gw_subnet_filters)
+            ext_net_subnetpool_map = {}
+            for gw_subnet in gw_subnets:
+                ext_net_id = gw_subnet.network_id
+                ext_pool = subnetpool_obj.SubnetPool.get_object(
+                            ctx, id=gw_subnet.subnetpool_id)
+                ext_scope_set = ext_net_subnetpool_map.get(ext_net_id, set())
+                ext_scope_set.add(ext_pool.address_scope_id)
+                ext_net_subnetpool_map[ext_net_id] = ext_scope_set
+
+            ext_nets = []
+
+            # Match address scopes between port and gateway network(s)
+            for net in ext_net_subnetpool_map.keys():
+                ext_scopes = ext_net_subnetpool_map[net]
+                if ext_scopes.issubset(port_scopes):
+                    ext_nets.append(net)
+
+            return ext_nets
