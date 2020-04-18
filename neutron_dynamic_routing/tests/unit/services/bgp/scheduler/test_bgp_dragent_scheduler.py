@@ -13,15 +13,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import mock
-import testscenarios
+from unittest import mock
 
+from neutron.tests.unit import testlib_api
 from neutron_lib.callbacks import events
 from neutron_lib.callbacks import registry
 from neutron_lib import context
 from oslo_utils import importutils
-
-from neutron.tests.unit import testlib_api
+import testscenarios
 
 from neutron_dynamic_routing.api.rpc.callbacks import resources as dr_resources
 from neutron_dynamic_routing.db import bgp_db

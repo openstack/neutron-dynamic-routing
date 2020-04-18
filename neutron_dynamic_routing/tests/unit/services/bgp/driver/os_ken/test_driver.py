@@ -13,15 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import six
+from unittest import mock
 
-import mock
+from neutron.tests import base
 from os_ken.services.protocols.bgp import bgpspeaker
 from os_ken.services.protocols.bgp.rtconf.neighbors import CONNECT_MODE_ACTIVE
 from oslo_config import cfg
 from oslo_utils import encodeutils
-
-from neutron.tests import base
+import six
 
 from neutron_dynamic_routing.services.bgp.agent import config as bgp_config
 from neutron_dynamic_routing.services.bgp.agent.driver import exceptions as bgp_driver_exc  # noqa

@@ -13,10 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import mock
-from neutron_lib import context
+from unittest import mock
 
 from neutron.tests import base
+from neutron_lib import context
 
 from neutron_dynamic_routing.api.rpc.agentnotifiers import bgp_dr_rpc_agent_api
 

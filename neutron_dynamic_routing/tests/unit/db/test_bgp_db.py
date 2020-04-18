@@ -13,8 +13,8 @@
 # under the License.
 
 import contextlib
+from unittest import mock
 
-import mock
 import netaddr
 from neutron.db import l3_dvr_ha_scheduler_db
 from neutron.tests.unit.extensions import test_l3
