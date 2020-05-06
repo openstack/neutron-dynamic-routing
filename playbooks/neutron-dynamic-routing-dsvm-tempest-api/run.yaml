@@ -30,6 +30,7 @@
           set -x
           cat << 'EOF' >>"/tmp/dg-local.conf"
           [[local|localrc]]
+          INSTALL_TEMPEST=True
           enable_plugin neutron-dynamic-routing https://opendev.org/openstack/neutron-dynamic-routing
           enable_plugin neutron-tempest-plugin https://opendev.org/openstack/neutron-tempest-plugin
 

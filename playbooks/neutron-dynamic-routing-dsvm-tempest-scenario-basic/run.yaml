@@ -41,6 +41,7 @@
           export PROJECTS="openstack/neutron-dynamic-routing $PROJECTS"
           export PROJECTS="openstack/neutron-tempest-plugin $PROJECTS"
           DEVSTACK_LOCAL_CONFIG="NEUTRON_CREATE_INITIAL_NETWORKS=False"
+          DEVSTACK_LOCAL_CONFIG+=$'\n'"INSTALL_TEMPEST=True"
           DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-dynamic-routing https://opendev.org/openstack/neutron-dynamic-routing"
           DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-tempest-plugin https://opendev.org/openstack/neutron-tempest-plugin"
           export DEVSTACK_LOCAL_CONFIG
