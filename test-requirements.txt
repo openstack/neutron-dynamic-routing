@@ -8,9 +8,9 @@ fixtures>=3.0.0 # Apache-2.0/BSD
 flake8-import-order==0.12 # LGPLv3
 mock>=2.0.0 # BSD
 python-subunit>=1.0.0 # Apache-2.0/BSD
-sphinx!=1.6.6,!=1.6.7,!=2.1.0,>=1.6.5 # BSD
+sphinx>=2.0.0,!=2.1.0 # BSD
 sphinxcontrib-svg2pdfconverter>=0.1.0 # BSD
-openstackdocstheme>=1.18.1 # Apache-2.0
+openstackdocstheme>=2.2.1 # Apache-2.0
 oslo.concurrency>=3.26.0 # Apache-2.0
 stestr>=1.0.0 # Apache-2.0
 testresources>=2.0.0 # Apache-2.0/BSD
@@ -19,5 +19,5 @@ testscenarios>=0.4 # Apache-2.0/BSD
 WebOb>=1.7.1 # MIT
 WebTest>=2.0.27 # MIT
 oslotest>=3.2.0 # Apache-2.0
-reno>=2.5.0 # Apache-2.0
+reno>=3.1.0 # Apache-2.0
 tempest>=17.1.0 # Apache-2.0
