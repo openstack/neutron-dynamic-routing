@@ -15,9 +15,9 @@
 
 import copy
 import sys
+from unittest import mock
 
 import eventlet
-import mock
 from neutron_lib import context
 from oslo_config import cfg
 from oslo_utils import uuidutils

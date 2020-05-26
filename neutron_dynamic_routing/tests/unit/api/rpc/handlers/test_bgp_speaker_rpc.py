@@ -13,10 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import mock
-from neutron_lib.plugins import directory
+from unittest import mock
 
 from neutron.tests import base
+from neutron_lib.plugins import directory
 
 from neutron_dynamic_routing.api.rpc.handlers import bgp_speaker_rpc
 from neutron_dynamic_routing.extensions import bgp as bgp_ext
