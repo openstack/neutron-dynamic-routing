@@ -20,7 +20,6 @@ from os_ken.services.protocols.bgp import bgpspeaker
 from os_ken.services.protocols.bgp.rtconf.neighbors import CONNECT_MODE_ACTIVE
 from oslo_config import cfg
 from oslo_utils import encodeutils
-import six
 
 from neutron_dynamic_routing.services.bgp.agent import config as bgp_config
 from neutron_dynamic_routing.services.bgp.agent.driver import exceptions as bgp_driver_exc  # noqa
@@ -112,7 +111,7 @@ class TestOsKenBgpDriver(base.BaseTestCase):
         self.os_ken_bgp_driver.add_bgp_speaker(FAKE_LOCAL_AS1)
         self.assertEqual(1,
                 self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())
-        NEW_FAKE_PEER_PASSWORD = six.text_type(FAKE_PEER_PASSWORD)
+        NEW_FAKE_PEER_PASSWORD = str(FAKE_PEER_PASSWORD)
         self.os_ken_bgp_driver.add_bgp_peer(
             FAKE_LOCAL_AS1,
             FAKE_PEER_IP,

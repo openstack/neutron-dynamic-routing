@@ -15,11 +15,8 @@
 
 import abc
 
-import six
 
-
-@six.add_metaclass(abc.ABCMeta)
-class BgpDriverBase(object):
+class BgpDriverBase(object, metaclass=abc.ABCMeta):
     """Base class for BGP Speaking drivers.
 
     Any class which provides BGP functionality should extend this

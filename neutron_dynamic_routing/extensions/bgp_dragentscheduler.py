@@ -24,7 +24,6 @@ from neutron_lib import exceptions as n_exc
 from neutron_lib.exceptions import agent as agent_exc
 from neutron_lib.plugins import directory
 from oslo_log import log as logging
-import six
 import webob
 
 from neutron_dynamic_routing._i18n import _, _LE
@@ -145,8 +144,7 @@ class Bgp_dragentscheduler(api_extensions.ExtensionDescriptor):
         return {}
 
 
-@six.add_metaclass(abc.ABCMeta)
-class BgpDrSchedulerPluginBase(object):
+class BgpDrSchedulerPluginBase(object, metaclass=abc.ABCMeta):
     """REST API to operate BGP dynamic routing agent scheduler.
 
     All the methods must be executed in admin context.

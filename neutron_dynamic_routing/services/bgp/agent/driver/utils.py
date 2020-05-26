@@ -14,7 +14,6 @@
 # limitations under the License.
 
 import netaddr
-import six
 
 from neutron_lib import constants as lib_consts
 
@@ -24,7 +23,7 @@ from neutron_dynamic_routing.services.bgp.common import constants as bgp_consts 
 
 # Parameter validation functions provided are provided by the base.
 def validate_as_num(param, as_num):
-    if not isinstance(as_num, six.integer_types):
+    if not isinstance(as_num, int):
         raise bgp_driver_exc.InvalidParamType(param=param,
                                               param_type='integer')
 
@@ -61,7 +60,7 @@ def validate_ip_addr(ip_addr):
 
 def validate_string(param):
     if param is not None:
-        if not isinstance(param, six.string_types):
+        if not isinstance(param, str):
             raise bgp_driver_exc.InvalidParamType(param=param,
                                                   param_type='string')
 
