@@ -31,9 +31,11 @@ extensions = [
 ]
 
 # openstackdocstheme options
-repository_name = 'openstack/neutron-dynamic-routing'
-bug_project = 'neutron'
-bug_tag = 'doc'
+openstackdocs_repo_name = 'openstack/neutron-dynamic-routing'
+openstackdocs_pdf_link = True
+openstackdocs_auto_name = False
+openstackdocs_bug_project = 'neutron'
+openstackdocs_bug_tag = 'doc'
 
 # autodoc generation is a bit aggressive and a nuisance when doing heavy
 # text edit cycles.
@@ -57,7 +59,7 @@ add_function_parentheses = True
 add_module_names = True
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = 'native'
 
 # -- Options for HTML output --------------------------------------------------
 
@@ -68,7 +70,6 @@ pygments_style = 'sphinx'
 html_theme = 'openstackdocs'
 html_static_path = ['_static']
 
-html_last_updated_fmt = '%Y-%m-%d %H:%M'
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = '%sdoc' % project
