@@ -9,7 +9,7 @@
       - check-requirements
       - openstack-cover-jobs-neutron
       - openstack-lower-constraints-jobs-neutron
-      - openstack-python3-ussuri-jobs-neutron
+      - openstack-python3-victoria-jobs-neutron
       - publish-openstack-docs-pti
       - release-notes-jobs-python3
     check:
