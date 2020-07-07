@@ -23,6 +23,7 @@ Notes:
 
 1. In the default case, neutron-dynamic-routing is installed in allinone mode.
    In multiple nodes environment, for controller node::
+
      cd devstack
      cat << EOF > local.conf
      > [[local|localrc]]
@@ -31,6 +32,7 @@ Notes:
      > EOF
 
    For the nodes where you want to run dr-agent::
+
      cd devstack
      cat << EOF > local.conf
      > [[local|localrc]]
