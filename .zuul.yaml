@@ -2,7 +2,13 @@
     name: neutron-dynamic-routing-functional
     parent: neutron-functional
     vars:
-        project_name: neutron-dynamic-routing-functional
+      project_name: neutron-dynamic-routing-functional
+      # NOTE(amotoki): neutron-functional sets tox_install_siblings to false.
+      # This needs to be true so that neutron from its repo is installed into
+      # tox env.
+      # We need to check tox_install_siblings false is required
+      # in neutron-functional job.
+      tox_install_siblings: true
 
 - project:
     templates:
