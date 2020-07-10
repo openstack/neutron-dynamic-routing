@@ -26,6 +26,3 @@
       jobs:
         - neutron-dynamic-routing-functional
         - neutron-tempest-plugin-dynamic-routing
-    periodic:
-      jobs:
-        - legacy-periodic-neutron-dynamic-routing-dsvm-tempest-with-ryu-master-scenario-ipv4
