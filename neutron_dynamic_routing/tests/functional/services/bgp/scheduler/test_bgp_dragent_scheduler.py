@@ -199,7 +199,7 @@ class TestAutoSchedule(testlib_api.SqlTestCase,
                              for net in hosted_bgp_speakers]
             expected_hosted_bgp_speakers = self.expected_hosted_bgp_speakers[
                 'agent-%s' % host_index]
-            self.assertItemsEqual(hosted_bs_ids, expected_hosted_bgp_speakers,
+            self.assertCountEqual(hosted_bs_ids, expected_hosted_bgp_speakers,
                                   msg)
 
     def test_auto_schedule(self):
