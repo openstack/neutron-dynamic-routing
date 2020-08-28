@@ -128,11 +128,11 @@ it on Ubuntu Linux.
 
 5. Update /etc/quagga/bgpd.conf::
 
-    # set router-id to the network address we announce
-    bgp router-id 10.156.18.20
-
     # declare a router with local-as 1000
     router bgp 1000
+
+    # set router-id to the network address we announce
+    bgp router-id 10.156.18.20
 
     # expose neighbor network which dynamic routing agent is using
     neighbor 10.156.18.21 remote-as 12345
@@ -150,9 +150,9 @@ it on Ubuntu Linux.
     debug bgp keepalives
     debug bgp updates
 
-6. Restart the Quagga::
+6. Restart the Quagga daemon::
 
-    $ sudo /etc/init.d/quagga restart
+    $ sudo systemcl restart bgpd
 
 Service Test
 -------------
@@ -169,10 +169,9 @@ Service Test
         +--------------------+--------------------+--------------------+-------------------+-------+-------+---------------------+
         | ID                 | Agent Type         | Host               | Availability Zone | Alive | State | Binary              |
         +--------------------+--------------------+--------------------+-------------------+-------+-------+---------------------+
-        | 69ad386f-e055-4284 | BGP dynamic        | yang-devstack-     |                   | :-)   | UP    | neutron-bgp-dragent |
-        | -8c8e-ef9bd540705c | routing agent      | ubuntu-1604        |                   |       |       |                     |
+        | 69ad386f-e055-4284 | BGP dynamic        | devstack-bgp-dr    |                   | :-)   | UP    | neutron-bgp-dragent |
+        | -8c8e-ef9bd540705c | routing agent      |                    |                   |       |       |                     |
         +--------------------+--------------------+--------------------+-------------------+-------+-------+---------------------+
-
 
 3. Create an address scope.
 
@@ -198,54 +197,56 @@ Service Test
 
     .. code-block:: console
 
-        $ neutron subnetpool-create --pool-prefix 172.24.4.0/24 \
+        $ openstack subnet pool create --pool-prefix 172.24.4.0/24 \
           --address-scope public provider
-        Created a new subnetpool:
         +-------------------+--------------------------------------+
         | Field             | Value                                |
         +-------------------+--------------------------------------+
-        | address_scope_id  | 238aaf8f-f91a-4538-b6b2-c0140111cf69 |
-        | created_at        | 2016-06-30T07:03:52                  |
+        | address_scope_id  | 18f74828-5f38-4d84-b030-ed642f2157c5 |
+        | created_at        | 2020-08-28T15:12:11Z                 |
         | default_prefixlen | 8                                    |
-        | default_quota     |                                      |
+        | default_quota     | None                                 |
         | description       |                                      |
-        | id                | 8439bfee-e09c-40a9-a3ea-8cf7212b7ba9 |
+        | id                | d812a10e-5981-4686-90c4-d6fff454b38a |
         | ip_version        | 4                                    |
         | is_default        | False                                |
         | max_prefixlen     | 32                                   |
         | min_prefixlen     | 8                                    |
         | name              | provider                             |
         | prefixes          | 172.24.4.0/24                        |
+        | project_id        | 17c884da94bc4259b20ace3da6897297     |
+        | revision_number   | 0                                    |
         | shared            | False                                |
-        | tenant_id         | 21734c4383284cf9906b7fe8246bffb1     |
-        | updated_at        | 2016-06-30T07:03:52                  |
+        | tags              |                                      |
+        | updated_at        | 2020-08-28T15:12:11Z                 |
         +-------------------+--------------------------------------+
 
     * Create tenant network pool.
 
     .. code-block:: console
 
-        $ neutron subnetpool-create --pool-prefix 10.0.0.0/16 \
-          --address-scope public --shared selfservice
-        Created a new subnetpool:
+        $ openstack subnet pool create --pool-prefix 10.0.0.0/16 \
+          --address-scope public --share selfservice
         +-------------------+--------------------------------------+
         | Field             | Value                                |
         +-------------------+--------------------------------------+
-        | address_scope_id  | c02c358a-9d35-43ea-8313-986b3e4a91c0 |
-        | created_at        | 2016-06-30T07:08:30                  |
+        | address_scope_id  | 18f74828-5f38-4d84-b030-ed642f2157c5 |
+        | created_at        | 2020-08-28T15:15:31Z                 |
         | default_prefixlen | 8                                    |
-        | default_quota     |                                      |
+        | default_quota     | None                                 |
         | description       |                                      |
-        | id                | c7e9737a-cfd3-45b5-a861-d1cee1135a92 |
+        | id                | 8b9d1c9b-6aba-416f-8d10-1e7a0f6052f6 |
         | ip_version        | 4                                    |
         | is_default        | False                                |
         | max_prefixlen     | 32                                   |
         | min_prefixlen     | 8                                    |
         | name              | selfservice                          |
         | prefixes          | 10.0.0.0/16                          |
+        | project_id        | 17c884da94bc4259b20ace3da6897297     |
+        | revision_number   | 0                                    |
         | shared            | True                                 |
-        | tenant_id         | b3ac05ef10bf441fbf4aa17f16ae1e6d     |
-        | updated_at        | 2016-06-30T07:08:30                  |
+        | tags              |                                      |
+        | updated_at        | 2020-08-28T15:15:31Z                 |
         +-------------------+--------------------------------------+
 
 5. Create the provider and tenant networks.
@@ -254,100 +255,144 @@ Service Test
 
     .. code-block:: console
 
-        $ neutron net-create --router:external True --provider:physical_network provider \
-          --provider:network_type flat provider
-        Created a new network:
+        $ openstack network create --external --provider-network-type flat \
+          --provider-physical-network public provider
         +---------------------------+--------------------------------------+
         | Field                     | Value                                |
         +---------------------------+--------------------------------------+
-        | admin_state_up            | True                                 |
-        | id                        | 68ec148c-181f-4656-8334-8f4eb148689d |
+        | admin_state_up            | UP                                   |
+        | availability_zone_hints   |                                      |
+        | availability_zones        |                                      |
+        | created_at                | 2020-08-28T15:24:07Z                 |
+        | description               |                                      |
+        | dns_domain                |                                      |
+        | id                        | 18f9a9c0-f8f5-4360-822a-b687c1008bf7 |
+        | ipv4_address_scope        | None                                 |
+        | ipv6_address_scope        | None                                 |
+        | is_default                | False                                |
+        | is_vlan_transparent       | None                                 |
+        | mtu                       | 1500                                 |
         | name                      | provider                             |
+        | port_security_enabled     | True                                 |
+        | project_id                | 17c884da94bc4259b20ace3da6897297     |
         | provider:network_type     | flat                                 |
-        | provider:physical_network | provider                             |
-        | provider:segmentation_id  |                                      |
-        | router:external           | True                                 |
+        | provider:physical_network | public                               |
+        | provider:segmentation_id  | None                                 |
+        | qos_policy_id             | None                                 |
+        | revision_number           | 1                                    |
+        | router:external           | External                             |
+        | segments                  | None                                 |
         | shared                    | False                                |
         | status                    | ACTIVE                               |
         | subnets                   |                                      |
-        | tenant_id                 | b3ac05ef10bf441fbf4aa17f16ae1e6d     |
+        | tags                      |                                      |
+        | updated_at                | 2020-08-28T15:24:07Z                 |
         +---------------------------+--------------------------------------+
 
     * Create a subnet on the provider network using an IP address allocation from the provider subnet pool.
 
     .. code-block:: console
 
-        $ neutron subnet-create --name provider --subnetpool provider \
-          --prefixlen 24 provider
-        Created a new subnet:
-        +-------------------+------------------------------------------------+
-        | Field             | Value                                          |
-        +-------------------+------------------------------------------------+
-        | allocation_pools  | {"start": "172.24.4.2", "end": "172.24.4.254"} |
-        | cidr              | 172.24.4.0/24                                  |
-        | created_at        | 2016-03-17T23:17:16                            |
-        | description       |                                                |
-        | dns_nameservers   |                                                |
-        | enable_dhcp       | True                                           |
-        | gateway_ip        | 172.24.4.1                                     |
-        | host_routes       |                                                |
-        | id                | 8ed65d41-2b2a-4f3a-9f92-45adb266e01a           |
-        | ip_version        | 4                                              |
-        | ipv6_address_mode |                                                |
-        | ipv6_ra_mode      |                                                |
-        | name              | provider                                       |
-        | network_id        | 68ec148c-181f-4656-8334-8f4eb148689d           |
-        | subnetpool_id     | 3771c0e7-7096-46d3-a3bd-699c58e70259           |
-        | tenant_id         | b3ac05ef10bf441fbf4aa17f16ae1e6d               |
-        | updated_at        | 2016-03-17T23:17:16                            |
-        +-------------------+------------------------------------------------+
+        $ openstack subnet create --network provider --subnet-pool provider \
+          --prefix-length 24 provider
+        +----------------------+--------------------------------------+
+        | Field                | Value                                |
+        +----------------------+--------------------------------------+
+        | allocation_pools     | 172.24.4.2-172.24.4.254              |
+        | cidr                 | 172.24.4.0/24                        |
+        | created_at           | 2020-08-28T15:27:00Z                 |
+        | description          |                                      |
+        | dns_nameservers      |                                      |
+        | dns_publish_fixed_ip | False                                |
+        | enable_dhcp          | True                                 |
+        | gateway_ip           | 172.24.4.1                           |
+        | host_routes          |                                      |
+        | id                   | 4ed8ac88-2c19-4f94-9362-7b301e743438 |
+        | ip_version           | 4                                    |
+        | ipv6_address_mode    | None                                 |
+        | ipv6_ra_mode         | None                                 |
+        | name                 | provider                             |
+        | network_id           | 18f9a9c0-f8f5-4360-822a-b687c1008bf7 |
+        | prefix_length        | 24                                   |
+        | project_id           | 17c884da94bc4259b20ace3da6897297     |
+        | revision_number      | 0                                    |
+        | segment_id           | None                                 |
+        | service_types        |                                      |
+        | subnetpool_id        | a8fecc3d-a489-46ca-87fb-dff4e3371503 |
+        | tags                 |                                      |
+        | updated_at           | 2020-08-28T15:27:00Z                 |
+        +----------------------+--------------------------------------+
 
     * Create the tenant network.
 
     .. code-block:: console
 
-        $ neutron net-create private
-        Created a new network:
+        $ openstack network create private
         +---------------------------+--------------------------------------+
         | Field                     | Value                                |
         +---------------------------+--------------------------------------+
-        | admin_state_up            | True                                 |
-        | id                        | 01da3e19-129f-4d26-b065-255ade0e5e2c |
+        | admin_state_up            | UP                                   |
+        | availability_zone_hints   |                                      |
+        | availability_zones        |                                      |
+        | created_at                | 2020-08-28T15:28:06Z                 |
+        | description               |                                      |
+        | dns_domain                |                                      |
+        | id                        | 43643543-6edb-4c2b-a087-4553b75b6799 |
+        | ipv4_address_scope        | None                                 |
+        | ipv6_address_scope        | None                                 |
+        | is_default                | False                                |
+        | is_vlan_transparent       | None                                 |
+        | mtu                       | 1442                                 |
         | name                      | private                              |
+        | port_security_enabled     | True                                 |
+        | project_id                | 17c884da94bc4259b20ace3da6897297     |
+        | provider:network_type     | geneve                               |
+        | provider:physical_network | None                                 |
+        | provider:segmentation_id  | 1                                    |
+        | qos_policy_id             | None                                 |
+        | revision_number           | 1                                    |
+        | router:external           | Internal                             |
+        | segments                  | None                                 |
         | shared                    | False                                |
         | status                    | ACTIVE                               |
         | subnets                   |                                      |
-        | tenant_id                 | b3ac05ef10bf441fbf4aa17f16ae1e6d     |
+        | tags                      |                                      |
+        | updated_at                | 2020-08-28T15:28:06Z                 |
         +---------------------------+--------------------------------------+
 
     * Create a subnet on the tenant network using an IP address allocation from the private subnet pool.
 
     .. code-block:: console
 
-        $ neutron subnet-create --name selfservice --subnetpool selfservice \
-          --prefixlen 24 private
-        Created a new subnet:
-        +-------------------+--------------------------------------------+
-        | Field             | Value                                      |
-        +-------------------+--------------------------------------------+
-        | allocation_pools  | {"start": "10.0.0.2", "end": "10.0.0.254"} |
-        | cidr              | 10.0.0.0/24                                |
-        | created_at        | 2016-03-17T23:20:20                        |
-        | description       |                                            |
-        | dns_nameservers   |                                            |
-        | enable_dhcp       | True                                       |
-        | gateway_ip        | 10.0.0.1                                   |
-        | host_routes       |                                            |
-        | id                | 8edd3dc2-df40-4d71-816e-a4586d61c809       |
-        | ip_version        | 4                                          |
-        | ipv6_address_mode |                                            |
-        | ipv6_ra_mode      |                                            |
-        | name              | private                                    |
-        | network_id        | 01da3e19-129f-4d26-b065-255ade0e5e2c       |
-        | subnetpool_id     | c7e9737a-cfd3-45b5-a861-d1cee1135a92       |
-        | tenant_id         | b3ac05ef10bf441fbf4aa17f16ae1e6d           |
-        | updated_at        | 2016-03-17T23:20:20                        |
-        +-------------------+--------------------------------------------+
+        $ openstack subnet create --network private --subnet-pool selfservice \
+          --prefix-length 24 selfservice
+        +----------------------+--------------------------------------+
+        | Field                | Value                                |
+        +----------------------+--------------------------------------+
+        | allocation_pools     | 10.0.0.2-10.0.0.254                  |
+        | cidr                 | 10.0.0.0/24                          |
+        | created_at           | 2020-08-28T15:29:20Z                 |
+        | description          |                                      |
+        | dns_nameservers      |                                      |
+        | dns_publish_fixed_ip | False                                |
+        | enable_dhcp          | True                                 |
+        | gateway_ip           | 10.0.0.1                             |
+        | host_routes          |                                      |
+        | id                   | 12eec8cb-8303-4829-8b16-e9a75072fcb0 |
+        | ip_version           | 4                                    |
+        | ipv6_address_mode    | None                                 |
+        | ipv6_ra_mode         | None                                 |
+        | name                 | selfservice                          |
+        | network_id           | 43643543-6edb-4c2b-a087-4553b75b6799 |
+        | prefix_length        | 24                                   |
+        | project_id           | 17c884da94bc4259b20ace3da6897297     |
+        | revision_number      | 0                                    |
+        | segment_id           | None                                 |
+        | service_types        |                                      |
+        | subnetpool_id        | 574f9d33-65b6-49a1-ab43-866085d06804 |
+        | tags                 |                                      |
+        | updated_at           | 2020-08-28T15:29:20Z                 |
+        +----------------------+--------------------------------------+
 
 6. Create and configure router
 
@@ -355,47 +400,50 @@ Service Test
 
     .. code-block:: console
 
-        $ neutron router-create router
-        +-----------------------+--------------------------------------+
-        | Field                 | Value                                |
-        +-----------------------+--------------------------------------+
-        | admin_state_up        | True                                 |
-        | external_gateway_info |                                      |
-        | id                    | 49439b14-f6ee-420d-8c48-d3767fadcb3a |
-        | name                  | router                               |
-        | status                | ACTIVE                               |
-        | tenant_id             | b3ac05ef10bf441fbf4aa17f16ae1e6d     |
-        +-----------------------+--------------------------------------+
+        $ openstack router create router
+        +-------------------------+--------------------------------------+
+        | Field                   | Value                                |
+        +-------------------------+--------------------------------------+
+        | admin_state_up          | UP                                   |
+        | availability_zone_hints |                                      |
+        | availability_zones      |                                      |
+        | created_at              | 2020-08-28T15:30:09Z                 |
+        | description             |                                      |
+        | external_gateway_info   | null                                 |
+        | flavor_id               | None                                 |
+        | id                      | 250e5cc1-4cfc-4dff-a3a3-eb206c071621 |
+        | name                    | router                               |
+        | project_id              | 17c884da94bc4259b20ace3da6897297     |
+        | revision_number         | 1                                    |
+        | routes                  |                                      |
+        | status                  | ACTIVE                               |
+        | tags                    |                                      |
+        | updated_at              | 2020-08-28T15:30:09Z                 |
+        +-------------------------+--------------------------------------+
 
     * Add the private subnet as an interface on the router.
 
     .. code-block:: console
 
-        $ neutron router-interface-add router selfservice
-        Added interface 969a1d4b-7fa1-4346-9963-de06becab87a to router router.
+        $ openstack router add subnet router selfservice
 
     * Add the provide network as a gateway on the router
 
     .. code-block:: console
 
-        $ neutron router-gateway-set router provider
-        Set gateway for router router
+        $ openstack router set --external-gateway provider router
 
     * Verify router ports. Note: from this result, you can see what the advertised routes are.
 
     .. code-block:: console
 
-        $ neutron router-port-list router
-        +--------------------------------------+------+-------------------+----------------------------------------------------+
-        | id                                   | name | mac_address       | fixed_ips                                          |
-        +--------------------------------------+------+-------------------+----------------------------------------------------+
-        | dc675aab-5a8b-462c-872e-2f791b6c1730 |      | fa:16:3e:e5:a2:d2 | {"subnet_id": "1c6b725e-                           |
-        |                                      |      |                   | 890e-4454-8842-7ff22ffa704b", "ip_address":        |
-        |                                      |      |                   | "10.0.0.1"}                                        |
-        | e15c701d-868f-4171-a282-e6a4567a8d83 |      | fa:16:3e:28:86:4c | {"subnet_id":                                      |
-        |                                      |      |                   | "b442c453-7e4a-4568-9d70-1dde91a65fbb",            |
-        |                                      |      |                   | "ip_address": "172.24.4.2"}                        |
-        +--------------------------------------+------+-------------------+----------------------------------------------------+
+        $ openstack port list --router router
+        +--------------------------------------+------+-------------------+----------------------------------------------------------------------------+--------+
+        | ID                                   | Name | MAC Address       | Fixed IP Addresses                                                         | Status |
+        +--------------------------------------+------+-------------------+----------------------------------------------------------------------------+--------+
+        | 218c455f-f565-4e37-a2ac-999da24efa66 |      | fa:16:3e:74:d8:61 | ip_address='10.0.0.1', subnet_id='12eec8cb-8303-4829-8b16-e9a75072fcb0'    | ACTIVE |
+        | 44dcb7d3-b444-4177-82a1-233b1f3bed23 |      | fa:16:3e:5b:4b:2d | ip_address='172.24.4.24', subnet_id='4ed8ac88-2c19-4f94-9362-7b301e743438' | ACTIVE |
+        +--------------------------------------+------+-------------------+----------------------------------------------------------------------------+--------+
 
 7. Create and configure the BGP speaker
 
@@ -407,21 +455,20 @@ Service Test
 
     .. code-block:: console
 
-        $ neutron bgp-speaker-create --ip-version 4 \
+        $ openstack bgp speaker create  --ip-version 4 \
           --local-as LOCAL_AS bgp-speaker
-        Created a new bgp_speaker:
         +-----------------------------------+--------------------------------------+
         | Field                             | Value                                |
         +-----------------------------------+--------------------------------------+
         | advertise_floating_ip_host_routes | True                                 |
         | advertise_tenant_networks         | True                                 |
-        | id                                | 5f227f14-4f46-4eca-9524-fc5a1eabc358 |
+        | id                                | 19cdf669-4d4d-442f-bbf6-510a97ad8cd8 |
         | ip_version                        | 4                                    |
         | local_as                          | 12345                                |
         | name                              | bgp-speaker                          |
-        | networks                          |                                      |
-        | peers                             |                                      |
-        | tenant_id                         | b3ac05ef10bf441fbf4aa17f16ae1e6d     |
+        | networks                          | []                                   |
+        | peers                             | []                                   |
+        | project_id                        | 17c884da94bc4259b20ace3da6897297     |
         +-----------------------------------+--------------------------------------+
 
     * Associate the BGP speaker with the provider network.
@@ -432,8 +479,7 @@ Service Test
 
     .. code-block:: console
 
-        $ neutron bgp-speaker-network-add bgp-speaker provider
-        Added network provider to BGP speaker bgp-speaker.
+        $ openstack bgp speaker add network bgp-speaker provider
 
     * Verify the association of the provider network with the BGP speaker.
 
@@ -441,26 +487,26 @@ Service Test
 
     .. code-block:: console
 
-        $ neutron bgp-speaker-show bgp-speaker
-        +-----------------------------------+--------------------------------------+
-        | Field                             | Value                                |
-        +-----------------------------------+--------------------------------------+
-        | advertise_floating_ip_host_routes | True                                 |
-        | advertise_tenant_networks         | True                                 |
-        | id                                | 5f227f14-4f46-4eca-9524-fc5a1eabc358 |
-        | ip_version                        | 4                                    |
-        | local_as                          | 12345                                |
-        | name                              | bgp-speaker                          |
-        | networks                          | 68ec148c-181f-4656-8334-8f4eb148689d |
-        | peers                             |                                      |
-        | tenant_id                         | b3ac05ef10bf441fbf4aa17f16ae1e6d     |
-        +-----------------------------------+--------------------------------------+
+        $ openstack bgp speaker show bgp-speaker
+        +-----------------------------------+------------------------------------------+
+        | Field                             | Value                                    |
+        +-----------------------------------+------------------------------------------+
+        | advertise_floating_ip_host_routes | True                                     |
+        | advertise_tenant_networks         | True                                     |
+        | id                                | 19cdf669-4d4d-442f-bbf6-510a97ad8cd8     |
+        | ip_version                        | 4                                        |
+        | local_as                          | 12345                                    |
+        | name                              | bgp-speaker                              |
+        | networks                          | ['18f9a9c0-f8f5-4360-822a-b687c1008bf7'] |
+        | peers                             | []                                       |
+        | project_id                        | 17c884da94bc4259b20ace3da6897297         |
+        +-----------------------------------+------------------------------------------+
 
     * Verify the prefixes and next-hop ip addresses that the BGP speaker advertises.
 
     .. code-block:: console
 
-        $ neutron bgp-speaker-advertiseroute-list bgp-speaker
+        $ openstack bgp speaker list advertised routes bgp-speaker
         +-------------+------------+
         | destination | next_hop   |
         +-------------+------------+
@@ -475,26 +521,24 @@ Service Test
 
     .. code-block:: console
 
-        $ neutron bgp-peer-create --peer-ip 10.156.18.20 \
+        $ openstack bgp peer create --peer-ip 10.156.18.20 \
           --remote-as REMOTE_AS bgp-peer
-        Created a new bgp_peer:
-        +-----------+--------------------------------------+
-        | Field     | Value                                |
-        +-----------+--------------------------------------+
-        | auth_type | none                                 |
-        | id        | 35c89ca0-ac5a-4298-a815-0b073c2362e9 |
-        | name      | bgp-peer                             |
-        | peer_ip   | 10.156.18.20                         |
-        | remote_as | 12345                                |
-        | tenant_id | b3ac05ef10bf441fbf4aa17f16ae1e6d     |
-        +-----------+--------------------------------------+
+        +------------+--------------------------------------+
+        | Field      | Value                                |
+        +------------+--------------------------------------+
+        | auth_type  | none                                 |
+        | id         | 37291604-de77-4333-8f27-4ca336e021f2 |
+        | name       | bgp-peer                             |
+        | peer_ip    | 10.156.18.20                         |
+        | project_id | 17c884da94bc4259b20ace3da6897297     |
+        | remote_as  | 12345                                |
+        +------------+--------------------------------------+
 
     * Add a BGP peer to the BGP speaker.
 
     .. code-block:: console
 
-        $ neutron bgp-speaker-peer-add bgp-speaker bgp-peer
-        Added BGP peer bgppeer to BGP speaker bgpspeaker.
+        $ openstack bgp speaker add peer bgp-speaker bgp-peer
 
     * Verify the association of the BGP peer with the BGP speaker.
 
@@ -502,20 +546,20 @@ Service Test
 
     .. code-block:: console
 
-        $ neutron bgp-speaker-show bgp-speaker
-        +-----------------------------------+--------------------------------------+
-        | Field                             | Value                                |
-        +-----------------------------------+--------------------------------------+
-        | advertise_floating_ip_host_routes | True                                 |
-        | advertise_tenant_networks         | True                                 |
-        | id                                | 5f227f14-4f46-4eca-9524-fc5a1eabc358 |
-        | ip_version                        | 4                                    |
-        | local_as                          | 12345                                |
-        | name                              | bgp-speaker                          |
-        | networks                          | 68ec148c-181f-4656-8334-8f4eb148689d |
-        | peers                             | 35c89ca0-ac5a-4298-a815-0b073c2362e9 |
-        | tenant_id                         | b3ac05ef10bf441fbf4aa17f16ae1e6d     |
-        +-----------------------------------+--------------------------------------+
+        $ openstack bgp speaker show bgp-speaker
+        +-----------------------------------+------------------------------------------+
+        | Field                             | Value                                    |
+        +-----------------------------------+------------------------------------------+
+        | advertise_floating_ip_host_routes | True                                     |
+        | advertise_tenant_networks         | True                                     |
+        | id                                | 19cdf669-4d4d-442f-bbf6-510a97ad8cd8     |
+        | ip_version                        | 4                                        |
+        | local_as                          | 12345                                    |
+        | name                              | bgp-speaker                              |
+        | networks                          | ['18f9a9c0-f8f5-4360-822a-b687c1008bf7'] |
+        | peers                             | ['37291604-de77-4333-8f27-4ca336e021f2'] |
+        | project_id                        | 17c884da94bc4259b20ace3da6897297         |
+        +-----------------------------------+------------------------------------------+
 
 8. Schedule the BGP speaker to an agent.
 
@@ -528,9 +572,9 @@ Service Test
 
     .. code-block:: console
 
-        neutron bgp-dragent-list-hosting-speaker bgp-speaker
+        $ openstack bgp dragent list --bgp-speaker bgp-speaker
         +--------------------------------------+---------------------------+----------------+-------+
         | id                                   | host                      | admin_state_up | alive |
         +--------------------------------------+---------------------------+----------------+-------+
-        | 69ad386f-e055-4284-8c8e-ef9bd540705c | yang-devstack-ubuntu-1604 | True           | :-)   |
+        | 239996c8-2d59-4131-98b8-d64372c812cc | devstack-bgp-dr           | True           | :-)   |
         +--------------------------------------+---------------------------+----------------+-------+
