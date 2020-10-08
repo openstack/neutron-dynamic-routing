@@ -670,7 +670,7 @@ class BgpDbMixin(object):
                  next_hop_alias.subnet_id == models_v2.Subnet.id,
                  models_v2.Subnet.ip_version == 4)
             query = query.outerjoin(router_attrs,
-                                    l3_db.Router.id == router_attrs.router_id)
+                                    router_attrs.router_id == l3_db.Router.id)
             query = query.filter(router_attrs.distributed != sa.sql.true())
             return self._host_route_list_from_tuples(query.all())
 
