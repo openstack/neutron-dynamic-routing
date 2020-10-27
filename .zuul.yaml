@@ -21,8 +21,8 @@
     check:
       jobs:
         - neutron-dynamic-routing-functional
-        - neutron-tempest-plugin-dynamic-routing
+        - neutron-tempest-plugin-dynamic-routing-victoria
     gate:
       jobs:
         - neutron-dynamic-routing-functional
-        - neutron-tempest-plugin-dynamic-routing
+        - neutron-tempest-plugin-dynamic-routing-victoria
