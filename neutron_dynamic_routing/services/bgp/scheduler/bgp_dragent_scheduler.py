@@ -16,6 +16,7 @@
 from neutron_lib.callbacks import events
 from neutron_lib.callbacks import registry
 from neutron_lib import context as nl_context
+from neutron_lib.db import api as db_api
 from neutron_lib.objects import registry as obj_reg
 from oslo_db import exception as db_exc
 from oslo_log import log as logging
@@ -49,7 +50,7 @@ class BgpDrAgentFilter(base_resource_filter.BaseResourceFilter):
             binding.agent_id = agent_id
             binding.bgp_speaker_id = bgp_speaker_id
             try:
-                with context.session.begin(subtransactions=True):
+                with db_api.CONTEXT_WRITER.using(context):
                     context.session.add(binding)
             except db_exc.DBDuplicateEntry:
                 # it's totally ok, someone just did our job!
@@ -74,7 +75,7 @@ class BgpDrAgentFilter(base_resource_filter.BaseResourceFilter):
 
     def _get_active_dragents(self, plugin, context):
         """Return a list of active BgpDrAgents."""
-        with context.session.begin(subtransactions=True):
+        with db_api.CONTEXT_READER.using(context):
             active_dragents = plugin.get_agent_objects(
                 context, filters={
                     'agent_type': [bgp_consts.AGENT_TYPE_BGP_ROUTING],
@@ -136,7 +137,7 @@ class BgpDrAgentSchedulerBase(BgpDrAgentFilter):
         """Call schedule_unscheduled_bgp_speakers for all hosts.
         """
 
-        with context.session.begin(subtransactions=True):
+        with db_api.CONTEXT_WRITER.using(context):
             query = context.session.query(agent_model.Agent.host).distinct()
             for agent in query:
                 self.schedule_unscheduled_bgp_speakers(context, agent[0])
@@ -147,7 +148,7 @@ class BgpDrAgentSchedulerBase(BgpDrAgentFilter):
         """
 
         LOG.debug('Started auto-scheduling on host %s', host)
-        with context.session.begin(subtransactions=True):
+        with db_api.CONTEXT_WRITER.using(context):
             bgp_dragent = obj_reg.load_class('Agent').get_object(
                 context,
                 agent_type=bgp_consts.AGENT_TYPE_BGP_ROUTING,
