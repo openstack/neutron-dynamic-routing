@@ -15,7 +15,7 @@
       - check-requirements
       - openstack-cover-jobs-neutron
       - openstack-lower-constraints-jobs-neutron
-      - openstack-python3-wallaby-jobs-neutron
+      - openstack-python3-xena-jobs-neutron
       - publish-openstack-docs-pti
       - release-notes-jobs-python3
     check:
