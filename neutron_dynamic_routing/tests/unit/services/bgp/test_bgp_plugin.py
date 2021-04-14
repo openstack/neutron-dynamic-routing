@@ -16,10 +16,12 @@
 
 from unittest import mock
 
+import netaddr
 from neutron.tests import base
 from neutron_lib.callbacks import events
 from neutron_lib.callbacks import registry
 from neutron_lib.callbacks import resources
+from neutron_lib import constants as n_const
 
 from neutron_dynamic_routing.api.rpc.callbacks import resources as dr_resources
 from neutron_dynamic_routing.db import bgp_db
@@ -88,3 +90,33 @@ class TestBgpPlugin(base.BaseTestCase):
                                                events.AFTER_CREATE,
                                                self.plugin,
                                                payload=payload)
+
+    def test_floatingip_update_callback(self):
+        kwargs = {'floating_ip_address': netaddr.IPAddress('10.10.10.10'),
+            'last_known_router_id': 'old-router-id',
+            'router_id': '', 'floating_network_id': 'a-b-c-d-e'}
+
+        test_context = 'test_context'
+
+        get_bpg_speakers_name = '_bgp_speakers_for_gw_network_by_family'
+        with mock.patch.object(self.plugin, get_bpg_speakers_name) as get_bgp:
+            with mock.patch.object(self.plugin,
+                                   'stop_route_advertisements') as stop_ad:
+                with mock.patch.object(self.plugin, '_bgp_rpc') as bgp_rpc:
+                    bgp_speaker = mock.Mock()
+                    bgp_speaker.id = '11111111-2222-3333-4444-555555555555'
+                    get_bgp.return_value = [bgp_speaker]
+
+                    self.plugin.floatingip_update_callback(
+                        test_context, events.AFTER_UPDATE, None, **kwargs)
+
+                    get_bgp.assert_called_once_with(self.fake_admin_ctx,
+                                                    'a-b-c-d-e',
+                                                    n_const.IP_VERSION_4)
+
+                    old_host_route = [{'destination': '10.10.10.10/32',
+                        'next_hop': None}]
+                    stop_ad.assert_called_once_with(self.fake_admin_ctx,
+                                                    bgp_rpc,
+                                                    bgp_speaker.id,
+                                                    old_host_route)
