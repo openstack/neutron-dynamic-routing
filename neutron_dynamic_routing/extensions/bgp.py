@@ -14,107 +14,13 @@
 # limitations under the License.
 #
 
-from neutron_lib.api import converters as n_conv
-from neutron_lib.api import extensions
-from neutron_lib.db import constants as db_const
+from neutron_lib.api.definitions import bgp as bgp_api_def
+from neutron_lib.api import extensions as api_ext
 from neutron_lib import exceptions as n_exc
 
 from neutron.api.v2 import resource_helper as rh
 
 from neutron_dynamic_routing._i18n import _
-from neutron_dynamic_routing.services.bgp.common import constants as bgp_consts
-
-BGP_EXT_ALIAS = 'bgp'
-BGP_SPEAKER_RESOURCE_NAME = 'bgp-speaker'
-BGP_SPEAKER_BODY_KEY_NAME = 'bgp_speaker'
-BGP_PEER_BODY_KEY_NAME = 'bgp_peer'
-
-
-RESOURCE_ATTRIBUTE_MAP = {
-    BGP_SPEAKER_RESOURCE_NAME + 's': {
-        'id': {'allow_post': False, 'allow_put': False,
-               'validate': {'type:uuid': None},
-               'is_visible': True, 'primary_key': True},
-        'name': {'allow_post': True, 'allow_put': True,
-                 'validate': {'type:string': db_const.NAME_FIELD_SIZE},
-                 'is_visible': True, 'default': ''},
-        'local_as': {'allow_post': True, 'allow_put': False,
-                     'validate': {'type:range': (bgp_consts.MIN_ASNUM,
-                                                 bgp_consts.MAX_ASNUM)},
-                     'is_visible': True, 'default': None,
-                     'required_by_policy': False,
-                     'enforce_policy': False},
-        'ip_version': {'allow_post': True, 'allow_put': False,
-                       'validate': {'type:values': [4, 6]},
-                       'is_visible': True, 'default': None,
-                       'required_by_policy': False,
-                       'enforce_policy': False},
-        'tenant_id': {'allow_post': True, 'allow_put': False,
-                      'required_by_policy': False,
-                      'validate': {
-                          'type:string': db_const.PROJECT_ID_FIELD_SIZE},
-                      'is_visible': True},
-        'peers': {'allow_post': False, 'allow_put': False,
-                  'validate': {'type:uuid_list': None},
-                  'is_visible': True, 'default': [],
-                  'required_by_policy': False,
-                  'enforce_policy': True},
-        'networks': {'allow_post': False, 'allow_put': False,
-                     'validate': {'type:uuid_list': None},
-                     'is_visible': True, 'default': [],
-                     'required_by_policy': False,
-                     'enforce_policy': True},
-        'advertise_floating_ip_host_routes': {
-                                      'allow_post': True,
-                                      'allow_put': True,
-                                      'convert_to': n_conv.convert_to_boolean,
-                                      'validate': {'type:boolean': None},
-                                      'is_visible': True, 'default': True,
-                                      'required_by_policy': False,
-                                      'enforce_policy': True},
-        'advertise_tenant_networks': {
-                                      'allow_post': True,
-                                      'allow_put': True,
-                                      'convert_to': n_conv.convert_to_boolean,
-                                      'validate': {'type:boolean': None},
-                                      'is_visible': True, 'default': True,
-                                      'required_by_policy': False,
-                                      'enforce_policy': True},
-    },
-    'bgp-peers': {
-        'id': {'allow_post': False, 'allow_put': False,
-               'validate': {'type:uuid': None},
-               'is_visible': True, 'primary_key': True},
-        'name': {'allow_post': True, 'allow_put': True,
-                 'validate': {'type:string': db_const.NAME_FIELD_SIZE},
-                 'is_visible': True, 'default': ''},
-        'peer_ip': {'allow_post': True, 'allow_put': False,
-                    'required_by_policy': True,
-                    'validate': {'type:ip_address': None},
-                    'is_visible': True},
-        'remote_as': {'allow_post': True, 'allow_put': False,
-                     'validate': {'type:range': (bgp_consts.MIN_ASNUM,
-                                                 bgp_consts.MAX_ASNUM)},
-                     'is_visible': True, 'default': None,
-                     'required_by_policy': False,
-                     'enforce_policy': False},
-        'auth_type': {'allow_post': True, 'allow_put': False,
-                      'required_by_policy': True,
-                      'validate': {'type:values':
-                                   bgp_consts.SUPPORTED_AUTH_TYPES},
-                      'is_visible': True},
-        'password': {'allow_post': True, 'allow_put': True,
-                     'required_by_policy': True,
-                     'validate': {'type:string_or_none': None},
-                     'is_visible': False,
-                     'default': None},
-        'tenant_id': {'allow_post': True, 'allow_put': False,
-                      'required_by_policy': False,
-                      'validate': {
-                          'type:string': db_const.PROJECT_ID_FIELD_SIZE},
-                      'is_visible': True}
-    }
-}
 
 
 # Dynamic Routing Exceptions
@@ -164,48 +70,16 @@ class NetworkNotBoundForIpVersion(NetworkNotBound):
                 "BgpSpeaker.")
 
 
-class Bgp(extensions.ExtensionDescriptor):
-
-    @classmethod
-    def get_name(cls):
-        return "Neutron BGP Dynamic Routing Extension"
-
-    @classmethod
-    def get_alias(cls):
-        return BGP_EXT_ALIAS
-
-    @classmethod
-    def get_description(cls):
-        return("Discover and advertise routes for Neutron prefixes "
-               "dynamically via BGP")
-
-    @classmethod
-    def get_updated(cls):
-        return "2016-05-10T15:37:00-00:00"
+class Bgp(api_ext.APIExtensionDescriptor):
+    api_definition = bgp_api_def
 
     @classmethod
     def get_resources(cls):
         plural_mappings = rh.build_plural_mappings(
-            {}, RESOURCE_ATTRIBUTE_MAP)
-        action_map = {BGP_SPEAKER_RESOURCE_NAME:
-                      {'add_bgp_peer': 'PUT',
-                       'remove_bgp_peer': 'PUT',
-                       'add_gateway_network': 'PUT',
-                       'remove_gateway_network': 'PUT',
-                       'get_advertised_routes': 'GET'}}
+            {}, bgp_api_def.RESOURCE_ATTRIBUTE_MAP)
         exts = rh.build_resource_info(plural_mappings,
-                                      RESOURCE_ATTRIBUTE_MAP,
-                                      BGP_EXT_ALIAS,
-                                      action_map=action_map)
+                                      bgp_api_def.RESOURCE_ATTRIBUTE_MAP,
+                                      bgp_api_def.ALIAS,
+                                      action_map=bgp_api_def.ACTION_MAP)
 
         return exts
-
-    def get_extended_resources(self, version):
-        if version == "2.0":
-            return RESOURCE_ATTRIBUTE_MAP
-        else:
-            return {}
-
-    def update_attributes_map(self, attributes):
-        super(Bgp, self).update_attributes_map(
-            attributes, extension_attrs_map=RESOURCE_ATTRIBUTE_MAP)

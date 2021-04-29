@@ -18,6 +18,8 @@ import abc
 from neutron.api import extensions
 from neutron.api.v2 import resource
 from neutron import wsgi
+from neutron_lib.api.definitions import bgp as bgp_ext
+from neutron_lib.api.definitions import bgp_dragentscheduler as api_def
 from neutron_lib.api import extensions as api_extensions
 from neutron_lib.api import faults
 from neutron_lib import exceptions as n_exc
@@ -27,16 +29,9 @@ from oslo_log import log as logging
 import webob
 
 from neutron_dynamic_routing._i18n import _, _LE
-from neutron_dynamic_routing.extensions import bgp as bgp_ext
 
 
 LOG = logging.getLogger(__name__)
-
-BGP_DRAGENT_SCHEDULER_EXT_ALIAS = 'bgp_dragent_scheduler'
-BGP_DRINSTANCE = 'bgp-drinstance'
-BGP_DRINSTANCES = BGP_DRINSTANCE + 's'
-BGP_DRAGENT = 'bgp-dragent'
-BGP_DRAGENTS = BGP_DRAGENT + 's'
 
 
 class DrAgentInvalid(agent_exc.AgentNotFound):
@@ -61,7 +56,7 @@ class BgpSpeakerRescheduleError(n_exc.Conflict):
 class BgpDrSchedulerController(wsgi.Controller):
     """Schedule BgpSpeaker for a BgpDrAgent"""
     def get_plugin(self):
-        plugin = directory.get_plugin(bgp_ext.BGP_EXT_ALIAS)
+        plugin = directory.get_plugin(bgp_ext.ALIAS)
         if not plugin:
             LOG.error(_LE('No plugin for BGP routing registered'))
             msg = _('The resource could not be found.')
@@ -88,7 +83,7 @@ class BgpDrSchedulerController(wsgi.Controller):
 
 class BgpDrAgentController(wsgi.Controller):
     def get_plugin(self):
-        plugin = directory.get_plugin(bgp_ext.BGP_EXT_ALIAS)
+        plugin = directory.get_plugin(bgp_ext.ALIAS)
         if not plugin:
             LOG.error(_LE('No plugin for BGP routing registered'))
             msg = _('The resource could not be found.')
@@ -96,29 +91,16 @@ class BgpDrAgentController(wsgi.Controller):
         return plugin
 
     def index(self, request, **kwargs):
-        plugin = directory.get_plugin(bgp_ext.BGP_EXT_ALIAS)
+        plugin = directory.get_plugin(bgp_ext.ALIAS)
         return plugin.list_dragent_hosting_bgp_speaker(
             request.context, kwargs['bgp_speaker_id'])
 
 
-class Bgp_dragentscheduler(api_extensions.ExtensionDescriptor):
+class Bgp_dragentscheduler(api_extensions.APIExtensionDescriptor):
     """Extension class supporting Dynamic Routing scheduler.
     """
-    @classmethod
-    def get_name(cls):
-        return "BGP Dynamic Routing Agent Scheduler"
 
-    @classmethod
-    def get_alias(cls):
-        return BGP_DRAGENT_SCHEDULER_EXT_ALIAS
-
-    @classmethod
-    def get_description(cls):
-        return "Schedules BgpSpeakers on BgpDrAgent"
-
-    @classmethod
-    def get_updated(cls):
-        return "2015-07-30T10:00:00-00:00"
+    api_definition = api_def
 
     @classmethod
     def get_resources(cls):
@@ -129,19 +111,16 @@ class Bgp_dragentscheduler(api_extensions.ExtensionDescriptor):
 
         controller = resource.Resource(BgpDrSchedulerController(),
                                        faults.FAULT_MAP)
-        exts.append(extensions.ResourceExtension(BGP_DRINSTANCES,
+        exts.append(extensions.ResourceExtension(api_def.BGP_DRINSTANCES,
                                                  controller, parent))
 
         parent = dict(member_name="bgp_speaker",
                       collection_name="bgp-speakers")
         controller = resource.Resource(BgpDrAgentController(),
                                        faults.FAULT_MAP)
-        exts.append(extensions.ResourceExtension(BGP_DRAGENTS,
+        exts.append(extensions.ResourceExtension(api_def.BGP_DRAGENTS,
                                                  controller, parent))
         return exts
-
-    def get_extended_resources(self, version):
-        return {}
 
 
 class BgpDrSchedulerPluginBase(object, metaclass=abc.ABCMeta):
@@ -153,7 +132,7 @@ class BgpDrSchedulerPluginBase(object, metaclass=abc.ABCMeta):
         return "Neutron BGP dynamic routing scheduler Plugin"
 
     def get_plugin_type(self):
-        return bgp_ext.BGP_EXT_ALIAS
+        return bgp_ext.ALIAS
 
     @abc.abstractmethod
     def add_bgp_speaker_to_dragent(self, context, agent_id, speaker_id):

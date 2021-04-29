@@ -26,6 +26,7 @@ from neutron.objects import subnet as subnet_obj
 from neutron.objects import subnetpool as subnetpool_obj
 from neutron.plugins.ml2 import models as ml2_models
 
+from neutron_lib.api.definitions import bgp as bgp_ext
 from neutron_lib.api import validators
 from neutron_lib import constants as lib_consts
 from neutron_lib.db import api as db_api
@@ -43,7 +44,7 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.orm import exc as sa_exc
 
 from neutron_dynamic_routing._i18n import _
-from neutron_dynamic_routing.extensions import bgp as bgp_ext
+from neutron_dynamic_routing.extensions import bgp
 
 
 DEVICE_OWNER_ROUTER_GW = lib_consts.DEVICE_OWNER_ROUTER_GW
@@ -208,7 +209,7 @@ class BgpDbMixin(object):
                                                        bgp_speaker_id,
                                                        network_id)
             except oslo_db_exc.DBDuplicateEntry:
-                raise bgp_ext.BgpSpeakerNetworkBindingError(
+                raise bgp.BgpSpeakerNetworkBindingError(
                                                 network_id=network_id,
                                                 bgp_speaker_id=bgp_speaker_id)
         return {'network_id': network_id}
@@ -231,7 +232,7 @@ class BgpDbMixin(object):
         auth_type = ri.get('auth_type')
         password = ri.get('password')
         if auth_type == 'md5' and not password:
-            raise bgp_ext.InvalidBgpPeerMd5Authentication()
+            raise bgp.InvalidBgpPeerMd5Authentication()
 
         with db_api.CONTEXT_WRITER.using(context):
             res_keys = ['tenant_id', 'name', 'remote_as', 'peer_ip',
@@ -276,7 +277,7 @@ class BgpDbMixin(object):
             bgp_peer_db = self._get_bgp_peer(context, bgp_peer_id)
             if ((bp.get('password') is not None) and
                 (bgp_peer_db['auth_type'] == 'none')):
-                raise bgp_ext.BgpPeerNotAuthenticated(bgp_peer_id=bgp_peer_id)
+                raise bgp.BgpPeerNotAuthenticated(bgp_peer_id=bgp_peer_id)
             bgp_peer_db.update(bp)
 
         bgp_peer_dict = self._make_bgp_peer_dict(bgp_peer_db)
@@ -287,7 +288,7 @@ class BgpDbMixin(object):
             return model_query.get_by_id(context, BgpSpeaker,
                                          bgp_speaker_id)
         except sa_exc.NoResultFound:
-            raise bgp_ext.BgpSpeakerNotFound(id=bgp_speaker_id)
+            raise bgp.BgpSpeakerNotFound(id=bgp_speaker_id)
 
     def _get_bgp_speaker_ids_by_router(self, context, router_id):
         with db_api.CONTEXT_READER.using(context):
@@ -340,13 +341,13 @@ class BgpDbMixin(object):
                 bgp_speaker = model_query.get_by_id(context, BgpSpeaker,
                                                     bgp_speaker_id)
             except sa_exc.NoResultFound:
-                raise bgp_ext.BgpSpeakerNotFound(id=bgp_speaker_id)
+                raise bgp.BgpSpeakerNotFound(id=bgp_speaker_id)
 
             try:
                 bgp_peer = model_query.get_by_id(context, BgpPeer,
                                                  bgp_peer_id)
             except sa_exc.NoResultFound:
-                raise bgp_ext.BgpPeerNotFound(id=bgp_peer_id)
+                raise bgp.BgpPeerNotFound(id=bgp_peer_id)
 
             peers = self._get_bgp_peers_by_bgp_speaker_binding(context,
                                                                bgp_speaker_id)
@@ -358,7 +359,7 @@ class BgpDbMixin(object):
     def _validate_peer_ips(self, bgp_speaker_id, current_peers, new_peer):
         for peer in current_peers:
             if peer.peer_ip == new_peer.peer_ip:
-                raise bgp_ext.DuplicateBgpPeerIpException(
+                raise bgp.DuplicateBgpPeerIpException(
                                                 bgp_peer_id=new_peer.id,
                                                 peer_ip=new_peer.peer_ip,
                                                 bgp_speaker_id=bgp_speaker_id)
@@ -372,7 +373,7 @@ class BgpDbMixin(object):
                                                              bgp_speaker_id,
                                                              bgp_peer_id)
             except sa_exc.NoResultFound:
-                raise bgp_ext.BgpSpeakerPeerNotAssociated(
+                raise bgp.BgpSpeakerPeerNotAssociated(
                                                 bgp_peer_id=bgp_peer_id,
                                                 bgp_speaker_id=bgp_speaker_id)
             context.session.delete(binding)
@@ -386,7 +387,7 @@ class BgpDbMixin(object):
                 bgp_speaker = model_query.get_by_id(context, BgpSpeaker,
                                                     bgp_speaker_id)
             except sa_exc.NoResultFound:
-                raise bgp_ext.BgpSpeakerNotFound(id=bgp_speaker_id)
+                raise bgp.BgpSpeakerNotFound(id=bgp_speaker_id)
 
             try:
                 network = model_query.get_by_id(context, models_v2.Network,
@@ -410,7 +411,7 @@ class BgpDbMixin(object):
                                                                bgp_speaker_id,
                                                                network_id)
             except sa_exc.NoResultFound:
-                raise bgp_ext.BgpSpeakerNetworkNotAssociated(
+                raise bgp.BgpSpeakerNetworkNotAssociated(
                                                 network_id=network_id,
                                                 bgp_speaker_id=bgp_speaker_id)
             context.session.delete(binding)
@@ -433,7 +434,7 @@ class BgpDbMixin(object):
         try:
             return model_query.get_by_id(context, BgpPeer, bgp_peer_id)
         except sa_exc.NoResultFound:
-            raise bgp_ext.BgpPeerNotFound(id=bgp_peer_id)
+            raise bgp.BgpPeerNotFound(id=bgp_peer_id)
 
     def _get_bgp_speaker_peer_binding(self, context,
                                       bgp_speaker_id, bgp_peer_id):

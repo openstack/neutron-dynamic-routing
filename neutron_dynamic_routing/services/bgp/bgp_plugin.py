@@ -14,6 +14,9 @@
 
 from netaddr import IPAddress
 
+from neutron_lib.api.definitions import bgp as bgp_ext
+from neutron_lib.api.definitions import bgp_4byte_asn
+from neutron_lib.api.definitions import bgp_dragentscheduler as dras_ext
 from neutron_lib.api.definitions import portbindings
 from neutron_lib.callbacks import events
 from neutron_lib.callbacks import registry
@@ -31,12 +34,9 @@ from neutron_dynamic_routing.api.rpc.callbacks import resources as dr_resources
 from neutron_dynamic_routing.api.rpc.handlers import bgp_speaker_rpc as bs_rpc
 from neutron_dynamic_routing.db import bgp_db
 from neutron_dynamic_routing.db import bgp_dragentscheduler_db
-from neutron_dynamic_routing.extensions import bgp as bgp_ext
-from neutron_dynamic_routing.extensions import bgp_4byte_asn
-from neutron_dynamic_routing.extensions import bgp_dragentscheduler as dras_ext
 from neutron_dynamic_routing.services.bgp.common import constants as bgp_consts
 
-PLUGIN_NAME = bgp_ext.BGP_EXT_ALIAS + '_svc_plugin'
+PLUGIN_NAME = bgp_ext.ALIAS + '_svc_plugin'
 LOG = logging.getLogger(__name__)
 
 
@@ -44,9 +44,9 @@ class BgpPlugin(service_base.ServicePluginBase,
                 bgp_db.BgpDbMixin,
                 bgp_dragentscheduler_db.BgpDrAgentSchedulerDbMixin):
 
-    supported_extension_aliases = [bgp_ext.BGP_EXT_ALIAS,
-                                   dras_ext.BGP_DRAGENT_SCHEDULER_EXT_ALIAS,
-                                   bgp_4byte_asn.BGP_4BYTE_ASN_EXT_ALIAS]
+    supported_extension_aliases = [bgp_ext.ALIAS,
+                                   dras_ext.ALIAS,
+                                   bgp_4byte_asn.ALIAS]
 
     def __init__(self):
         super(BgpPlugin, self).__init__()
@@ -57,7 +57,7 @@ class BgpPlugin(service_base.ServicePluginBase,
         self.add_periodic_dragent_status_check()
 
     def get_plugin_type(self):
-        return bgp_ext.BGP_EXT_ALIAS
+        return bgp_ext.ALIAS
 
     def get_plugin_description(self):
         """returns string description of the plugin."""

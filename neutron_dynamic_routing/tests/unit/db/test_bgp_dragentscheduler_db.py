@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from neutron_lib.api.definitions import bgp
 from neutron_lib import context
 from neutron_lib.plugins import directory
 from oslo_config import cfg
@@ -23,7 +24,6 @@ from neutron.tests.unit.extensions import test_agent
 
 from neutron_dynamic_routing.db import bgp_db
 from neutron_dynamic_routing.db import bgp_dragentscheduler_db as bgp_dras_db
-from neutron_dynamic_routing.extensions import bgp
 from neutron_dynamic_routing.extensions import bgp_dragentscheduler as bgp_dras_ext  # noqa
 from neutron_dynamic_routing.tests.common import helpers
 from neutron_dynamic_routing.tests.unit.db import test_bgp_db
@@ -190,12 +190,12 @@ class BgpDrPluginSchedulerTests(test_db_base_plugin.NeutronDbPluginV2TestCase,
             plugin = ('neutron_dynamic_routing.tests.unit.db.'
                       'test_bgp_dragentscheduler_db.TestBgpDrSchedulerPlugin')
         if not service_plugins:
-            service_plugins = {bgp.BGP_EXT_ALIAS:
+            service_plugins = {bgp.ALIAS:
                                'neutron_dynamic_routing.services.bgp.'
                                'bgp_plugin.BgpPlugin'}
 
         ext_mgr = ext_mgr or BgpDrSchedulerTestExtensionManager()
         super(BgpDrPluginSchedulerTests, self).setUp(
             plugin=plugin, ext_mgr=ext_mgr, service_plugins=service_plugins)
-        self.bgp_plugin = directory.get_plugin(bgp.BGP_EXT_ALIAS)
+        self.bgp_plugin = directory.get_plugin(bgp.ALIAS)
         self.context = context.get_admin_context()

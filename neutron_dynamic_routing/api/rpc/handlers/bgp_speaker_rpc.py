@@ -13,10 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from neutron_lib.api.definitions import bgp as bgp_ext
 from neutron_lib.plugins import directory
 import oslo_messaging
-
-from neutron_dynamic_routing.extensions import bgp as bgp_ext
 
 
 class BgpSpeakerRpcCallback(object):
@@ -37,7 +36,7 @@ class BgpSpeakerRpcCallback(object):
     @property
     def plugin(self):
         if not hasattr(self, '_plugin'):
-            self._plugin = directory.get_plugin(bgp_ext.BGP_EXT_ALIAS)
+            self._plugin = directory.get_plugin(bgp_ext.ALIAS)
         return self._plugin
 
     def get_bgp_speaker_info(self, context, bgp_speaker_id):
