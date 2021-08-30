@@ -57,6 +57,8 @@ class TestBgpPlugin(base.BaseTestCase):
                 mock.call(plugin.bgp_drscheduler.schedule_bgp_speaker_callback,
                           dr_resources.BGP_SPEAKER, events.AFTER_CREATE),
                 mock.call(plugin.floatingip_update_callback,
+                          resources.FLOATING_IP, events.AFTER_CREATE),
+                mock.call(plugin.floatingip_update_callback,
                           resources.FLOATING_IP, events.AFTER_UPDATE),
                 mock.call(plugin.router_interface_callback,
                           resources.ROUTER_INTERFACE, events.AFTER_CREATE),
@@ -92,9 +94,9 @@ class TestBgpPlugin(base.BaseTestCase):
                                                payload=payload)
 
     def test_floatingip_update_callback(self):
-        kwargs = {'floating_ip_address': netaddr.IPAddress('10.10.10.10'),
-            'last_known_router_id': 'old-router-id',
-            'router_id': '', 'floating_network_id': 'a-b-c-d-e'}
+        fip = {'floating_ip_address': netaddr.IPAddress('10.10.10.10'),
+               'last_known_router_id': 'old-router-id',
+               'router_id': '', 'floating_network_id': 'a-b-c-d-e'}
 
         test_context = 'test_context'
 
@@ -108,7 +110,9 @@ class TestBgpPlugin(base.BaseTestCase):
                     get_bgp.return_value = [bgp_speaker]
 
                     self.plugin.floatingip_update_callback(
-                        test_context, events.AFTER_UPDATE, None, **kwargs)
+                        test_context, events.AFTER_UPDATE, None,
+                        payload=events.DBEventPayload(
+                            test_context, states=(fip,)))
 
                     get_bgp.assert_called_once_with(self.fake_admin_ctx,
                                                     'a-b-c-d-e',

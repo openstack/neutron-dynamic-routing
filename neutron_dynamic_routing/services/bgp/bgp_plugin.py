@@ -79,6 +79,9 @@ class BgpPlugin(service_base.ServicePluginBase,
     def _register_callbacks(self):
         registry.subscribe(self.floatingip_update_callback,
                            resources.FLOATING_IP,
+                           events.AFTER_CREATE)
+        registry.subscribe(self.floatingip_update_callback,
+                           resources.FLOATING_IP,
                            events.AFTER_UPDATE)
         registry.subscribe(self.router_interface_callback,
                            resources.ROUTER_INTERFACE,
@@ -224,18 +227,18 @@ class BgpPlugin(service_base.ServicePluginBase,
         return super(BgpPlugin, self).get_advertised_routes(context,
                                                             bgp_speaker_id)
 
-    def floatingip_update_callback(self, resource, event, trigger, **kwargs):
-        if event != events.AFTER_UPDATE:
+    def floatingip_update_callback(self, resource, event, trigger, payload):
+        if event not in [events.AFTER_CREATE, events.AFTER_UPDATE]:
             return
-
         ctx = context.get_admin_context()
-        new_router_id = kwargs['router_id']
-        last_router_id = kwargs.get('last_known_router_id')
-        floating_ip_address = kwargs['floating_ip_address']
+        fip = payload.latest_state
+        new_router_id = fip['router_id']
+        last_router_id = fip.get('last_known_router_id')
+        floating_ip_address = fip['floating_ip_address']
         dest = str(floating_ip_address) + '/32'
         bgp_speakers = self._bgp_speakers_for_gw_network_by_family(
             ctx,
-            kwargs['floating_network_id'],
+            fip['floating_network_id'],
             n_const.IP_VERSION_4)
 
         if last_router_id and new_router_id != last_router_id:
@@ -348,12 +351,12 @@ class BgpPlugin(service_base.ServicePluginBase,
                 self.stop_route_advertisements(ctx, self._bgp_rpc,
                                                speaker.id, routes)
 
-    def port_callback(self, resource, event, trigger, **kwargs):
+    def port_callback(self, resource, event, trigger, payload):
         if event != events.AFTER_UPDATE:
             return
 
-        original_port = kwargs['original_port']
-        updated_port = kwargs['port']
+        original_port = payload.states[0]
+        updated_port = payload.latest_state
         if not updated_port.get('fixed_ips'):
             return
 
