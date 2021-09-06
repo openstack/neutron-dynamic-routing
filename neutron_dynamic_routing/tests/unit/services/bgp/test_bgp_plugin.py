@@ -94,9 +94,10 @@ class TestBgpPlugin(base.BaseTestCase):
                                                payload=payload)
 
     def test_floatingip_update_callback(self):
-        fip = {'floating_ip_address': netaddr.IPAddress('10.10.10.10'),
-               'last_known_router_id': 'old-router-id',
-               'router_id': '', 'floating_network_id': 'a-b-c-d-e'}
+        new_fip = {'floating_ip_address': netaddr.IPAddress('10.10.10.10'),
+                   'router_id': '', 'floating_network_id': 'a-b-c-d-e'}
+        old_fip = new_fip.copy()
+        old_fip.update(router_id='old-router-id')
 
         test_context = 'test_context'
 
@@ -112,7 +113,7 @@ class TestBgpPlugin(base.BaseTestCase):
                     self.plugin.floatingip_update_callback(
                         test_context, events.AFTER_UPDATE, None,
                         payload=events.DBEventPayload(
-                            test_context, states=(fip,)))
+                            test_context, states=(old_fip, new_fip)))
 
                     get_bgp.assert_called_once_with(self.fake_admin_ctx,
                                                     'a-b-c-d-e',

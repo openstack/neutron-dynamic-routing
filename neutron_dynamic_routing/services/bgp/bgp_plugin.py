@@ -231,15 +231,18 @@ class BgpPlugin(service_base.ServicePluginBase,
         if event not in [events.AFTER_CREATE, events.AFTER_UPDATE]:
             return
         ctx = context.get_admin_context()
-        fip = payload.latest_state
-        new_router_id = fip['router_id']
-        last_router_id = fip.get('last_known_router_id')
-        floating_ip_address = fip['floating_ip_address']
+        new_fip = payload.latest_state
+        new_router_id = new_fip['router_id']
+        floating_ip_address = new_fip['floating_ip_address']
         dest = str(floating_ip_address) + '/32'
         bgp_speakers = self._bgp_speakers_for_gw_network_by_family(
             ctx,
-            fip['floating_network_id'],
+            new_fip['floating_network_id'],
             n_const.IP_VERSION_4)
+        last_router_id = None
+        if event == events.AFTER_UPDATE:
+            old_fip = payload.states[0]
+            last_router_id = old_fip['router_id']
 
         if last_router_id and new_router_id != last_router_id:
             # Here gives the old route next_hop a `None` value, then
