@@ -197,10 +197,11 @@ class BgpDrAgentSchedulerBase(BgpDrAgentFilter):
         return [bgp_speaker_id_[0] for bgp_speaker_id_ in query]
 
     def schedule_bgp_speaker_callback(self, resource, event, trigger, payload):
-        plugin = payload['plugin']
+        plugin = payload.metadata['plugin']
+        bgp_speaker = payload.latest_state
         if event == events.AFTER_CREATE:
             ctx = nl_context.get_admin_context()
-            plugin.schedule_bgp_speaker(ctx, payload['bgp_speaker'])
+            plugin.schedule_bgp_speaker(ctx, bgp_speaker)
 
 
 class ChanceScheduler(base_scheduler.BaseChanceScheduler,

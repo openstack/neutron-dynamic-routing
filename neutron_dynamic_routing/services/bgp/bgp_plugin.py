@@ -122,10 +122,11 @@ class BgpPlugin(service_base.ServicePluginBase,
     def create_bgp_speaker(self, context, bgp_speaker):
         bgp_speaker = super(BgpPlugin, self).create_bgp_speaker(context,
                                                                 bgp_speaker)
-        payload = {'plugin': self, 'context': context,
-                   'bgp_speaker': bgp_speaker}
-        registry.notify(dr_resources.BGP_SPEAKER, events.AFTER_CREATE,
-                        self, payload=payload)
+        registry.publish(dr_resources.BGP_SPEAKER, events.AFTER_CREATE,
+                         self, payload=events.DBEventPayload(
+                                   context,
+                                   metadata={'plugin': self},
+                                   states=(bgp_speaker,)))
         return bgp_speaker
 
     def update_bgp_speaker(self, context, bgp_speaker_id, bgp_speaker):

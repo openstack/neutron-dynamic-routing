@@ -94,8 +94,10 @@ class TestSchedulerCallback(TestBgpDrAgentSchedulerBaseTestCase):
 
     def _create_test_payload(self, context='test_ctx'):
         bgp_speaker = {'id': '11111111-2222-3333-4444-555555555555'}
-        payload = {'plugin': self.plugin, 'context': context,
-                   'bgp_speaker': bgp_speaker}
+        payload = events.DBEventPayload(
+                      context,
+                      metadata={'plugin': self.plugin},
+                      states=(bgp_speaker,))
         return payload
 
     def test__register_callbacks(self):
@@ -123,7 +125,7 @@ class TestSchedulerCallback(TestBgpDrAgentSchedulerBaseTestCase):
                 events.AFTER_CREATE,
                 self.scheduler, payload)
             sched_bgp.assert_called_once_with(mock.ANY,
-                                              payload['bgp_speaker'])
+                                              payload.latest_state)
 
     def test_schedule_bgp_speaker_callback_with_invalid_event(self):
         payload = self._create_test_payload()

@@ -46,8 +46,10 @@ class TestBgpPlugin(base.BaseTestCase):
 
     def _create_test_payload(self, context='test_ctx'):
         bgp_speaker = {'id': '11111111-2222-3333-4444-555555555555'}
-        payload = {'plugin': self.plugin, 'context': context,
-                   'bgp_speaker': bgp_speaker}
+        payload = events.DBEventPayload(
+                      context,
+                      metadata={'plugin': self.plugin},
+                      states=(bgp_speaker,))
         return payload
 
     def test__register_callbacks(self):
@@ -81,17 +83,21 @@ class TestBgpPlugin(base.BaseTestCase):
         payload = self._create_test_payload(context=test_context)
         with mock.patch.object(bgp_db.BgpDbMixin,
                                'create_bgp_speaker') as create_bgp_sp:
-            with mock.patch.object(registry, 'notify') as notify:
-                create_bgp_sp.return_value = payload['bgp_speaker']
+            with mock.patch.object(registry, 'publish') as publish:
+                create_bgp_sp.return_value = payload.latest_state
                 self.assertEqual(self.plugin.create_bgp_speaker(
                     test_context, test_bgp_speaker),
-                    payload['bgp_speaker'])
+                    payload.latest_state)
                 create_bgp_sp.assert_called_once_with(test_context,
                                                       test_bgp_speaker)
-                notify.assert_called_once_with(dr_resources.BGP_SPEAKER,
-                                               events.AFTER_CREATE,
-                                               self.plugin,
-                                               payload=payload)
+                publish.assert_called_once_with(dr_resources.BGP_SPEAKER,
+                                                events.AFTER_CREATE,
+                                                self.plugin,
+                                                payload=mock.ANY)
+                publish_payload = publish.call_args_list[0][1]['payload']
+                self.assertEqual(payload.latest_state,
+                                 publish_payload.latest_state)
+                self.assertEqual(payload.context, publish_payload.context)
 
     def test_floatingip_update_callback(self):
         new_fip = {'floating_ip_address': netaddr.IPAddress('10.10.10.10'),
