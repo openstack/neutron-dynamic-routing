@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    A new BGP scheduler has been added, called ``StaticScheduler``. It will
+    not perform any automatic scheduling of speakers to agents, instead
+    relying on API calls to perform explicit scheduling, fulfilling the
+    needs of larger deployments.
+    See also bug `1920065 <https://bugs.launchpad.net/neutron/+bug/1920065>`_.
+    The plan is to make the ``StaticScheduler`` the default option for the next
+    release and possibly deprecate the current default, ``ChanceScheduler``.

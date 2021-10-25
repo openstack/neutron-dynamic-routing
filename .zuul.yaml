@@ -1,4 +1,16 @@
 - job:
+    name: neutron-dynamic-routing-static
+    parent: neutron-tempest-plugin-dynamic-routing
+    vars:
+      devstack_localrc:
+        BGP_SCHEDULER_DRIVER: neutron_dynamic_routing.services.bgp.scheduler.bgp_dragent_scheduler.StaticScheduler
+      devstack_local_conf:
+        test-config:
+          $TEMPEST_CONFIG:
+             neutron_plugin_options:
+               bgp_schedule_speakers_to_agents: true
+
+- job:
     name: neutron-dynamic-routing-functional
     parent: neutron-functional
     vars:
@@ -22,6 +34,7 @@
     check:
       jobs:
         - neutron-dynamic-routing-functional
+        - neutron-dynamic-routing-static
         - neutron-tempest-plugin-dynamic-routing
     gate:
       jobs:

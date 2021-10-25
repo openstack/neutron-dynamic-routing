@@ -53,9 +53,8 @@ functionality of a dynamic routing protocol::
                 +-------------------------------+
 
 .. note::
- In the first release, only the integration with os-ken is supported. Later release will
- have support for Quagga, Bird etc. Besides, BGP is the only protocol supported now
- but support for more dynamic routing protocols might come in the future.
+ Currently only the integration with os-ken is supported
+ BGP is the only protocol supported.
 
 
 Configuration

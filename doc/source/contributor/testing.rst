@@ -565,7 +565,8 @@ Service Test
 
     * Schedule the BGP speaker to ``BGP dynamic routing agent``
 
-    The first BGP speaker is scheduled to the first dynamic routing agent automatically.
+    With the default scheduler configuration, the first BGP speaker is
+    scheduled to the first dynamic routing agent automatically.
     So for a simple setup, there is nothing to be done here.
 
     * Verify scheduling of the BGP speaker to the agent.
