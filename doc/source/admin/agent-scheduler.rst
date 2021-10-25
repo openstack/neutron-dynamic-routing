@@ -48,7 +48,23 @@ BGP Scheduler
 BGP Speaker and DRAgent has 1:N association which means one BGP speaker can be
 scheduled on multiple DRAgents.
 
+There are different options for the scheduling algorithm to be used, these can
+be selected via the ``bgp_drscheduler_driver`` configuration option.
+
+StaticScheduler
+~~~~~~~~~~~~~~~
+
+This is the most simple option, which does no automatic scheduling at all.
+Instead it relies on API requests to explicitly associate BGP speaker with
+DRAgents and to disassociate them again.
+
+Sample configuration::
+
+    bgp_drscheduler_driver = neutron_dynamic_routing.services.bgp.scheduler.bgp_dragent_scheduler.StaticScheduler
+
 Here is an example to associate/disassociate a BGP Speaker to/from a DRAgent.
+
+.. TODO(frickler): update the examples to use OSC
 
 ::
 
@@ -88,7 +104,22 @@ Here is an example to associate/disassociate a BGP Speaker to/from a DRAgent.
 
   (neutron)
 
-.. note:: Currently, auto-scheduling is not supported.
+ReST API's for neutron-dynamic-routing scheduler are defined as part of the
+`Neutron API reference`_.
 
-ReST API's for neutron-dynamic-routing scheduler is defined in the
-API document :doc:`/reference/index`
+.. _Neutron API reference: https://docs.openstack.org/api-ref/network/#bgp-dynamic-routing
+
+ChanceScheduler
+~~~~~~~~~~~~~~~
+
+This is the default option. It will automatically schedule newly created BGP
+speakers to one of the active DRAgents. When a DRAgent goes down, the BGP
+speaker will be disassociated from it and an attempt is made to schedule
+it to a different agent. Note that this action will override any manual
+associations that have been performed via the API, so you will want to use
+this scheduler only in very basic deployments.
+
+Sample configuration::
+
+    bgp_drscheduler_driver = neutron_dynamic_routing.services.bgp.scheduler.bgp_dragent_scheduler.ChanceScheduler
+
