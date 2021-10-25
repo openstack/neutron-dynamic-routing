@@ -127,4 +127,4 @@ It manages and configures different dynamic routing stack through
 
 .. note::
  Currently, only integration with `os-ken <https://docs.openstack.org/os-ken/latest/>`_
- is supported. Future releases will add the support for Quagga, Bird, etc.
+ is supported.

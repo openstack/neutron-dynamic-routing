@@ -217,3 +217,9 @@ class WeightScheduler(base_scheduler.BaseWeightScheduler,
     def __init__(self):
         super(WeightScheduler, self).__init__(self)
         self._register_callbacks()
+
+
+class StaticScheduler(BgpDrAgentFilter):
+
+    def __init__(self):
+        super(StaticScheduler, self).__init__()
