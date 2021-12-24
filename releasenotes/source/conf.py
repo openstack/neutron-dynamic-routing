@@ -60,8 +60,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Neutron Dynamic Routing Release Notes'
-copyright = u'2015, Neutron Dynamic Routing Developers'
+project = 'Neutron Dynamic Routing Release Notes'
+copyright = '2015, Neutron Dynamic Routing Developers'
 
 # Release notes are version independent.
 # The full version, including alpha/beta/rc tags.
@@ -207,8 +207,8 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     ('index', 'NeutronDynamicRoutingReleaseNotes.tex',
-     u'Neutron Dynamic Routing Release Notes Documentation',
-     u'Neutron Dynamic Routing Developers', 'manual'),
+     'Neutron Dynamic Routing Release Notes Documentation',
+     'Neutron Dynamic Routing Developers', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -237,8 +237,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'neutrondynamicroutingreleasenotes', u'Neutron Dynamic Routing',
-     ' Release Notes Documentation', [u'Neutron Dynamic Routing Developers'],
+    ('index', 'neutrondynamicroutingreleasenotes', 'Neutron Dynamic Routing',
+     ' Release Notes Documentation', ['Neutron Dynamic Routing Developers'],
      1)
 ]
 
@@ -252,8 +252,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'NeutronDynamicRoutingReleaseNotes', u'Neutron Dynamic Routing',
-     ' Release Notes Documentation', u'Neutron Dynamic Routing Developers',
+    ('index', 'NeutronDynamicRoutingReleaseNotes', 'Neutron Dynamic Routing',
+     ' Release Notes Documentation', 'Neutron Dynamic Routing Developers',
      'NeutronDynamicRoutingReleaseNotes', 'One line description of project.',
      'Miscellaneous'),
 ]
