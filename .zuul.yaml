@@ -40,3 +40,8 @@
       jobs:
         - neutron-dynamic-routing-functional
         - neutron-tempest-plugin-dynamic-routing
+    periodic-weekly:
+      jobs:
+        - openstack-tox-py39
+        - neutron-tempest-plugin-dynamic-routing
+        - neutron-dynamic-routing-functional
