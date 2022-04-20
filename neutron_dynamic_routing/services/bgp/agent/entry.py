@@ -36,6 +36,7 @@ def register_options():
 
 def main():
     register_options()
+    common_config.register_common_config_options()
     common_config.init(sys.argv[1:])
     config.setup_logging()
     server = neutron_service.Service.create(
