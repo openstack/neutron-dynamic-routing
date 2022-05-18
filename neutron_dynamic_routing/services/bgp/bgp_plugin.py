@@ -52,7 +52,10 @@ class BgpPlugin(service_base.ServicePluginBase,
         super(BgpPlugin, self).__init__()
         self.bgp_drscheduler = importutils.import_object(
             cfg.CONF.bgp_drscheduler_driver)
-        self._setup_rpc()
+        self.agent_notifiers[bgp_consts.AGENT_TYPE_BGP_ROUTING] = (
+            bgp_dr_rpc_agent_api.BgpDrAgentNotifyApi()
+        )
+        self._bgp_rpc = self.agent_notifiers[bgp_consts.AGENT_TYPE_BGP_ROUTING]
         self._register_callbacks()
         self.add_periodic_dragent_status_check()
 
@@ -64,17 +67,13 @@ class BgpPlugin(service_base.ServicePluginBase,
         return ("BGP dynamic routing service for announcement of next-hops "
                 "for project networks, floating IP's, and DVR host routes.")
 
-    def _setup_rpc(self):
+    def start_rpc_listeners(self):
         self.topic = bgp_consts.BGP_PLUGIN
         self.conn = n_rpc.Connection()
-        self.agent_notifiers[bgp_consts.AGENT_TYPE_BGP_ROUTING] = (
-            bgp_dr_rpc_agent_api.BgpDrAgentNotifyApi()
-        )
-        self._bgp_rpc = self.agent_notifiers[bgp_consts.AGENT_TYPE_BGP_ROUTING]
         self.endpoints = [bs_rpc.BgpSpeakerRpcCallback()]
         self.conn.create_consumer(self.topic, self.endpoints,
                                   fanout=False)
-        self.conn.consume_in_threads()
+        return self.conn.consume_in_threads()
 
     def _register_callbacks(self):
         registry.subscribe(self.floatingip_update_callback,
