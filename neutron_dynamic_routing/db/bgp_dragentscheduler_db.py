@@ -149,12 +149,13 @@ class BgpDrAgentSchedulerDbMixin(bgp_dras_ext.BgpDrSchedulerPluginBase,
 
     def get_down_bgp_speaker_bindings(self, context, agent_dead_limit):
         cutoff = self.get_cutoff_time(agent_dead_limit)
-        query = (
-            context.session.query(BgpSpeakerDrAgentBinding).
-            join(agent_model.Agent).
-            filter(agent_model.Agent.heartbeat_timestamp < cutoff,
-                   agent_model.Agent.admin_state_up))
-        down_bindings = [b for b in query]
+        with db_api.CONTEXT_READER.using(context):
+            query = (
+                context.session.query(BgpSpeakerDrAgentBinding).
+                join(agent_model.Agent).
+                filter(agent_model.Agent.heartbeat_timestamp < cutoff,
+                       agent_model.Agent.admin_state_up))
+            down_bindings = [b for b in query]
         return down_bindings
 
     def reschedule_bgp_speaker(self, context, bgp_speaker_id):
