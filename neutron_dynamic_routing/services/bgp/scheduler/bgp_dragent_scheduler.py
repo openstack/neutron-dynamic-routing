@@ -219,7 +219,16 @@ class WeightScheduler(base_scheduler.BaseWeightScheduler,
         self._register_callbacks()
 
 
-class StaticScheduler(BgpDrAgentFilter):
+class StaticScheduler(base_scheduler.BaseScheduler,
+                      BgpDrAgentFilter):
 
-    def __init__(self):
-        super(StaticScheduler, self).__init__()
+    def schedule_all_unscheduled_bgp_speakers(self, context):
+        return True
+
+    def schedule_unscheduled_bgp_speakers(self, context, host):
+        return True
+
+    def select(self, plugin, context, resource_hostable_agents,
+               resource_hosted_agents, num_agents_needed):
+
+        return []
