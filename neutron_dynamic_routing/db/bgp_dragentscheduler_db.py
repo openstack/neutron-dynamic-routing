@@ -203,29 +203,32 @@ class BgpDrAgentSchedulerDbMixin(bgp_dras_ext.BgpDrSchedulerPluginBase,
 
     def get_dragents_hosting_bgp_speakers(self, context, bgp_speaker_ids,
                                           active=None, admin_state_up=None):
-        query = context.session.query(BgpSpeakerDrAgentBinding)
-        query = query.options(orm.contains_eager(
-                              BgpSpeakerDrAgentBinding.dragent))
-        query = query.join(BgpSpeakerDrAgentBinding.dragent)
 
-        if len(bgp_speaker_ids) == 1:
-            query = query.filter(
-                BgpSpeakerDrAgentBinding.bgp_speaker_id == (
-                    bgp_speaker_ids[0]))
-        elif bgp_speaker_ids:
-            query = query.filter(
-                BgpSpeakerDrAgentBinding.bgp_speaker_id in bgp_speaker_ids)
-        if admin_state_up is not None:
-            query = query.filter(agent_model.Agent.admin_state_up ==
-                                 admin_state_up)
+        with db_api.CONTEXT_READER.using(context):
+            query = context.session.query(BgpSpeakerDrAgentBinding)
+            query = query.options(orm.contains_eager(
+                                  BgpSpeakerDrAgentBinding.dragent))
+            query = query.join(BgpSpeakerDrAgentBinding.dragent)
 
-        return [binding.dragent
-                for binding in query
-                if as_db.AgentSchedulerDbMixin.is_eligible_agent(
-                                                active, binding.dragent)]
+            if len(bgp_speaker_ids) == 1:
+                query = query.filter(
+                    BgpSpeakerDrAgentBinding.bgp_speaker_id == (
+                        bgp_speaker_ids[0]))
+            elif bgp_speaker_ids:
+                query = query.filter(
+                    BgpSpeakerDrAgentBinding.bgp_speaker_id in bgp_speaker_ids)
+            if admin_state_up is not None:
+                query = query.filter(agent_model.Agent.admin_state_up ==
+                                     admin_state_up)
+
+            return [binding.dragent
+                    for binding in query
+                    if as_db.AgentSchedulerDbMixin.is_eligible_agent(
+                                                    active, binding.dragent)]
 
     def get_dragent_bgp_speaker_bindings(self, context):
-        return context.session.query(BgpSpeakerDrAgentBinding).all()
+        with db_api.CONTEXT_READER.using(context):
+            return context.session.query(BgpSpeakerDrAgentBinding).all()
 
     def list_dragent_hosting_bgp_speaker(self, context, speaker_id):
         dragents = self.get_dragents_hosting_bgp_speakers(context,
@@ -236,14 +239,17 @@ class BgpDrAgentSchedulerDbMixin(bgp_dras_ext.BgpDrSchedulerPluginBase,
         return {'agents': self.get_agents(context, filters={'id': agent_ids})}
 
     def list_bgp_speaker_on_dragent(self, context, agent_id):
-        query = context.session.query(BgpSpeakerDrAgentBinding.bgp_speaker_id)
-        query = query.filter_by(agent_id=agent_id)
+        with db_api.CONTEXT_READER.using(context):
+            query = context.session.query(
+                BgpSpeakerDrAgentBinding.bgp_speaker_id)
+            query = query.filter_by(agent_id=agent_id)
 
-        bgp_speaker_ids = [item[0] for item in query]
-        if not bgp_speaker_ids:
-            # Exception will be thrown if the requested agent does not exist.
-            self._get_agent(context, agent_id)
-            return {'bgp_speakers': []}
+            bgp_speaker_ids = [item[0] for item in query]
+            if not bgp_speaker_ids:
+                # Raise exception if the requested agent does not exist.
+                self._get_agent(context, agent_id)
+                return {'bgp_speakers': []}
+
         return {'bgp_speakers':
                 self.get_bgp_speakers(context,
                                       filters={'id': bgp_speaker_ids})}
@@ -254,14 +260,15 @@ class BgpDrAgentSchedulerDbMixin(bgp_dras_ext.BgpDrSchedulerPluginBase,
         if not agent.admin_state_up:
             return {}
 
-        query = context.session.query(BgpSpeakerDrAgentBinding)
-        query = query.filter(BgpSpeakerDrAgentBinding.agent_id == agent.id)
-        try:
-            binding = query.one()
-        except exc.NoResultFound:
-            return []
-        bgp_speaker = self.get_bgp_speaker_with_advertised_routes(
-                                context, binding['bgp_speaker_id'])
+        with db_api.CONTEXT_READER.using(context):
+            query = context.session.query(BgpSpeakerDrAgentBinding)
+            query = query.filter(BgpSpeakerDrAgentBinding.agent_id == agent.id)
+            try:
+                binding = query.one()
+            except exc.NoResultFound:
+                return []
+            bgp_speaker = self.get_bgp_speaker_with_advertised_routes(
+                                    context, binding['bgp_speaker_id'])
         return [bgp_speaker]
 
     def get_bgp_speaker_by_speaker_id(self, context, bgp_speaker_id):
