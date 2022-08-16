@@ -263,8 +263,9 @@ class BgpDbMixin(object):
             return [self._make_bgp_peer_dict(x, fields) for x in query.all()]
 
     def get_bgp_peer(self, context, bgp_peer_id, fields=None):
-        bgp_peer_db = self._get_bgp_peer(context, bgp_peer_id)
-        return self._make_bgp_peer_dict(bgp_peer_db, fields=fields)
+        with db_api.CONTEXT_READER.using(context):
+            bgp_peer_db = self._get_bgp_peer(context, bgp_peer_id)
+            return self._make_bgp_peer_dict(bgp_peer_db, fields=fields)
 
     def delete_bgp_peer(self, context, bgp_peer_id):
         with db_api.CONTEXT_WRITER.using(context):
@@ -1080,11 +1081,13 @@ class BgpDbMixin(object):
                  'next_hop': y} for x, y in ip_next_hop_tuples)
 
     def _get_router(self, context, router_id):
-        try:
-            router = model_query.get_by_id(context, l3_db.Router, router_id)
-        except sa_exc.NoResultFound:
-            raise l3_exc.RouterNotFound(router_id=router_id)
-        return router
+        with db_api.CONTEXT_READER.using(context):
+            try:
+                router = model_query.get_by_id(context, l3_db.Router,
+                                               router_id)
+            except sa_exc.NoResultFound:
+                raise l3_exc.RouterNotFound(router_id=router_id)
+            return router
 
     def _get_fip_next_hop(self, context, router_id, ip_address=None):
         router = self._get_router(context, router_id)
