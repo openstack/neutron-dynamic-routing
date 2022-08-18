@@ -128,6 +128,8 @@ class BgpDrAgentFilter(base_resource_filter.BaseResourceFilter):
 
 class BgpDrAgentSchedulerBase(BgpDrAgentFilter):
 
+    periodic_actions = True
+
     def _register_callbacks(self):
         registry.subscribe(self.schedule_bgp_speaker_callback,
                            dr_resources.BGP_SPEAKER,
@@ -222,6 +224,8 @@ class WeightScheduler(base_scheduler.BaseWeightScheduler,
 
 class StaticScheduler(base_scheduler.BaseScheduler,
                       BgpDrAgentFilter):
+
+    periodic_actions = False
 
     def schedule_all_unscheduled_bgp_speakers(self, context):
         return True

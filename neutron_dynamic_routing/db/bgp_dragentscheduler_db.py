@@ -69,10 +69,11 @@ class BgpDrAgentSchedulerDbMixin(bgp_dras_ext.BgpDrSchedulerPluginBase,
 
     def add_periodic_dragent_status_check(self):
         if self.bgp_drscheduler:
-            self.add_agent_status_check_worker(
-                self.remove_bgp_speaker_from_down_dragents)
-            self.add_agent_status_check_worker(
-                self.schedule_all_unscheduled_bgp_speakers)
+            if self.bgp_drscheduler.periodic_actions:
+                self.add_agent_status_check_worker(
+                    self.remove_bgp_speaker_from_down_dragents)
+                self.add_agent_status_check_worker(
+                    self.schedule_all_unscheduled_bgp_speakers)
         else:
             LOG.warning(_LW("Cannot schedule BgpSpeaker to DrAgent. "
                             "Reason: No scheduler registered."))
