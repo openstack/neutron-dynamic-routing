@@ -80,8 +80,8 @@ class BgpDrSchedulingTestCase(test_agent.AgentDBTestMixIn,
             self.assertEqual(exc.HTTPOk.code, res.status_int)
             res = self.deserialize(self.fmt, res)
             self.assertIn('bgp_speakers', res)
-            self.assertTrue(bgp_speaker_id,
-                            res['bgp_speakers'][0]['id'])
+            self.assertEqual(bgp_speaker_id,
+                             res['bgp_speakers'][0]['id'])
 
             req = self.new_delete_request('agents',
                                           agent_id,
