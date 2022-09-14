@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    In preparation for the upcoming SQLAlchemy 2.0 release, several fixes
+    have been made regarding the use of context decorators.
+    See bugs `1980671 <https://bugs.launchpad.net/neutron/+bug/1980671>`_
+    and `1984238 <https://bugs.launchpad.net/neutron/+bug/1984238>`_.
