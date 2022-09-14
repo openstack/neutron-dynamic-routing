@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    The BGP service plugin RPC queue has been added to RPC workers, like
+    it is done in other Neutron service plugins (l3-plugin, metering, etc.).
+    This fixes RPC requests and AMQP heartbeats not getting processed in
+    time, causing AMQP connection dropping, and other unpredictable unwanted
+    behavior.
+    See bug `1974057 <https://bugs.launchpad.net/neutron/+bug/1974057>`_.
