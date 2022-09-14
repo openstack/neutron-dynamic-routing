@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Multiple issues in the implementation of the StaticScheduler have been
+    fixed that may have caused peers to be erroneously descheduled.
+    See bug `1980235 <https://bugs.launchpad.net/neutron/+bug/1980235>`_.
