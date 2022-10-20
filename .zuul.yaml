@@ -39,8 +39,12 @@
       jobs:
         - neutron-dynamic-routing-functional
         - neutron-tempest-plugin-dynamic-routing
+    experimental:
+      jobs:
+        - openstack-tox-py39-with-oslo-master
     periodic-weekly:
       jobs:
         - openstack-tox-py39
+        - openstack-tox-py39-with-oslo-master
         - neutron-tempest-plugin-dynamic-routing
         - neutron-dynamic-routing-functional
