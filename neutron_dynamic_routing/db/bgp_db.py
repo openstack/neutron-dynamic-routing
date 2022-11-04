@@ -1189,9 +1189,11 @@ class BgpDbMixin(object):
                 ext_net_id = gw_subnet.network_id
                 ext_pool = subnetpool_obj.SubnetPool.get_object(
                             ctx, id=gw_subnet.subnetpool_id)
-                ext_scope_set = ext_net_subnetpool_map.get(ext_net_id, set())
-                ext_scope_set.add(ext_pool.address_scope_id)
-                ext_net_subnetpool_map[ext_net_id] = ext_scope_set
+                if ext_pool is not None:
+                    ext_scope_set = ext_net_subnetpool_map.get(ext_net_id,
+                                                               set())
+                    ext_scope_set.add(ext_pool.address_scope_id)
+                    ext_net_subnetpool_map[ext_net_id] = ext_scope_set
 
             ext_nets = []
 
