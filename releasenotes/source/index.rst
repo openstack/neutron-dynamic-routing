@@ -17,6 +17,3 @@
    stein
    rocky
    queens
-   pike
-   ocata
-   newton
