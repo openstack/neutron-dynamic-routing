@@ -55,7 +55,7 @@ class BgpSpeakerDrAgentBinding(model_base.BASEV2):
                                sa.ForeignKey("bgp_speakers.id",
                                              ondelete='CASCADE'),
                                nullable=False)
-    dragent = orm.relation(agent_model.Agent)
+    dragent = orm.relationship(agent_model.Agent)
     agent_id = sa.Column(sa.String(length=36),
                          sa.ForeignKey("agents.id",
                                        ondelete='CASCADE'),
