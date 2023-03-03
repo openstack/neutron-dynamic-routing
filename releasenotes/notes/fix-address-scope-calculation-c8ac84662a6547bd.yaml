@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    Fixes the iteration to obtain the address_scope linked to a subnet.
+    A network can be linked to more than one subnet (ipv4 and ipv6),
+    but if one of them does not have an address_scope, a null object
+    element access failure occured.
+    See bug `1998104 <https://bugs.launchpad.net/neutron/+bug/1998104>`_.
