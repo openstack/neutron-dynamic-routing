@@ -245,6 +245,7 @@ class BgpDbMixin(object):
             peer.pop('password')
             return peer
 
+    @db_api.CONTEXT_READER
     def get_bgp_peers(self, context, fields=None, filters=None, sorts=None,
                       limit=None, marker=None, page_reverse=False):
         return model_query.get_collection(context, BgpPeer,
