@@ -134,35 +134,58 @@ class BgpEntityCreationMixin(object):
                                               ext_net_use_addr_scope=True,
                                               tenant_net_use_addr_scope=True):
         gw_ip_net = netaddr.IPNetwork(gw_prefix)
-        tenant_ip_net = netaddr.IPNetwork(tenant_prefix)
         ext_pool_args = {'tenant_id': tenant_id,
                          'name': 'bgp-pool'}
-        tenant_pool_args = ext_pool_args.copy()
 
         if address_scope and ext_net_use_addr_scope:
             ext_pool_args['address_scope_id'] = address_scope['id']
 
-        if address_scope and tenant_net_use_addr_scope:
-            tenant_pool_args['address_scope_id'] = address_scope['id']
-
         with self.gw_network(external=True) as ext_net, \
-            self.network() as int_net, \
-            self.subnetpool([gw_prefix], **ext_pool_args) as ext_pool, \
-            self.subnetpool([tenant_prefix], **tenant_pool_args) as int_pool:
+                self.subnetpool([gw_prefix], **ext_pool_args) as ext_pool:
             ext_subnetpool_id = ext_pool['subnetpool']['id']
-            int_subnetpool_id = int_pool['subnetpool']['id']
             gw_net_id = ext_net['network']['id']
             with self.subnet(ext_net,
                              cidr=gw_prefix,
                              subnetpool_id=ext_subnetpool_id,
                              ip_version=gw_ip_net.version,
-                             as_admin=True), \
-                self.subnet(int_net,
+                             as_admin=True):
+                with self.router_with_tenant_networks(
+                    tenant_id,
+                    external_network_id=gw_net_id,
+                    tenant_prefix=tenant_prefix,
+                    address_scope=address_scope,
+                    distributed=distributed,
+                    ha=ha,
+                    tenant_net_use_addr_scope=tenant_net_use_addr_scope
+                ) as (router, int_net):
+                    yield router, ext_net, int_net
+
+    @contextlib.contextmanager
+    def router_with_tenant_networks(
+                                    self,
+                                    tenant_id,
+                                    external_network_id,
+                                    tenant_prefix='192.168.0.0/16',
+                                    address_scope=None,
+                                    distributed=False,
+                                    ha=False,
+                                    tenant_net_use_addr_scope=True):
+        tenant_ip_net = netaddr.IPNetwork(tenant_prefix)
+        tenant_pool_args = {'tenant_id': tenant_id,
+                            'name': 'bgp-pool'}
+
+        if address_scope and tenant_net_use_addr_scope:
+            tenant_pool_args['address_scope_id'] = address_scope['id']
+
+        with self.network() as int_net, \
+            self.subnetpool([tenant_prefix], **tenant_pool_args) as int_pool:
+            int_subnetpool_id = int_pool['subnetpool']['id']
+            with self.subnet(int_net,
                             cidr=tenant_prefix,
                             subnetpool_id=int_subnetpool_id,
                             ip_version=tenant_ip_net.version,
                             as_admin=True) as int_subnet:
-                ext_gw_info = {'network_id': gw_net_id}
+                ext_gw_info = {'network_id': external_network_id}
                 with self.router(external_gateway_info=ext_gw_info,
                                  distributed=distributed,
                                  ha=ha) as router:
@@ -172,7 +195,7 @@ class BgpEntityCreationMixin(object):
                     self.l3plugin.add_router_interface(self.context,
                                                        router_id,
                                                        router_interface_info)
-                    yield router, ext_net, int_net
+                    yield router, int_net
 
 
 class BgpTests(BgpEntityCreationMixin):
@@ -864,6 +887,141 @@ class BgpTests(BgpEntityCreationMixin):
                         fip_prefix_found = True
                 self.assertTrue(tenant_prefix_found)
                 self.assertTrue(fip_prefix_found)
+
+    def test_get_routes_by_bgp_speaker_id_with_fip_router_disabled(self):
+        gw_prefix = '172.16.10.0/24'
+        tenant_prefix = '10.10.10.0/24'
+        tenant_id = _uuid()
+        scope_data = {'tenant_id': tenant_id, 'ip_version': 4,
+                      'shared': True, 'name': 'bgp-scope'}
+        scope = self.plugin.create_address_scope(
+                                                self.context,
+                                                {'address_scope': scope_data})
+        with self.router_with_external_and_tenant_networks(
+                                               tenant_id=tenant_id,
+                                               gw_prefix=gw_prefix,
+                                               tenant_prefix=tenant_prefix,
+                                               address_scope=scope) as res:
+            router, ext_net, int_net = res
+            self.l3plugin.update_router(
+                self.context, router['id'],
+                {'router': {'admin_state_up': False}})
+            gw_net_id = ext_net['network']['id']
+            tenant_net_id = int_net['network']['id']
+            fixed_port_data = {'port':
+                               {'name': 'test',
+                                'network_id': tenant_net_id,
+                                'tenant_id': tenant_id,
+                                'admin_state_up': True,
+                                'device_id': _uuid(),
+                                'device_owner': 'compute:nova',
+                                'mac_address': n_const.ATTR_NOT_SPECIFIED,
+                                'fixed_ips': n_const.ATTR_NOT_SPECIFIED}}
+            fixed_port = self.plugin.create_port(self.context,
+                                                 fixed_port_data)
+            fip_data = {'floatingip': {'floating_network_id': gw_net_id,
+                                       'tenant_id': tenant_id,
+                                       'port_id': fixed_port['id']}}
+            self.l3plugin.create_floatingip(self.context, fip_data)
+            with self.bgp_speaker(4, 1234, networks=[gw_net_id]) as speaker:
+                bgp_speaker_id = speaker['id']
+                routes = self.bgp_plugin.get_routes_by_bgp_speaker_id(
+                                                               self.context,
+                                                               bgp_speaker_id)
+                routes = list(routes)
+                print(routes)
+                self.assertEqual(0, len(routes))
+
+    def test_get_routes_by_bgp_speaker_id_with_fip_two_router_one_disabled(
+            self):
+        gw_prefix = '172.16.10.0/24'
+        tenant_prefix1 = '10.10.10.0/24'
+        tenant_prefix2 = '10.10.20.0/24'
+        tenant_id = _uuid()
+        scope_data = {'tenant_id': tenant_id, 'ip_version': 4,
+                      'shared': True, 'name': 'bgp-scope'}
+        scope = self.plugin.create_address_scope(
+                                                self.context,
+                                                {'address_scope': scope_data})
+        # network and router setup
+        with self.router_with_external_and_tenant_networks(
+                                               tenant_id=tenant_id,
+                                               gw_prefix=gw_prefix,
+                                               tenant_prefix=tenant_prefix1,
+                                               address_scope=scope) as res:
+            router1, ext_net, int_net1 = res
+            gw_net_id = ext_net['network']['id']
+            with self.router_with_tenant_networks(
+                tenant_id=tenant_id,
+                external_network_id=gw_net_id,
+                tenant_prefix=tenant_prefix2,
+                address_scope=scope
+            ) as (router2, int_net2):
+
+                # fip setup
+                tenant_net_id1 = int_net1['network']['id']
+                fixed_port_data1 = {'port':
+                                {'name': 'test',
+                                    'network_id': tenant_net_id1,
+                                    'tenant_id': tenant_id,
+                                    'admin_state_up': True,
+                                    'device_id': _uuid(),
+                                    'device_owner': 'compute:nova',
+                                    'mac_address': n_const.ATTR_NOT_SPECIFIED,
+                                    'fixed_ips': n_const.ATTR_NOT_SPECIFIED}}
+                fixed_port1 = self.plugin.create_port(self.context,
+                                                    fixed_port_data1)
+                fip_data1 = {'floatingip': {'floating_network_id': gw_net_id,
+                                        'tenant_id': tenant_id,
+                                        'port_id': fixed_port1['id']}}
+                fip1 = self.l3plugin.create_floatingip(self.context, fip_data1)
+
+                tenant_net_id2 = int_net2['network']['id']
+                fixed_port_data2 = {'port':
+                                {'name': 'test',
+                                    'network_id': tenant_net_id2,
+                                    'tenant_id': tenant_id,
+                                    'admin_state_up': True,
+                                    'device_id': _uuid(),
+                                    'device_owner': 'compute:nova',
+                                    'mac_address': n_const.ATTR_NOT_SPECIFIED,
+                                    'fixed_ips': n_const.ATTR_NOT_SPECIFIED}}
+                fixed_port2 = self.plugin.create_port(self.context,
+                                                    fixed_port_data2)
+                fip_data2 = {'floatingip': {'floating_network_id': gw_net_id,
+                                        'tenant_id': tenant_id,
+                                        'port_id': fixed_port2['id']}}
+                self.l3plugin.create_floatingip(self.context, fip_data2)
+
+                # disable router2
+                self.l3plugin.update_router(
+                    self.context, router2['id'],
+                    {'router': {'admin_state_up': False}})
+
+                # start bgp and validate
+                ext_gw_info1 = router1['external_gateway_info']
+                fip_prefix1 = fip1['floating_ip_address'] + '/32'
+
+                with self.bgp_speaker(4, 1234, networks=[gw_net_id]
+                                      ) as speaker:
+                    bgp_speaker_id = speaker['id']
+                    routes = self.bgp_plugin.get_routes_by_bgp_speaker_id(
+                                                                self.context,
+                                                                bgp_speaker_id)
+                    routes = list(routes)
+                    next_hop = ext_gw_info1[
+                        'external_fixed_ips'][0]['ip_address']
+                    self.assertEqual(2, len(routes))
+                    tenant_prefix_found = False
+                    fip_prefix_found = False
+                    for route in routes:
+                        self.assertEqual(next_hop, route['next_hop'])
+                        if route['destination'] == tenant_prefix1:
+                            tenant_prefix_found = True
+                        if route['destination'] == fip_prefix1:
+                            fip_prefix_found = True
+                    self.assertTrue(tenant_prefix_found)
+                    self.assertTrue(fip_prefix_found)
 
     def test_get_routes_by_bgp_speaker_id_with_fip_dvr(self):
         gw_prefix = '172.16.10.0/24'

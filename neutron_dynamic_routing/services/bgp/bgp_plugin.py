@@ -97,6 +97,9 @@ class BgpPlugin(service_base.ServicePluginBase,
         registry.subscribe(self.router_gateway_callback,
                            resources.ROUTER_GATEWAY,
                            events.AFTER_DELETE)
+        registry.subscribe(self.router_callback,
+                           resources.ROUTER,
+                           events.AFTER_UPDATE)
         registry.subscribe(self.port_callback,
                            resources.PORT,
                            events.AFTER_UPDATE)
@@ -302,35 +305,24 @@ class BgpPlugin(service_base.ServicePluginBase,
                                                     rl)
 
     def router_gateway_callback(self, resource, event, trigger, payload=None):
-        if event == events.AFTER_CREATE:
-            self._handle_router_gateway_after_create(payload)
-        if event == events.AFTER_DELETE:
-            gw_network = payload.metadata.get('network_id')
-            router_id = payload.resource_id
-            next_hops = self._next_hops_from_gateway_ips(
-                payload.metadata.get('gateway_ips'))
-            ctx = context.get_admin_context()
-            speakers = self._bgp_speakers_for_gateway_network(ctx, gw_network)
-            for speaker in speakers:
-                if speaker.ip_version in next_hops:
-                    next_hop = next_hops[speaker.ip_version]
-                    prefixes = self._tenant_prefixes_by_router(ctx,
-                                                               router_id,
-                                                               speaker.id)
-                    routes = self._route_list_from_prefixes_and_next_hop(
-                                                                     prefixes,
-                                                                     next_hop)
-                self._handle_router_interface_after_delete(gw_network, routes)
-
-    def _handle_router_gateway_after_create(self, payload):
-        ctx = context.get_admin_context()
         gw_network = payload.metadata.get('network_id')
         router_id = payload.resource_id
+        gateway_ips = payload.metadata.get('gateway_ips')
+        if event == events.AFTER_CREATE:
+            self._handle_router_gateway_after_create(gw_network, router_id,
+                                                     gateway_ips)
+        if event == events.AFTER_DELETE:
+            self._handle_router_gateway_after_delete(gw_network, router_id,
+                                                     gateway_ips)
+
+    def _handle_router_gateway_after_create(self, gw_network, router_id,
+                                            gateway_ips):
+        ctx = context.get_admin_context()
         with ctx.session.begin():
             speakers = self._bgp_speakers_for_gateway_network(ctx,
                                                               gw_network)
             next_hops = self._next_hops_from_gateway_ips(
-                payload.metadata.get('gateway_ips'))
+                gateway_ips)
 
             for speaker in speakers:
                 if speaker.ip_version in next_hops:
@@ -344,6 +336,22 @@ class BgpPlugin(service_base.ServicePluginBase,
                     self.start_route_advertisements(ctx, self._bgp_rpc,
                                                     speaker.id, routes)
 
+    def _handle_router_gateway_after_delete(self, gw_network, router_id,
+                                            gateway_ips):
+        next_hops = self._next_hops_from_gateway_ips(gateway_ips)
+        ctx = context.get_admin_context()
+        speakers = self._bgp_speakers_for_gateway_network(ctx, gw_network)
+        for speaker in speakers:
+            if speaker.ip_version in next_hops:
+                next_hop = next_hops[speaker.ip_version]
+                prefixes = self._tenant_prefixes_by_router(ctx,
+                                                           router_id,
+                                                           speaker.id)
+                routes = self._route_list_from_prefixes_and_next_hop(
+                                                                    prefixes,
+                                                                    next_hop)
+            self._handle_router_interface_after_delete(gw_network, routes)
+
     def _handle_router_interface_after_delete(self, gw_network, routes):
         if gw_network and routes:
             ctx = context.get_admin_context()
@@ -351,6 +359,32 @@ class BgpPlugin(service_base.ServicePluginBase,
             for speaker in speakers:
                 self.stop_route_advertisements(ctx, self._bgp_rpc,
                                                speaker.id, routes)
+
+    def router_callback(self, resource, event, trigger, payload):
+        if event != events.AFTER_UPDATE:
+            return
+
+        original_router = payload.states[0]
+        updated_router = payload.latest_state
+        external_gateway_info = updated_router.get("external_gateway_info")
+        if external_gateway_info is None:
+            return
+
+        gateway_ips = [
+            info["ip_address"] for info in
+            external_gateway_info["external_fixed_ips"]]
+
+        if "admin_state_up" in original_router and \
+                original_router.get("admin_state_up") != \
+                updated_router.get("admin_state_up"):
+            router_id = updated_router["id"]
+            gw_network = external_gateway_info["network_id"]
+            if updated_router.get("admin_state_up"):
+                self._handle_router_gateway_after_create(gw_network, router_id,
+                                                         gateway_ips)
+            else:
+                self._handle_router_gateway_after_delete(gw_network, router_id,
+                                                         gateway_ips)
 
     def port_callback(self, resource, event, trigger, payload):
         if event != events.AFTER_UPDATE:

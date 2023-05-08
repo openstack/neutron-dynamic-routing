@@ -670,6 +670,7 @@ class BgpDbMixin(object):
                  next_hop_alias.network_id == speaker_binding.network_id,
                  dest_alias.router_id == l3_db.Router.id,
                  l3_db.Router.gw_port_id == next_hop_alias.port_id,
+                 l3_db.Router.admin_state_up == sa.sql.true(),
                  next_hop_alias.subnet_id == models_v2.Subnet.id,
                  models_v2.Subnet.ip_version == 4)
             query = query.outerjoin(router_attrs,
@@ -771,6 +772,7 @@ class BgpDbMixin(object):
 
             fip_query = fip_query.filter(
                 l3_db.FloatingIP.router_id == router_attrs.router_id,
+                l3_db.Router.admin_state_up == sa.sql.true(),
                 router_attrs.distributed == sa.sql.true())
 
             #Create the join query
@@ -931,6 +933,8 @@ class BgpDbMixin(object):
                                name='router_attrs')
         return [models_v2.IPAllocation.port_id == l3_db.RouterPort.port_id,
           l3_db.RouterPort.router_id == router_attrs.router_id,
+          l3_db.Router.id == router_attrs.router_id,
+          l3_db.Router.admin_state_up == sa.sql.true(),
           l3_db.RouterPort.port_type != lib_consts.DEVICE_OWNER_ROUTER_GW,
           l3_db.RouterPort.port_type != lib_consts.DEVICE_OWNER_ROUTER_SNAT,
           models_v2.IPAllocation.subnet_id == models_v2.Subnet.id,
