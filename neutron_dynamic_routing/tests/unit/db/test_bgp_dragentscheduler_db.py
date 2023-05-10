@@ -65,7 +65,7 @@ class BgpDrSchedulingTestCase(test_agent.AgentDBTestMixIn,
         with self.bgp_speaker(4, 1234) as ri:
             bgp_speaker_id = ri['id']
             helpers.register_bgp_dragent(host='host1')
-            agent = self._list('agents')['agents'][0]
+            agent = self._list('agents', as_admin=True)['agents'][0]
             agent_id = agent['id']
 
             data = {'bgp_speaker_id': bgp_speaker_id}
@@ -75,7 +75,7 @@ class BgpDrSchedulingTestCase(test_agent.AgentDBTestMixIn,
             self.assertEqual(exc.HTTPCreated.code, res.status_int)
 
             req_show = self.new_show_request('agents', agent_id, self.fmt,
-                                             'bgp-drinstances')
+                                             'bgp-drinstances', as_admin=True)
             res = req_show.get_response(self.ext_api)
             self.assertEqual(exc.HTTPOk.code, res.status_int)
             res = self.deserialize(self.fmt, res)
@@ -102,7 +102,7 @@ class BgpDrSchedulingTestCase(test_agent.AgentDBTestMixIn,
         with self.bgp_speaker(4, 1234) as ri:
             bgp_speaker_id = ri['id']
             self._register_l3_agent(host='host1')  # Register wrong agent
-            agent = self._list('agents')['agents'][0]
+            agent = self._list('agents', as_admin=True)['agents'][0]
             data = {'bgp_speaker_id': bgp_speaker_id}
             req = self.new_create_request(
                 'agents', data, self.fmt,
@@ -117,7 +117,7 @@ class BgpDrSchedulingTestCase(test_agent.AgentDBTestMixIn,
         with self.bgp_speaker(4, 1234) as ri:
             bgp_speaker_id = ri['id']
             helpers.register_bgp_dragent(host='host1')
-            agent = self._list('agents')['agents'][0]
+            agent = self._list('agents', as_admin=True)['agents'][0]
             data = {'bgp_speaker_id': bgp_speaker_id}
             req = self.new_create_request(
                 'agents', data, self.fmt,
@@ -137,14 +137,14 @@ class BgpDrSchedulingTestCase(test_agent.AgentDBTestMixIn,
             helpers.register_bgp_dragent(host='host2')
             data = {'bgp_speaker_id': bgp_speaker_id}
 
-            agent1 = self._list('agents')['agents'][0]
+            agent1 = self._list('agents', as_admin=True)['agents'][0]
             req = self.new_create_request(
                 'agents', data, self.fmt,
                 agent1['id'], 'bgp-drinstances')
             res = req.get_response(self.ext_api)
             self.assertEqual(exc.HTTPCreated.code, res.status_int)
 
-            agent2 = self._list('agents')['agents'][1]
+            agent2 = self._list('agents', as_admin=True)['agents'][1]
             req = self.new_create_request(
                 'agents', data, self.fmt,
                 agent2['id'], 'bgp-drinstances')
@@ -156,7 +156,7 @@ class BgpDrSchedulingTestCase(test_agent.AgentDBTestMixIn,
         with self.bgp_speaker(4, 1) as ri1, self.bgp_speaker(4, 2) as ri2:
             helpers.register_bgp_dragent(host='host1')
 
-            agent = self._list('agents')['agents'][0]
+            agent = self._list('agents', as_admin=True)['agents'][0]
             data = {'bgp_speaker_id': ri1['id']}
             req = self.new_create_request(
                 'agents', data, self.fmt,
@@ -175,7 +175,7 @@ class BgpDrSchedulingTestCase(test_agent.AgentDBTestMixIn,
         """Test exception while removing an invalid binding."""
         with self.bgp_speaker(4, 1234) as ri1:
             helpers.register_bgp_dragent(host='host1')
-            agent = self._list('agents')['agents'][0]
+            agent = self._list('agents', as_admin=True)['agents'][0]
             agent_id = agent['id']
             self.assertRaises(bgp_dras_ext.DrAgentNotHostingBgpSpeaker,
                               self.bgp_plugin.remove_bgp_speaker_from_dragent,

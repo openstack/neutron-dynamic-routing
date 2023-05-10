@@ -105,7 +105,8 @@ class BgpEntityCreationMixin(object):
         with self.network(name=name, **kwargs) as gw_network:
             if external:
                 self._update('networks', gw_network['network']['id'],
-                             {'network': {external_net.EXTERNAL: True}})
+                             {'network': {external_net.EXTERNAL: True}},
+                             as_admin=True)
             yield gw_network
 
     @contextlib.contextmanager
@@ -152,11 +153,13 @@ class BgpEntityCreationMixin(object):
             with self.subnet(ext_net,
                              cidr=gw_prefix,
                              subnetpool_id=ext_subnetpool_id,
-                             ip_version=gw_ip_net.version),\
+                             ip_version=gw_ip_net.version,
+                             as_admin=True),\
                 self.subnet(int_net,
                             cidr=tenant_prefix,
                             subnetpool_id=int_subnetpool_id,
-                            ip_version=tenant_ip_net.version) as int_subnet:
+                            ip_version=tenant_ip_net.version,
+                            as_admin=True) as int_subnet:
                 ext_gw_info = {'network_id': gw_net_id}
                 with self.router(external_gateway_info=ext_gw_info,
                                  distributed=distributed,
@@ -421,7 +424,7 @@ class BgpTests(BgpEntityCreationMixin):
         with self.subnetpool_with_address_scope(4,
                                                 prefixes=['8.0.0.0/8']) as sp,\
             self.gw_network(name='test-net', tenant_id=_uuid(),
-                            shared=True) as network:
+                            shared=True, as_admin=True) as network:
             network_id = network['network']['id']
             with self.bgp_speaker(sp['ip_version'], 1234,
                                   networks=[network_id]) as speaker:
@@ -651,11 +654,13 @@ class BgpTests(BgpEntityCreationMixin):
             with self.subnet(network=net1,
                              cidr=None,
                              subnetpool_id=subnetpool_id,
-                             ip_version=6) as ext_subnet,\
+                             ip_version=6,
+                             as_admin=True) as ext_subnet,\
                 self.subnet(network=net2,
                             cidr=None,
                             subnetpool_id=subnetpool_id,
-                            ip_version=6) as int_subnet,\
+                            ip_version=6,
+                            as_admin=True) as int_subnet,\
                 self.router() as router:
 
                 router_id = router['id']
@@ -727,11 +732,13 @@ class BgpTests(BgpEntityCreationMixin):
             with self.subnet(cidr=None,
                              subnetpool_id=ext_pool_id,
                              network=ext_net,
-                             ip_version=6) as ext_subnet,\
+                             ip_version=6,
+                             as_admin=True) as ext_subnet,\
                 self.subnet(cidr=None,
                             subnetpool_id=int_pool_id,
                             network=int_net,
-                            ip_version=6) as int_subnet,\
+                            ip_version=6,
+                            as_admin=True) as int_subnet,\
                 self.router() as router:
                 router_id = router['id']
                 int_subnet_id = int_subnet['subnet']['id']
