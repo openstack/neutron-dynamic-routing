@@ -45,6 +45,7 @@ Contents
     reference/index
     cli/index
     contributor/index
+    install/usecase-ipv6
 
 Indices and tables
 ==================
