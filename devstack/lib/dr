@@ -41,6 +41,12 @@ function configure_dr_agent_scheduler_driver {
 #This API will be called for phase "install"
 
 function dr_install {
+    # Install os-ken from git to test latest/in-review code
+    if use_library_from_git "os-ken"; then
+        git_clone_by_name "os-ken"
+        setup_dev_lib "os-ken"
+    fi
+
     setup_develop $NEUTRON_DYNAMIC_ROUTING_DIR
 }
 
