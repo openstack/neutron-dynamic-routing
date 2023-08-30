@@ -19,7 +19,9 @@ import netaddr
 from neutron.db import l3_dvr_ha_scheduler_db
 from neutron.tests.unit.extensions import test_l3
 from neutron.tests.unit.plugins.ml2 import test_plugin
+from neutron_lib.api import attributes
 from neutron_lib.api.definitions import external_net
+from neutron_lib.api.definitions import network_ha
 from neutron_lib.api.definitions import portbindings
 from neutron_lib import constants as n_const
 from neutron_lib import exceptions as n_exc
@@ -1525,3 +1527,7 @@ class Ml2BgpTests(test_plugin.Ml2PluginV2TestCase,
         self.l3plugin = directory.get_plugin(plugin_constants.L3)
         self.bgp_plugin = bgp_plugin.BgpPlugin()
         self.plugin = directory.get_plugin()
+        # Extend network HA extension.
+        rname = network_ha.COLLECTION_NAME
+        attributes.RESOURCES[rname].update(
+            network_ha.RESOURCE_ATTRIBUTE_MAP[rname])
