@@ -57,7 +57,7 @@
         - neutron-dynamic-routing-openstack-tox-py310-with-sqlalchemy-main
     periodic-weekly:
       jobs:
-        - openstack-tox-py310
+        - openstack-tox-py311
         - openstack-tox-py310-with-oslo-master
         - neutron-dynamic-routing-openstack-tox-py310-with-sqlalchemy-main
         - neutron-tempest-plugin-dynamic-routing
