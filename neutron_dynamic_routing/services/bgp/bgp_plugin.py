@@ -283,7 +283,7 @@ class BgpPlugin(service_base.ServicePluginBase,
             return
 
         ctx = context.get_admin_context()
-        with ctx.session.begin(subtransactions=True):
+        with ctx.session.begin():
             speakers = self._bgp_speakers_for_gateway_network(ctx,
                                                               gw_network)
             next_hops = self._next_hops_from_gateway_ips(
@@ -326,7 +326,7 @@ class BgpPlugin(service_base.ServicePluginBase,
         ctx = context.get_admin_context()
         gw_network = payload.metadata.get('network_id')
         router_id = payload.resource_id
-        with ctx.session.begin(subtransactions=True):
+        with ctx.session.begin():
             speakers = self._bgp_speakers_for_gateway_network(ctx,
                                                               gw_network)
             next_hops = self._next_hops_from_gateway_ips(
@@ -368,7 +368,7 @@ class BgpPlugin(service_base.ServicePluginBase,
         # if host in the port binding has changed, update next-hops
         if original_host != updated_host and bool('compute:' in device_owner):
             ctx = context.get_admin_context()
-            with ctx.session.begin(subtransactions=True):
+            with ctx.session.begin():
                 ext_nets = self.get_external_networks_for_port(ctx,
                                                                updated_port)
                 for ext_net in ext_nets:
