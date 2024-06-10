@@ -49,11 +49,13 @@ def validate_auth(auth_type, password):
 
 
 def validate_ip_addr(ip_addr):
-    if netaddr.valid_ipv4(ip_addr):
-        return lib_consts.IP_VERSION_4
-    elif netaddr.valid_ipv6(ip_addr):
-        return lib_consts.IP_VERSION_6
-    else:
+    try:
+        if netaddr.valid_ipv4(ip_addr):
+            return lib_consts.IP_VERSION_4
+        elif netaddr.valid_ipv6(ip_addr):
+            return lib_consts.IP_VERSION_6
+        raise TypeError
+    except Exception:
         raise bgp_driver_exc.InvalidParamType(param=ip_addr,
                                               param_type='ip-address')
 
