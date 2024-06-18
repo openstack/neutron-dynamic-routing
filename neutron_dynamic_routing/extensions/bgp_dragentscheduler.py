@@ -17,7 +17,7 @@ import abc
 
 from neutron.api import extensions
 from neutron.api.v2 import resource
-from neutron import wsgi
+from neutron.api import wsgi
 from neutron_lib.api.definitions import bgp as bgp_ext
 from neutron_lib.api.definitions import bgp_dragentscheduler as api_def
 from neutron_lib.api import extensions as api_extensions
