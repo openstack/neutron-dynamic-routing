@@ -18,7 +18,6 @@ import netaddr
 from neutron_lib import constants as lib_consts
 
 from neutron_dynamic_routing.services.bgp.agent.driver import exceptions as bgp_driver_exc  # noqa
-from neutron_dynamic_routing.services.bgp.common import constants as bgp_consts  # noqa
 
 
 # Parameter validation functions provided are provided by the base.
@@ -27,11 +26,11 @@ def validate_as_num(param, as_num):
         raise bgp_driver_exc.InvalidParamType(param=param,
                                               param_type='integer')
 
-    if not (bgp_consts.MIN_ASNUM <= as_num <= bgp_consts.MAX_4BYTE_ASNUM):
+    if not (lib_consts.MIN_ASNUM <= as_num <= lib_consts.MAX_4BYTE_ASNUM):
         # Must be in [AS_NUM_MIN, MAX_4BYTE_ASNUM] range.
         allowed_range = ('[' +
-                         str(bgp_consts.MIN_ASNUM) + '-' +
-                         str(bgp_consts.MAX_4BYTE_ASNUM) +
+                         str(lib_consts.MIN_ASNUM) + '-' +
+                         str(lib_consts.MAX_4BYTE_ASNUM) +
                          ']')
         raise bgp_driver_exc.InvalidParamRange(param=param,
                                                range=allowed_range)
@@ -39,7 +38,7 @@ def validate_as_num(param, as_num):
 
 def validate_auth(auth_type, password):
     validate_string(password)
-    if auth_type in bgp_consts.SUPPORTED_AUTH_TYPES:
+    if auth_type in lib_consts.SUPPORTED_AUTH_TYPES:
         if auth_type != 'none' and password is None:
             raise bgp_driver_exc.PasswordNotSpecified(auth_type=auth_type)
         if auth_type == 'none' and password is not None:

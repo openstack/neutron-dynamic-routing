@@ -19,7 +19,6 @@ from neutron.tests import base
 
 from neutron_dynamic_routing.services.bgp.agent.driver import exceptions as bgp_driver_exc  # noqa
 from neutron_dynamic_routing.services.bgp.agent.driver import utils as bgp_driver_utils  # noqa
-from neutron_dynamic_routing.services.bgp.common import constants as bgp_consts  # noqa
 
 FAKE_IP = '2.2.2.5'
 FAKE_IPV6 = '2001:db8::'
@@ -51,20 +50,20 @@ class TestValidateMethod(base.BaseTestCase):
 
     def test_validate_as_num_with_invalid_max_range(self):
         allowed_range = ('\\[' +
-                         str(bgp_consts.MIN_ASNUM) + '-' +
-                         str(bgp_consts.MAX_4BYTE_ASNUM) +
+                         str(lib_consts.MIN_ASNUM) + '-' +
+                         str(lib_consts.MAX_4BYTE_ASNUM) +
                          '\\]')
         with self.assertRaisesRegex(
                 bgp_driver_exc.InvalidParamRange,
                 EXC_INV_PARAMRANGE % {'param': 'local_as',
                                       'range': allowed_range}):
             bgp_driver_utils.validate_as_num('local_as',
-                                             bgp_consts.MAX_4BYTE_ASNUM + 1)
+                                             lib_consts.MAX_4BYTE_ASNUM + 1)
 
     def test_validate_as_num_with_invalid_min_range(self):
         allowed_range = ('\\[' +
-                         str(bgp_consts.MIN_ASNUM) + '-' +
-                         str(bgp_consts.MAX_4BYTE_ASNUM) +
+                         str(lib_consts.MIN_ASNUM) + '-' +
+                         str(lib_consts.MAX_4BYTE_ASNUM) +
                          '\\]')
         with self.assertRaisesRegex(
                 bgp_driver_exc.InvalidParamRange,
@@ -74,13 +73,13 @@ class TestValidateMethod(base.BaseTestCase):
 
     def test_validate_auth_with_valid_auth_type(self):
         passwords = [None, 'password']
-        for (auth_type, passwd) in zip(bgp_consts.SUPPORTED_AUTH_TYPES,
+        for (auth_type, passwd) in zip(lib_consts.SUPPORTED_AUTH_TYPES,
                                        passwords):
             self.assertIsNone(bgp_driver_utils.validate_auth(auth_type,
                                                              passwd))
 
     def test_validate_auth_with_integer_password(self):
-        auth_type = bgp_consts.SUPPORTED_AUTH_TYPES[1]
+        auth_type = lib_consts.SUPPORTED_AUTH_TYPES[1]
         with self.assertRaisesRegex(
                 bgp_driver_exc.InvalidParamType,
                 EXC_INV_PARAMTYPE % {'param': '12345',
@@ -95,7 +94,7 @@ class TestValidateMethod(base.BaseTestCase):
             bgp_driver_utils.validate_auth(auth_type, 'password')
 
     def test_validate_auth_with_not_none_auth_type_and_none_password(self):
-        auth_type = bgp_consts.SUPPORTED_AUTH_TYPES[1]
+        auth_type = lib_consts.SUPPORTED_AUTH_TYPES[1]
         with self.assertRaisesRegex(
                 bgp_driver_exc.PasswordNotSpecified,
                 EXC_PASSWORD_NOTSPEC % {'auth_type': auth_type}):
