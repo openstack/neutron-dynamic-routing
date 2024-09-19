@@ -23,18 +23,6 @@
       # in neutron-functional job.
       tox_install_siblings: true
 
-- job:
-    name: neutron-dynamic-routing-openstack-tox-py310-with-sqlalchemy-main
-    parent: openstack-tox-py310-with-oslo-master
-    required-projects:
-      - name: github.com/sqlalchemy/sqlalchemy
-        override-checkout: main
-      - name: github.com/sqlalchemy/alembic
-        override-checkout: main
-      - openstack/oslo.db
-      - openstack/neutron-lib
-      - openstack/neutron
-
 - project:
     templates:
       - check-requirements
@@ -54,12 +42,10 @@
     experimental:
       jobs:
         - openstack-tox-py310-with-oslo-master
-        - neutron-dynamic-routing-openstack-tox-py310-with-sqlalchemy-main
     periodic-weekly:
       jobs:
         - openstack-tox-py312
         - openstack-tox-py311
         - openstack-tox-py310-with-oslo-master
-        - neutron-dynamic-routing-openstack-tox-py310-with-sqlalchemy-main
         - neutron-tempest-plugin-dynamic-routing
         - neutron-dynamic-routing-functional
