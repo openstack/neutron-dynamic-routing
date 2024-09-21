@@ -15,7 +15,6 @@
 import itertools
 
 import netaddr
-
 from neutron.db import l3_dvr_db
 from neutron.db.models import address_scope as address_scope_db
 from neutron.db.models import l3 as l3_db
@@ -25,7 +24,6 @@ from neutron.objects import ports
 from neutron.objects import subnet as subnet_obj
 from neutron.objects import subnetpool as subnetpool_obj
 from neutron.plugins.ml2 import models as ml2_models
-
 from neutron_lib.api.definitions import bgp as bgp_ext
 from neutron_lib.api import validators
 from neutron_lib import constants as lib_consts
