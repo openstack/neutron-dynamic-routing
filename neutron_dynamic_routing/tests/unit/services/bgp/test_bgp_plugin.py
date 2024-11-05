@@ -31,7 +31,7 @@ from neutron_dynamic_routing.services.bgp import bgp_plugin
 class TestBgpPlugin(base.BaseTestCase):
 
     def setUp(self):
-        super(TestBgpPlugin, self).setUp()
+        super().setUp()
         bgp_notify_p = mock.patch('neutron_dynamic_routing.api.rpc.'
                                   'agentnotifiers.bgp_dr_rpc_agent_api.'
                                   'BgpDrAgentNotifyApi')
@@ -128,7 +128,7 @@ class TestBgpPlugin(base.BaseTestCase):
                                                     n_const.IP_VERSION_4)
 
                     old_host_route = [{'destination': '10.10.10.10/32',
-                        'next_hop': None}]
+                                       'next_hop': None}]
                     stop_ad.assert_called_once_with(self.fake_admin_ctx,
                                                     bgp_rpc,
                                                     bgp_speaker.id,

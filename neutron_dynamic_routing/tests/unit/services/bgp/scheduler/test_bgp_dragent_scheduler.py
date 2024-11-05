@@ -36,7 +36,7 @@ load_tests = testscenarios.load_tests_apply_scenarios
 class TestBgpDrAgentSchedulerBaseTestCase(testlib_api.SqlTestCase):
 
     def setUp(self):
-        super(TestBgpDrAgentSchedulerBaseTestCase, self).setUp()
+        super().setUp()
         self.ctx = context.get_admin_context()
         self.bgp_speaker = {'id': 'foo_bgp_speaker_id'}
         self.bgp_speaker_id = 'foo_bgp_speaker_id'
@@ -82,7 +82,7 @@ class TestBgpDrAgentSchedulerBaseTestCase(testlib_api.SqlTestCase):
 class TestSchedulerCallback(TestBgpDrAgentSchedulerBaseTestCase):
 
     def setUp(self):
-        super(TestSchedulerCallback, self).setUp()
+        super().setUp()
         bgp_notify_p = mock.patch('neutron_dynamic_routing.api.rpc.'
                                   'agentnotifiers.bgp_dr_rpc_agent_api.'
                                   'BgpDrAgentNotifyApi')
@@ -155,7 +155,7 @@ class TestBgpAgentFilter(TestBgpDrAgentSchedulerBaseTestCase,
                          bgp_dras_db.BgpDrAgentSchedulerDbMixin):
 
     def setUp(self):
-        super(TestBgpAgentFilter, self).setUp()
+        super().setUp()
         self.bgp_drscheduler = importutils.import_object(
             'neutron_dynamic_routing.services.bgp.scheduler.'
             'bgp_dragent_scheduler.ChanceScheduler'
@@ -295,7 +295,7 @@ class TestRescheduleBgpSpeaker(TestBgpDrAgentSchedulerBaseTestCase,
                                bgp_db.BgpDbMixin):
 
     def setUp(self):
-        super(TestRescheduleBgpSpeaker, self).setUp()
+        super().setUp()
         bgp_notify_p = mock.patch('neutron_dynamic_routing.api.rpc.'
                                   'agentnotifiers.bgp_dr_rpc_agent_api.'
                                   'BgpDrAgentNotifyApi')

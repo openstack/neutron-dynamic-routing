@@ -19,7 +19,7 @@ import oslo_messaging
 from neutron_dynamic_routing.services.bgp.common import constants as bgp_consts
 
 
-class BgpDrAgentNotifyApi(object):
+class BgpDrAgentNotifyApi:
     """API for plugin to notify BGP DrAgent.
 
     This class implements the client side of an rpc interface.  The server side
@@ -38,8 +38,9 @@ class BgpDrAgentNotifyApi(object):
 
         This effectively tells the bgp_dragent to resync.
         """
-        self._notification_host_cast(context, 'agent_updated',
-                {'admin_state_up': admin_state_up}, host)
+        self._notification_host_cast(
+            context, 'agent_updated',
+            {'admin_state_up': admin_state_up}, host)
 
     def bgp_routes_advertisement(self, context, bgp_speaker_id,
                                  routes, host):
@@ -48,9 +49,10 @@ class BgpDrAgentNotifyApi(object):
         Invoked on FIP association, adding router port to a tenant network,
         and new DVR port-host bindings, and subnet creation(?).
         """
-        self._notification_host_cast(context, 'bgp_routes_advertisement_end',
-                {'advertise_routes': {'speaker_id': bgp_speaker_id,
-                                      'routes': routes}}, host)
+        self._notification_host_cast(
+            context, 'bgp_routes_advertisement_end',
+            {'advertise_routes': {'speaker_id': bgp_speaker_id,
+                                  'routes': routes}}, host)
 
     def bgp_routes_withdrawal(self, context, bgp_speaker_id,
                               routes, host):
@@ -59,9 +61,10 @@ class BgpDrAgentNotifyApi(object):
         Invoked on FIP disassociation, removal of a router port on a
         network, and removal of DVR port-host binding, and subnet delete(?).
         """
-        self._notification_host_cast(context, 'bgp_routes_withdrawal_end',
-                {'withdraw_routes': {'speaker_id': bgp_speaker_id,
-                                     'routes': routes}}, host)
+        self._notification_host_cast(
+            context, 'bgp_routes_withdrawal_end',
+            {'withdraw_routes': {'speaker_id': bgp_speaker_id,
+                                 'routes': routes}}, host)
 
     def bgp_peer_disassociated(self, context, bgp_speaker_id,
                                bgp_peer_ip, host):
@@ -69,9 +72,10 @@ class BgpDrAgentNotifyApi(object):
 
         This effectively tells the BgpDrAgent to stop a peering session.
         """
-        self._notification_host_cast(context, 'bgp_peer_disassociation_end',
-                {'bgp_peer': {'speaker_id': bgp_speaker_id,
-                              'peer_ip': bgp_peer_ip}}, host)
+        self._notification_host_cast(
+            context, 'bgp_peer_disassociation_end',
+            {'bgp_peer': {'speaker_id': bgp_speaker_id,
+                          'peer_ip': bgp_peer_ip}}, host)
 
     def bgp_peer_associated(self, context, bgp_speaker_id,
                             bgp_peer_id, host):
@@ -79,9 +83,10 @@ class BgpDrAgentNotifyApi(object):
 
         This effectively tells the bgp_dragent to open a peering session.
         """
-        self._notification_host_cast(context, 'bgp_peer_association_end',
-                {'bgp_peer': {'speaker_id': bgp_speaker_id,
-                              'peer_id': bgp_peer_id}}, host)
+        self._notification_host_cast(
+            context, 'bgp_peer_association_end',
+            {'bgp_peer': {'speaker_id': bgp_speaker_id,
+                          'peer_id': bgp_peer_id}}, host)
 
     def bgp_speaker_created(self, context, bgp_speaker_id, host):
         """Tell BgpDrAgent about the creation of a BGP Speaker.
@@ -90,8 +95,9 @@ class BgpDrAgentNotifyApi(object):
         we need to inform the BgpDrAgent of a new BGP Speaker in case a
         peering session needs to opened immediately.
         """
-        self._notification_host_cast(context, 'bgp_speaker_create_end',
-                {'bgp_speaker': {'id': bgp_speaker_id}}, host)
+        self._notification_host_cast(
+            context, 'bgp_speaker_create_end',
+            {'bgp_speaker': {'id': bgp_speaker_id}}, host)
 
     def bgp_speaker_removed(self, context, bgp_speaker_id, host):
         """Tell BgpDrAgent about the removal of a BGP Speaker.
@@ -100,8 +106,9 @@ class BgpDrAgentNotifyApi(object):
         place, we need to inform the BgpDrAgent of the removal of a
         BGP Speaker in case peering sessions need to be stopped.
         """
-        self._notification_host_cast(context, 'bgp_speaker_remove_end',
-                {'bgp_speaker': {'id': bgp_speaker_id}}, host)
+        self._notification_host_cast(
+            context, 'bgp_speaker_remove_end',
+            {'bgp_speaker': {'id': bgp_speaker_id}}, host)
 
     def _notification_host_cast(self, context, method, payload, host):
         """Send payload to BgpDrAgent in the cast mode"""

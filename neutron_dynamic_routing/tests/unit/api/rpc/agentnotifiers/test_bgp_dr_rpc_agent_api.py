@@ -24,7 +24,7 @@ from neutron_dynamic_routing.api.rpc.agentnotifiers import bgp_dr_rpc_agent_api
 class TestBgpDrAgentNotifyApi(base.BaseTestCase):
 
     def setUp(self):
-        super(TestBgpDrAgentNotifyApi, self).setUp()
+        super().setUp()
         self.notifier = (
             bgp_dr_rpc_agent_api.BgpDrAgentNotifyApi())
 

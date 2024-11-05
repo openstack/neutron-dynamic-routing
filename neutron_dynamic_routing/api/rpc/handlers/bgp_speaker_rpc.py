@@ -18,7 +18,7 @@ from neutron_lib.plugins import directory
 import oslo_messaging
 
 
-class BgpSpeakerRpcCallback(object):
+class BgpSpeakerRpcCallback:
     """BgpDrAgent RPC callback in plugin implementations.
 
     This class implements the server side of an RPC interface.

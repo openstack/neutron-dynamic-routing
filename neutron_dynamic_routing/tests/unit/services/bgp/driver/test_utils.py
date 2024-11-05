@@ -36,7 +36,7 @@ EXC_INV_AUTHTYPE = "Authentication type not supported. Requested " + \
 class TestValidateMethod(base.BaseTestCase):
 
     def setUp(self):
-        super(TestValidateMethod, self).setUp()
+        super().setUp()
 
     def test_validate_as_num_with_valid_as_num(self):
         self.assertIsNone(bgp_driver_utils.validate_as_num('local_as',
@@ -151,7 +151,7 @@ class TestValidateMethod(base.BaseTestCase):
 class TestBgpMultiSpeakerCache(base.BaseTestCase):
 
     def setUp(self):
-        super(TestBgpMultiSpeakerCache, self).setUp()
+        super().setUp()
         self.expected_cache = {FAKE_LOCAL_AS: FAKE_OS_KEN_SPEAKER}
         self.bs_cache = bgp_driver_utils.BgpMultiSpeakerCache()
 

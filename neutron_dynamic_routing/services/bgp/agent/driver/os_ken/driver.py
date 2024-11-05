@@ -86,11 +86,12 @@ class OsKenBgpDriver(base.BgpDriverBase):
         # Please note: Since, only the route-advertisement support is
         # implemented we are explicitly setting the bgp_server_port
         # attribute to 0 which disables listening on port 179.
-        curr_speaker = bgpspeaker.BGPSpeaker(as_number=speaker_as,
-                             router_id=self.routerid, bgp_server_port=0,
-                             best_path_change_handler=best_path_change_cb,
-                             peer_down_handler=bgp_peer_down_cb,
-                             peer_up_handler=bgp_peer_up_cb)
+        curr_speaker = bgpspeaker.BGPSpeaker(
+            as_number=speaker_as,
+            router_id=self.routerid, bgp_server_port=0,
+            best_path_change_handler=best_path_change_cb,
+            peer_down_handler=bgp_peer_down_cb,
+            peer_up_handler=bgp_peer_up_cb)
         LOG.info(_LI('Added BGP Speaker for local_as=%(as)d with '
                      'router_id= %(rtid)s.'),
                  {'as': speaker_as, 'rtid': self.routerid})

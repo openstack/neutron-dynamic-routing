@@ -30,7 +30,7 @@ def _get_bgp_dragent_dict(host):
 
 
 def register_bgp_dragent(host=helpers.HOST, admin_state_up=True,
-                        alive=True):
+                         alive=True):
     agent = helpers._register_agent(
         _get_bgp_dragent_dict(host))
 

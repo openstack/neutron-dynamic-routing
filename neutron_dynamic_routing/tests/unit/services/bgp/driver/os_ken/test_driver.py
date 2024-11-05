@@ -45,7 +45,7 @@ FAKE_NEXTHOP = '5.5.5.5'
 class TestOsKenBgpDriver(base.BaseTestCase):
 
     def setUp(self):
-        super(TestOsKenBgpDriver, self).setUp()
+        super().setUp()
         cfg.CONF.register_opts(bgp_config.BGP_PROTO_CONFIG_OPTS, 'BGP')
         cfg.CONF.set_override('bgp_router_id', FAKE_ROUTER_ID, 'BGP')
         self.os_ken_bgp_driver = os_ken_driver.OsKenBgpDriver(cfg.CONF.BGP)
@@ -54,8 +54,8 @@ class TestOsKenBgpDriver(base.BaseTestCase):
 
     def test_add_new_bgp_speaker(self):
         self.os_ken_bgp_driver.add_bgp_speaker(FAKE_LOCAL_AS1)
-        self.assertEqual(1,
-                self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())
+        self.assertEqual(
+            1, self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())
         self.mock_os_ken_speaker.assert_called_once_with(
                  as_number=FAKE_LOCAL_AS1, router_id=FAKE_ROUTER_ID,
                  bgp_server_port=0,
@@ -65,21 +65,21 @@ class TestOsKenBgpDriver(base.BaseTestCase):
 
     def test_remove_bgp_speaker(self):
         self.os_ken_bgp_driver.add_bgp_speaker(FAKE_LOCAL_AS1)
-        self.assertEqual(1,
-                self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())
+        self.assertEqual(
+            1, self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())
         speaker = self.os_ken_bgp_driver.cache.get_bgp_speaker(FAKE_LOCAL_AS1)
         self.os_ken_bgp_driver.delete_bgp_speaker(FAKE_LOCAL_AS1)
-        self.assertEqual(0,
-                self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())
+        self.assertEqual(
+            0, self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())
         self.assertEqual(1, speaker.shutdown.call_count)
 
     def test_add_bgp_peer_without_password(self):
         self.os_ken_bgp_driver.add_bgp_speaker(FAKE_LOCAL_AS1)
-        self.assertEqual(1,
-                self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())
+        self.assertEqual(
+            1, self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())
         self.os_ken_bgp_driver.add_bgp_peer(FAKE_LOCAL_AS1,
-                                         FAKE_PEER_IP,
-                                         FAKE_PEER_AS)
+                                            FAKE_PEER_IP,
+                                            FAKE_PEER_AS)
         speaker = self.os_ken_bgp_driver.cache.get_bgp_speaker(FAKE_LOCAL_AS1)
         speaker.neighbor_add.assert_called_once_with(
                                             address=FAKE_PEER_IP,
@@ -91,13 +91,13 @@ class TestOsKenBgpDriver(base.BaseTestCase):
 
     def test_add_bgp_peer_with_password(self):
         self.os_ken_bgp_driver.add_bgp_speaker(FAKE_LOCAL_AS1)
-        self.assertEqual(1,
-                self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())
+        self.assertEqual(
+            1, self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())
         self.os_ken_bgp_driver.add_bgp_peer(FAKE_LOCAL_AS1,
-                                         FAKE_PEER_IP,
-                                         FAKE_PEER_AS,
-                                         FAKE_AUTH_TYPE,
-                                         FAKE_PEER_PASSWORD)
+                                            FAKE_PEER_IP,
+                                            FAKE_PEER_AS,
+                                            FAKE_AUTH_TYPE,
+                                            FAKE_PEER_PASSWORD)
         speaker = self.os_ken_bgp_driver.cache.get_bgp_speaker(FAKE_LOCAL_AS1)
         speaker.neighbor_add.assert_called_once_with(
             address=FAKE_PEER_IP,
@@ -109,8 +109,8 @@ class TestOsKenBgpDriver(base.BaseTestCase):
 
     def test_add_bgp_peer_with_unicode_password(self):
         self.os_ken_bgp_driver.add_bgp_speaker(FAKE_LOCAL_AS1)
-        self.assertEqual(1,
-                self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())
+        self.assertEqual(
+            1, self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())
         NEW_FAKE_PEER_PASSWORD = str(FAKE_PEER_PASSWORD)
         self.os_ken_bgp_driver.add_bgp_peer(
             FAKE_LOCAL_AS1,
@@ -129,11 +129,11 @@ class TestOsKenBgpDriver(base.BaseTestCase):
 
     def test_add_bgp_peer_with_ipv6(self):
         self.os_ken_bgp_driver.add_bgp_speaker(FAKE_LOCAL_AS1)
-        self.assertEqual(1,
-                self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())
+        self.assertEqual(
+            1, self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())
         self.os_ken_bgp_driver.add_bgp_peer(FAKE_LOCAL_AS1,
-                                         FAKE_PEER_IPV6,
-                                         FAKE_PEER_AS)
+                                            FAKE_PEER_IPV6,
+                                            FAKE_PEER_AS)
         speaker = self.os_ken_bgp_driver.cache.get_bgp_speaker(FAKE_LOCAL_AS1)
         speaker.neighbor_add.assert_called_once_with(
                                             address=FAKE_PEER_IPV6,
@@ -145,27 +145,27 @@ class TestOsKenBgpDriver(base.BaseTestCase):
 
     def test_remove_bgp_peer(self):
         self.os_ken_bgp_driver.add_bgp_speaker(FAKE_LOCAL_AS1)
-        self.assertEqual(1,
-                self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())
+        self.assertEqual(
+            1, self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())
         self.os_ken_bgp_driver.delete_bgp_peer(FAKE_LOCAL_AS1, FAKE_PEER_IP)
         speaker = self.os_ken_bgp_driver.cache.get_bgp_speaker(FAKE_LOCAL_AS1)
         speaker.neighbor_del.assert_called_once_with(address=FAKE_PEER_IP)
 
     def test_advertise_route(self):
         self.os_ken_bgp_driver.add_bgp_speaker(FAKE_LOCAL_AS1)
-        self.assertEqual(1,
-                self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())
+        self.assertEqual(
+            1, self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())
         self.os_ken_bgp_driver.advertise_route(FAKE_LOCAL_AS1,
-                                            FAKE_ROUTE,
-                                            FAKE_NEXTHOP)
+                                               FAKE_ROUTE,
+                                               FAKE_NEXTHOP)
         speaker = self.os_ken_bgp_driver.cache.get_bgp_speaker(FAKE_LOCAL_AS1)
         speaker.prefix_add.assert_called_once_with(prefix=FAKE_ROUTE,
                                                    next_hop=FAKE_NEXTHOP)
 
     def test_withdraw_route(self):
         self.os_ken_bgp_driver.add_bgp_speaker(FAKE_LOCAL_AS1)
-        self.assertEqual(1,
-                self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())
+        self.assertEqual(
+            1, self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())
         self.os_ken_bgp_driver.withdraw_route(FAKE_LOCAL_AS1, FAKE_ROUTE)
         speaker = self.os_ken_bgp_driver.cache.get_bgp_speaker(FAKE_LOCAL_AS1)
         speaker.prefix_del.assert_called_once_with(prefix=FAKE_ROUTE)
@@ -289,16 +289,16 @@ class TestOsKenBgpDriver(base.BaseTestCase):
 
     def test_add_multiple_bgp_speakers(self):
         self.os_ken_bgp_driver.add_bgp_speaker(FAKE_LOCAL_AS1)
-        self.assertEqual(1,
-                self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())
+        self.assertEqual(
+            1, self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())
         self.assertRaises(bgp_driver_exc.BgpSpeakerMaxScheduled,
                           self.os_ken_bgp_driver.add_bgp_speaker,
                           FAKE_LOCAL_AS2)
         self.assertRaises(bgp_driver_exc.BgpSpeakerNotAdded,
                           self.os_ken_bgp_driver.delete_bgp_speaker,
                           FAKE_LOCAL_AS2)
-        self.assertEqual(1,
-                self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())
+        self.assertEqual(
+            1, self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())
         self.os_ken_bgp_driver.delete_bgp_speaker(FAKE_LOCAL_AS1)
-        self.assertEqual(0,
-                self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())
+        self.assertEqual(
+            0, self.os_ken_bgp_driver.cache.get_hosted_bgp_speakers_count())

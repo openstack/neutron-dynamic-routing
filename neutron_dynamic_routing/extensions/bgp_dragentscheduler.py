@@ -123,7 +123,7 @@ class Bgp_dragentscheduler(api_extensions.APIExtensionDescriptor):
         return exts
 
 
-class BgpDrSchedulerPluginBase(object, metaclass=abc.ABCMeta):
+class BgpDrSchedulerPluginBase(metaclass=abc.ABCMeta):
     """REST API to operate BGP dynamic routing agent scheduler.
 
     All the methods must be executed in admin context.

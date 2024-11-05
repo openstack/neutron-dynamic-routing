@@ -49,7 +49,7 @@ class BgpPlugin(service_base.ServicePluginBase,
                                    bgp_4byte_asn.ALIAS]
 
     def __init__(self):
-        super(BgpPlugin, self).__init__()
+        super().__init__()
         self.bgp_drscheduler = importutils.import_object(
             cfg.CONF.bgp_drscheduler_driver)
         self.agent_notifiers[bgp_consts.AGENT_TYPE_BGP_ROUTING] = (
@@ -107,7 +107,7 @@ class BgpPlugin(service_base.ServicePluginBase,
     def get_bgp_speakers(self, context, filters=None, fields=None,
                          sorts=None, limit=None, marker=None,
                          page_reverse=False):
-        return super(BgpPlugin, self).get_bgp_speakers(
+        return super().get_bgp_speakers(
                                                     context,
                                                     filters=filters,
                                                     fields=fields,
@@ -117,13 +117,13 @@ class BgpPlugin(service_base.ServicePluginBase,
                                                     page_reverse=page_reverse)
 
     def get_bgp_speaker(self, context, bgp_speaker_id, fields=None):
-        return super(BgpPlugin, self).get_bgp_speaker(context,
-                                                      bgp_speaker_id,
-                                                      fields=fields)
+        return super().get_bgp_speaker(context,
+                                       bgp_speaker_id,
+                                       fields=fields)
 
     def create_bgp_speaker(self, context, bgp_speaker):
-        bgp_speaker = super(BgpPlugin, self).create_bgp_speaker(context,
-                                                                bgp_speaker)
+        bgp_speaker = super().create_bgp_speaker(context,
+                                                 bgp_speaker)
         registry.publish(dr_resources.BGP_SPEAKER, events.AFTER_CREATE,
                          self, payload=events.DBEventPayload(
                                    context,
@@ -132,15 +132,15 @@ class BgpPlugin(service_base.ServicePluginBase,
         return bgp_speaker
 
     def update_bgp_speaker(self, context, bgp_speaker_id, bgp_speaker):
-        return super(BgpPlugin, self).update_bgp_speaker(context,
-                                                         bgp_speaker_id,
-                                                         bgp_speaker)
+        return super().update_bgp_speaker(context,
+                                          bgp_speaker_id,
+                                          bgp_speaker)
 
     def delete_bgp_speaker(self, context, bgp_speaker_id):
         hosted_bgp_dragents = self.get_dragents_hosting_bgp_speakers(
                                                              context,
                                                              [bgp_speaker_id])
-        super(BgpPlugin, self).delete_bgp_speaker(context, bgp_speaker_id)
+        super().delete_bgp_speaker(context, bgp_speaker_id)
         for agent in hosted_bgp_dragents:
             self._bgp_rpc.bgp_speaker_removed(context,
                                               bgp_speaker_id,
@@ -148,32 +148,32 @@ class BgpPlugin(service_base.ServicePluginBase,
 
     def get_bgp_peers(self, context, fields=None, filters=None, sorts=None,
                       limit=None, marker=None, page_reverse=False):
-        return super(BgpPlugin, self).get_bgp_peers(
+        return super().get_bgp_peers(
                                                  context, fields=fields,
                                                  filters=filters, sorts=sorts,
                                                  limit=limit, marker=marker,
                                                  page_reverse=page_reverse)
 
     def get_bgp_peer(self, context, bgp_peer_id, fields=None):
-        return super(BgpPlugin, self).get_bgp_peer(context,
-                                                   bgp_peer_id,
-                                                   fields=fields)
+        return super().get_bgp_peer(context,
+                                    bgp_peer_id,
+                                    fields=fields)
 
     def create_bgp_peer(self, context, bgp_peer):
-        return super(BgpPlugin, self).create_bgp_peer(context, bgp_peer)
+        return super().create_bgp_peer(context, bgp_peer)
 
     def update_bgp_peer(self, context, bgp_peer_id, bgp_peer):
-        return super(BgpPlugin, self).update_bgp_peer(context,
-                                                      bgp_peer_id,
-                                                      bgp_peer)
+        return super().update_bgp_peer(context,
+                                       bgp_peer_id,
+                                       bgp_peer)
 
     def delete_bgp_peer(self, context, bgp_peer_id):
-        super(BgpPlugin, self).delete_bgp_peer(context, bgp_peer_id)
+        super().delete_bgp_peer(context, bgp_peer_id)
 
     def add_bgp_peer(self, context, bgp_speaker_id, bgp_peer_info):
-        ret_value = super(BgpPlugin, self).add_bgp_peer(context,
-                                                        bgp_speaker_id,
-                                                        bgp_peer_info)
+        ret_value = super().add_bgp_peer(context,
+                                         bgp_speaker_id,
+                                         bgp_peer_info)
         hosted_bgp_dragents = self.get_dragents_hosting_bgp_speakers(
                                                              context,
                                                              [bgp_speaker_id])
@@ -187,9 +187,9 @@ class BgpPlugin(service_base.ServicePluginBase,
         hosted_bgp_dragents = self.get_dragents_hosting_bgp_speakers(
             context, [bgp_speaker_id])
 
-        ret_value = super(BgpPlugin, self).remove_bgp_peer(context,
-                                                           bgp_speaker_id,
-                                                           bgp_peer_info)
+        ret_value = super().remove_bgp_peer(context,
+                                            bgp_speaker_id,
+                                            bgp_peer_info)
 
         for agent in hosted_bgp_dragents:
             self._bgp_rpc.bgp_peer_disassociated(context,
@@ -198,37 +198,37 @@ class BgpPlugin(service_base.ServicePluginBase,
                                                  agent.host)
 
     def add_bgp_speaker_to_dragent(self, context, agent_id, speaker_id):
-        super(BgpPlugin, self).add_bgp_speaker_to_dragent(context,
-                                                          agent_id,
-                                                          speaker_id)
+        super().add_bgp_speaker_to_dragent(context,
+                                           agent_id,
+                                           speaker_id)
 
     def remove_bgp_speaker_from_dragent(self, context, agent_id, speaker_id):
-        super(BgpPlugin, self).remove_bgp_speaker_from_dragent(context,
-                                                               agent_id,
-                                                               speaker_id)
+        super().remove_bgp_speaker_from_dragent(context,
+                                                agent_id,
+                                                speaker_id)
 
     def list_bgp_speaker_on_dragent(self, context, agent_id):
-        return super(BgpPlugin, self).list_bgp_speaker_on_dragent(context,
-                                                                  agent_id)
+        return super().list_bgp_speaker_on_dragent(context,
+                                                   agent_id)
 
     def list_dragent_hosting_bgp_speaker(self, context, speaker_id):
-        return super(BgpPlugin, self).list_dragent_hosting_bgp_speaker(
+        return super().list_dragent_hosting_bgp_speaker(
                                                                    context,
                                                                    speaker_id)
 
     def add_gateway_network(self, context, bgp_speaker_id, network_info):
-        return super(BgpPlugin, self).add_gateway_network(context,
-                                                          bgp_speaker_id,
-                                                          network_info)
+        return super().add_gateway_network(context,
+                                           bgp_speaker_id,
+                                           network_info)
 
     def remove_gateway_network(self, context, bgp_speaker_id, network_info):
-        return super(BgpPlugin, self).remove_gateway_network(context,
-                                                             bgp_speaker_id,
-                                                             network_info)
+        return super().remove_gateway_network(context,
+                                              bgp_speaker_id,
+                                              network_info)
 
     def get_advertised_routes(self, context, bgp_speaker_id):
-        return super(BgpPlugin, self).get_advertised_routes(context,
-                                                            bgp_speaker_id)
+        return super().get_advertised_routes(context,
+                                             bgp_speaker_id)
 
     def floatingip_update_callback(self, resource, event, trigger, payload):
         if event not in [events.AFTER_CREATE, events.AFTER_UPDATE]:

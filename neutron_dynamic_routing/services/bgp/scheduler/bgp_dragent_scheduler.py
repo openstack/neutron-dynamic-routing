@@ -60,8 +60,8 @@ class BgpDrAgentFilter(base_resource_filter.BaseResourceFilter):
                       'hosted by BgpDrAgent %(agent_id)s',
                       {'bgp_speaker_id': bgp_speaker_id,
                        'agent_id': agent_id})
-        super(BgpDrAgentFilter, self).bind(context, bound_agents,
-                                           bgp_speaker_id, force_scheduling)
+        super().bind(context, bound_agents,
+                     bgp_speaker_id, force_scheduling)
 
     def filter_agents(self, plugin, context, bgp_speaker):
         """Return the agents that can host the BgpSpeaker."""
@@ -210,7 +210,7 @@ class ChanceScheduler(base_scheduler.BaseChanceScheduler,
                       BgpDrAgentSchedulerBase):
 
     def __init__(self):
-        super(ChanceScheduler, self).__init__(self)
+        super().__init__(self)
         self._register_callbacks()
 
 
@@ -218,7 +218,7 @@ class WeightScheduler(base_scheduler.BaseWeightScheduler,
                       BgpDrAgentSchedulerBase):
 
     def __init__(self):
-        super(WeightScheduler, self).__init__(self)
+        super().__init__(self)
         self._register_callbacks()
 
 

@@ -166,14 +166,14 @@ class TestAutoSchedule(testlib_api.SqlTestCase,
         msg = 'host_index = %s' % host_index
 
         # create hosts
-        hosts = ['%s-agent-%s' % (host_index, i)
+        hosts = ['{}-agent-{}'.format(host_index, i)
                  for i in range(self.host_count)]
         bgp_dragents = self._create_and_set_agents_down(hosts,
                                                         self.agent_count,
                                                         self.down_agent_count)
 
         # create bgp_speakers
-        self._bgp_speakers = ['%s-bgp-speaker-%s' % (host_index, i)
+        self._bgp_speakers = ['{}-bgp-speaker-{}'.format(host_index, i)
                               for i in range(self.bgp_speaker_count)]
         self._save_bgp_speakers(self._bgp_speakers)
 

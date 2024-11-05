@@ -31,7 +31,7 @@ from neutron_dynamic_routing.tests.unit.db import test_bgp_db
 from webob import exc
 
 
-class BgpDrSchedulerTestExtensionManager(object):
+class BgpDrSchedulerTestExtensionManager:
 
     def get_resources(self):
         return (agent.Agent.get_resources() +
@@ -195,7 +195,7 @@ class BgpDrPluginSchedulerTests(test_db_base_plugin.NeutronDbPluginV2TestCase,
                                'bgp_plugin.BgpPlugin'}
 
         ext_mgr = ext_mgr or BgpDrSchedulerTestExtensionManager()
-        super(BgpDrPluginSchedulerTests, self).setUp(
+        super().setUp(
             plugin=plugin, ext_mgr=ext_mgr, service_plugins=service_plugins)
         self.bgp_plugin = directory.get_plugin(bgp.ALIAS)
         self.context = context.get_admin_context()

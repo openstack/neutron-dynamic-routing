@@ -67,7 +67,7 @@ def validate_string(param):
                                                   param_type='string')
 
 
-class BgpMultiSpeakerCache(object):
+class BgpMultiSpeakerCache:
     """Class for saving multiple BGP speakers information.
 
     Version history:

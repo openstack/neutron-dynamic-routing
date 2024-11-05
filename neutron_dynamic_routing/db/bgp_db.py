@@ -127,7 +127,7 @@ class BgpPeer(model_base.BASEV2,
     password = sa.Column(sa.String(255), nullable=True)
 
 
-class BgpDbMixin(object):
+class BgpDbMixin:
 
     def create_bgp_speaker(self, context, bgp_speaker):
         uuid = uuidutils.generate_uuid()
@@ -155,10 +155,11 @@ class BgpDbMixin(object):
         with db_api.CONTEXT_READER.using(context):
             bgp_speaker = self.get_bgp_speaker(context, bgp_speaker_id,
                                                fields=bgp_speaker_attrs)
-            res = dict((k, bgp_speaker[k]) for k in bgp_speaker_attrs)
-            res['peers'] = self.get_bgp_peers_by_bgp_speaker(context,
-                                                         bgp_speaker['id'],
-                                                         fields=bgp_peer_attrs)
+            res = {k: bgp_speaker[k] for k in bgp_speaker_attrs}
+            res['peers'] = self.get_bgp_peers_by_bgp_speaker(
+                context,
+                bgp_speaker['id'],
+                fields=bgp_peer_attrs)
             res['advertised_routes'] = self.get_routes_by_bgp_speaker_id(
                                                                context,
                                                                bgp_speaker_id)
@@ -180,7 +181,7 @@ class BgpDbMixin(object):
             res_keys = ['local_as', 'tenant_id', 'name', 'ip_version',
                         'advertise_floating_ip_host_routes',
                         'advertise_tenant_networks']
-            res = dict((k, ri[k]) for k in res_keys)
+            res = {k: ri[k] for k in res_keys}
             res['id'] = uuid
             bgp_speaker_db = BgpSpeaker(**res)
             context.session.add(bgp_speaker_db)
@@ -235,7 +236,7 @@ class BgpDbMixin(object):
         with db_api.CONTEXT_WRITER.using(context):
             res_keys = ['tenant_id', 'name', 'remote_as', 'peer_ip',
                         'auth_type', 'password']
-            res = dict((k, ri[k]) for k in res_keys)
+            res = {k: ri[k] for k in res_keys}
             res['id'] = uuidutils.generate_uuid()
             bgp_peer_db = BgpPeer(**res)
             context.session.add(bgp_peer_db)
@@ -422,7 +423,7 @@ class BgpDbMixin(object):
                  'advertise_tenant_networks'}
         peer_bindings = bgp_speaker['peers']
         network_bindings = bgp_speaker['networks']
-        res = dict((k, bgp_speaker[k]) for k in attrs)
+        res = {k: bgp_speaker[k] for k in attrs}
         res['peers'] = [x.bgp_peer_id for x in peer_bindings]
         res['networks'] = [x.network_id for x in network_bindings]
         return db_utils.resource_fields(res, fields)
@@ -453,7 +454,7 @@ class BgpDbMixin(object):
     def _make_bgp_peer_dict(self, bgp_peer, fields=None):
         attrs = ['tenant_id', 'id', 'name', 'peer_ip', 'remote_as',
                  'auth_type', 'password']
-        res = dict((k, bgp_peer[k]) for k in attrs)
+        res = {k: bgp_peer[k] for k in attrs}
         return db_utils.resource_fields(res, fields)
 
     def _get_address_scope_ids_for_bgp_speaker(self, context, bgp_speaker_id):
@@ -752,7 +753,7 @@ class BgpDbMixin(object):
             return self._host_route_list_from_tuples(join_query.all())
 
     def _join_fixed_by_host_binding_to_agent_gateway(self, context,
-                                                   fixed_subq, gw_subq):
+                                                     fixed_subq, gw_subq):
         join_query = context.session.query(fixed_subq.c.ip_address,
                                            gw_subq.c.ip_address)
         and_cond = and_(
@@ -883,7 +884,7 @@ class BgpDbMixin(object):
         join_query = context.session.query(left_subq.c.cidr,
                                            right_subq.c.ip_address)
         and_cond = and_(left_subq.c.router_id == right_subq.c.router_id,
-                      left_subq.c.ip_version == right_subq.c.ip_version)
+                        left_subq.c.ip_version == right_subq.c.ip_version)
         join_query = join_query.join(right_subq, and_cond)
         return join_query
 
@@ -929,19 +930,20 @@ class BgpDbMixin(object):
         """Return the filters for querying tenant networks by BGP speaker"""
         router_attrs = aliased(l3_attrs_db.RouterExtraAttributes,
                                name='router_attrs')
-        return [models_v2.IPAllocation.port_id == l3_db.RouterPort.port_id,
-          l3_db.RouterPort.router_id == router_attrs.router_id,
-          l3_db.Router.id == router_attrs.router_id,
-          l3_db.Router.admin_state_up == sa.sql.true(),
-          l3_db.RouterPort.port_type != lib_consts.DEVICE_OWNER_ROUTER_GW,
-          l3_db.RouterPort.port_type != lib_consts.DEVICE_OWNER_ROUTER_SNAT,
-          models_v2.IPAllocation.subnet_id == models_v2.Subnet.id,
-          models_v2.Subnet.network_id != BgpSpeakerNetworkBinding.network_id,
-          models_v2.Subnet.subnetpool_id == models_v2.SubnetPool.id,
-          models_v2.SubnetPool.address_scope_id.in_(address_scope_ids),
-          models_v2.Subnet.ip_version == BgpSpeakerNetworkBinding.ip_version,
-          BgpSpeakerNetworkBinding.bgp_speaker_id == BgpSpeaker.id,
-          BgpSpeaker.advertise_tenant_networks == sa.sql.true()]
+        return [
+            models_v2.IPAllocation.port_id == l3_db.RouterPort.port_id,
+            l3_db.RouterPort.router_id == router_attrs.router_id,
+            l3_db.Router.id == router_attrs.router_id,
+            l3_db.Router.admin_state_up == sa.sql.true(),
+            l3_db.RouterPort.port_type != lib_consts.DEVICE_OWNER_ROUTER_GW,
+            l3_db.RouterPort.port_type != lib_consts.DEVICE_OWNER_ROUTER_SNAT,
+            models_v2.IPAllocation.subnet_id == models_v2.Subnet.id,
+            models_v2.Subnet.network_id != BgpSpeakerNetworkBinding.network_id,
+            models_v2.Subnet.subnetpool_id == models_v2.SubnetPool.id,
+            models_v2.SubnetPool.address_scope_id.in_(address_scope_ids),
+            models_v2.Subnet.ip_version == BgpSpeakerNetworkBinding.ip_version,
+            BgpSpeakerNetworkBinding.bgp_speaker_id == BgpSpeaker.id,
+            BgpSpeaker.advertise_tenant_networks == sa.sql.true()]
 
     def _nexthop_ip_addresses_by_binding_query(self, context,
                                                network_id, bgp_speaker_id):
@@ -962,7 +964,8 @@ class BgpDbMixin(object):
         """Return the filters for querying nexthops by binding network"""
         address_scope = aliased(address_scope_db.AddressScope,
                                 name='address_scope')
-        return [models_v2.IPAllocation.port_id == l3_db.RouterPort.port_id,
+        return [
+            models_v2.IPAllocation.port_id == l3_db.RouterPort.port_id,
             models_v2.IPAllocation.subnet_id == models_v2.Subnet.id,
             BgpSpeaker.id == bgp_speaker_id,
             BgpSpeakerNetworkBinding.bgp_speaker_id == BgpSpeaker.id,
@@ -990,13 +993,14 @@ class BgpDbMixin(object):
         router_attrs = aliased(l3_attrs_db.RouterExtraAttributes,
                                name='router_attrs')
 
-        return [l3_db.RouterPort.port_type == DEVICE_OWNER_ROUTER_GW,
-           l3_db.RouterPort.router_id == router_attrs.router_id,
-           BgpSpeakerNetworkBinding.network_id == models_v2.Subnet.network_id,
-           BgpSpeakerNetworkBinding.ip_version == models_v2.Subnet.ip_version,
-           BgpSpeakerNetworkBinding.bgp_speaker_id == bgp_speaker_id,
-           models_v2.IPAllocation.port_id == l3_db.RouterPort.port_id,
-           models_v2.IPAllocation.subnet_id == models_v2.Subnet.id]
+        return [
+            l3_db.RouterPort.port_type == DEVICE_OWNER_ROUTER_GW,
+            l3_db.RouterPort.router_id == router_attrs.router_id,
+            BgpSpeakerNetworkBinding.network_id == models_v2.Subnet.network_id,
+            BgpSpeakerNetworkBinding.ip_version == models_v2.Subnet.ip_version,
+            BgpSpeakerNetworkBinding.bgp_speaker_id == bgp_speaker_id,
+            models_v2.IPAllocation.port_id == l3_db.RouterPort.port_id,
+            models_v2.IPAllocation.subnet_id == models_v2.Subnet.id]
 
     def _tenant_prefixes_by_router(self, context, router_id, bgp_speaker_id):
         with db_api.CONTEXT_READER.using(context):
@@ -1159,7 +1163,7 @@ class BgpDbMixin(object):
             port_subnets = subnet_obj.Subnet.get_objects(ctx, **subnets_filter)
             port_subnetpools = subnetpool_obj.SubnetPool.get_objects(
                         ctx, id=[x.subnetpool_id for x in port_subnets])
-            port_scopes = set([x.address_scope_id for x in port_subnetpools])
+            port_scopes = {x.address_scope_id for x in port_subnetpools}
             if match_address_scopes and len(port_scopes) == 0:
                 return []
 
@@ -1178,7 +1182,7 @@ class BgpDbMixin(object):
 
             # If we don't need to match address scopes, return here
             if not match_address_scopes:
-                return list(set([x.network_id for x in gw_ports]))
+                return list({x.network_id for x in gw_ports})
 
             # Retrieve address scope info for associated gateway networks
             gw_fixed_ips = []

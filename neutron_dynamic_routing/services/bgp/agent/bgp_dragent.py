@@ -55,7 +55,7 @@ class BgpDrAgent(manager.Manager):
     target = oslo_messaging.Target(version='1.0')
 
     def __init__(self, host, conf=None):
-        super(BgpDrAgent, self).__init__()
+        super().__init__()
         self.initialize_driver(conf)
         self.needs_resync_reasons = collections.defaultdict(list)
         self.needs_full_sync_reason = None
@@ -125,8 +125,8 @@ class BgpDrAgent(manager.Manager):
 
     def sync_bgp_speaker(self, bgp_speaker):
         # sync BGP Speakers
-        bgp_peer_ips = set(
-            [bgp_peer['peer_ip'] for bgp_peer in bgp_speaker['peers']])
+        bgp_peer_ips = {
+            bgp_peer['peer_ip'] for bgp_peer in bgp_speaker['peers']}
         cached_bgp_peer_ips = set(
             self.cache.get_bgp_peer_ips(bgp_speaker['id']))
         removed_bgp_peer_ips = cached_bgp_peer_ips - bgp_peer_ips
@@ -336,7 +336,7 @@ class BgpDrAgent(manager.Manager):
         except (bgp_ext.BgpSpeakerNotFound, RuntimeError):
             LOG.warning(_LW('BGP speaker %s may have been deleted and its '
                             'resources may have already been disposed.'),
-                     bgp_speaker['id'])
+                        bgp_speaker['id'])
 
     def add_bgp_speaker_on_dragent(self, bgp_speaker):
         # Caching BGP speaker details in BGPSpeakerCache. Will be used
@@ -481,9 +481,9 @@ class BgpDrAgent(manager.Manager):
         if self.cache.is_route_advertised(bgp_speaker_id, route):
             self.cache.remove_adv_route(bgp_speaker_id, route)
             LOG.debug('Calling driver for withdrawing prefix: %(cidr)s, '
-                  'next_hop: %(nexthop)s',
-                  {'cidr': route['destination'],
-                   'nexthop': route['next_hop']})
+                      'next_hop: %(nexthop)s',
+                      {'cidr': route['destination'],
+                       'nexthop': route['next_hop']})
             try:
                 self.dr_driver_cls.withdraw_route(bgp_speaker_as,
                                                   route['destination'],
@@ -526,7 +526,7 @@ class BgpDrAgent(manager.Manager):
         return True
 
 
-class BgpDrPluginApi(object):
+class BgpDrPluginApi:
     """Agent side of BgpDrAgent RPC API.
 
     This class implements the client side of an rpc interface.
@@ -562,7 +562,7 @@ class BgpDrPluginApi(object):
                           bgp_peer_id=bgp_peer_id)
 
 
-class BgpSpeakerCache(object):
+class BgpSpeakerCache:
     """Agent cache of the current BGP speaker state.
 
     This class is designed to support the advertisement for
@@ -660,8 +660,7 @@ class BgpSpeakerCache(object):
 
 class BgpDrAgentWithStateReport(BgpDrAgent):
     def __init__(self, host, conf=None):
-        super(BgpDrAgentWithStateReport,
-              self).__init__(host, conf)
+        super().__init__(host, conf)
         self.state_rpc = agent_rpc.PluginReportStateAPI(topics.REPORTS)
         self.agent_state = {
             'agent_type': bgp_consts.AGENT_TYPE_BGP_ROUTING,

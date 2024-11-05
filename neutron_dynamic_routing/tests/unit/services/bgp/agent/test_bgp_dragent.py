@@ -32,7 +32,7 @@ from neutron_dynamic_routing.services.bgp.agent import config as bgp_config
 
 HOSTNAME = 'hostname'
 rpc_api = bgp_dragent.BgpDrPluginApi
-BGP_PLUGIN = '%s.%s' % (rpc_api.__module__, rpc_api.__name__)
+BGP_PLUGIN = '{}.{}'.format(rpc_api.__module__, rpc_api.__name__)
 
 FAKE_BGPSPEAKER_UUID = uuidutils.generate_uuid()
 FAKE_BGPPEER_UUID = uuidutils.generate_uuid()
@@ -63,7 +63,7 @@ FAKE_ROUTES = {'routes': {'id': FAKE_BGPSPEAKER_UUID,
 
 class TestBgpDrAgent(base.BaseTestCase):
     def setUp(self):
-        super(TestBgpDrAgent, self).setUp()
+        super().setUp()
         cfg.CONF.register_opts(bgp_config.BGP_DRIVER_OPTS, 'BGP')
         cfg.CONF.register_opts(bgp_config.BGP_PROTO_CONFIG_OPTS, 'BGP')
         cfg.CONF.register_opts(config.AGENT_STATE_OPTS, 'AGENT')
@@ -131,11 +131,11 @@ class TestBgpDrAgent(base.BaseTestCase):
                                 synced_bgp_speakers=None):
         bgp_dr = bgp_dragent.BgpDrAgent(HOSTNAME)
 
-        attrs_to_mock = dict(
-            [(a, mock.Mock())
-             for a in ['plugin_rpc', 'sync_bgp_speaker',
-                       'safe_configure_dragent_for_bgp_speaker',
-                       'remove_bgp_speaker_from_dragent']])
+        attrs_to_mock = {
+            a: mock.Mock()
+            for a in ['plugin_rpc', 'sync_bgp_speaker',
+                      'safe_configure_dragent_for_bgp_speaker',
+                      'remove_bgp_speaker_from_dragent']}
 
         with mock.patch.multiple(bgp_dr, **attrs_to_mock):
             if not cached_info:
@@ -290,12 +290,12 @@ class TestBgpDrAgent(base.BaseTestCase):
 
         bgp_dr = bgp_dragent.BgpDrAgent(HOSTNAME)
 
-        attrs_to_mock = dict(
-            [(a, mock.Mock())
-             for a in ['remove_bgp_peer_from_bgp_speaker',
-                       'add_bgp_peers_to_bgp_speaker',
-                       'advertise_routes_via_bgp_speaker',
-                       'withdraw_route_via_bgp_speaker']])
+        attrs_to_mock = {
+            a: mock.Mock()
+            for a in ['remove_bgp_peer_from_bgp_speaker',
+                      'add_bgp_peers_to_bgp_speaker',
+                      'advertise_routes_via_bgp_speaker',
+                      'withdraw_route_via_bgp_speaker']}
 
         with mock.patch.multiple(bgp_dr, **attrs_to_mock):
             bgp_dr.cache.cache = cached_info
@@ -412,11 +412,11 @@ class TestBgpDrAgent(base.BaseTestCase):
             with mock.patch.object(bgp_dragent.LOG, 'error') as log:
                 bgp_dr = bgp_dragent.BgpDrAgent(HOSTNAME)
                 with mock.patch.object(bgp_dr,
-                        'schedule_full_resync') as schedule_full_resync:
+                                       'schedule_full_resync') as mock_resync:
                     bgp_dr.sync_state(mock.ANY)
 
                     self.assertTrue(log.called)
-                    self.assertTrue(schedule_full_resync.called)
+                    self.assertTrue(mock_resync.called)
 
     def test_periodic_resync(self):
         bgp_dr = bgp_dragent.BgpDrAgent(HOSTNAME)
@@ -511,7 +511,7 @@ class TestBgpDrAgentEventHandler(base.BaseTestCase):
                 'agent.bgp_dragent.BgpSpeakerCache'
 
     def setUp(self):
-        super(TestBgpDrAgentEventHandler, self).setUp()
+        super().setUp()
         cfg.CONF.register_opts(bgp_config.BGP_DRIVER_OPTS, 'BGP')
         cfg.CONF.register_opts(bgp_config.BGP_PROTO_CONFIG_OPTS, 'BGP')
 
@@ -573,7 +573,7 @@ class TestBgpDrAgentEventHandler(base.BaseTestCase):
     def test_add_bgp_speaker_helper(self):
         self.plugin.get_bgp_speaker_info.return_value = FAKE_BGP_SPEAKER
         add_bs_p = mock.patch.object(self.bgp_dr,
-                                   'add_bgp_speaker_on_dragent')
+                                     'add_bgp_speaker_on_dragent')
         add_bs = add_bs_p.start()
         self.bgp_dr.add_bgp_speaker_helper(FAKE_BGP_SPEAKER['id'])
         self.plugin.assert_has_calls([
@@ -635,7 +635,7 @@ class TestBgpDrAgentEventHandler(base.BaseTestCase):
 class TestBGPSpeakerCache(base.BaseTestCase):
 
     def setUp(self):
-        super(TestBGPSpeakerCache, self).setUp()
+        super().setUp()
         self.expected_cache = {FAKE_BGP_SPEAKER['id']:
                                {'bgp_speaker': FAKE_BGP_SPEAKER,
                                 'peers': {},

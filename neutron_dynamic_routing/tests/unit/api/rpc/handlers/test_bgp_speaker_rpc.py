@@ -25,7 +25,7 @@ from neutron_dynamic_routing.api.rpc.handlers import bgp_speaker_rpc
 class TestBgpSpeakerRpcCallback(base.BaseTestCase):
 
     def setUp(self):
-        super(TestBgpSpeakerRpcCallback, self).setUp()
+        super().setUp()
         self.plugin = mock.Mock()
         directory.add_plugin(bgp_ext.ALIAS, self.plugin)
         self.callback = bgp_speaker_rpc.BgpSpeakerRpcCallback()
