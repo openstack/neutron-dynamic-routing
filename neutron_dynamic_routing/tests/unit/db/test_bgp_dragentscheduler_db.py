@@ -19,7 +19,7 @@ from oslo_config import cfg
 from oslo_utils import importutils
 
 from neutron.extensions import agent
-from neutron.tests.unit.db import test_db_base_plugin_v2 as test_db_base_plugin
+from neutron.tests.common import test_db_base_plugin_v2 as test_db_base_plugin
 from neutron.tests.unit.extensions import test_agent
 
 from neutron_dynamic_routing.db import bgp_db
