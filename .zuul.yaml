@@ -1,6 +1,6 @@
 - job:
     name: neutron-dynamic-routing-static
-    parent: neutron-tempest-plugin-dynamic-routing
+    parent: neutron-tempest-plugin-dynamic-routing-2024-1
     vars:
       devstack_localrc:
         BGP_SCHEDULER_DRIVER: neutron_dynamic_routing.services.bgp.scheduler.bgp_dragent_scheduler.StaticScheduler
@@ -46,11 +46,11 @@
       jobs:
         - neutron-dynamic-routing-functional
         - neutron-dynamic-routing-static
-        - neutron-tempest-plugin-dynamic-routing
+        - neutron-tempest-plugin-dynamic-routing-2024-1
     gate:
       jobs:
         - neutron-dynamic-routing-functional
-        - neutron-tempest-plugin-dynamic-routing
+        - neutron-tempest-plugin-dynamic-routing-2024-1
     experimental:
       jobs:
         - openstack-tox-py310-with-oslo-master
@@ -60,5 +60,5 @@
         - openstack-tox-py311
         - openstack-tox-py310-with-oslo-master
         - neutron-dynamic-routing-openstack-tox-py310-with-sqlalchemy-main
-        - neutron-tempest-plugin-dynamic-routing
+        - neutron-tempest-plugin-dynamic-routing-2024-1
         - neutron-dynamic-routing-functional
