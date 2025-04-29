@@ -10,49 +10,72 @@
 #  License for the specific language governing permissions and limitations
 #  under the License.
 
+from neutron.conf.policies import base as neutron_base
 from neutron_lib import policy as base
 from oslo_policy import policy
 
+DEPRECATED_REASON = """
+The neutron-dynamic-routing BGP API now supports Secure RBAC default roles.
+"""
 
 rules = [
     policy.DocumentedRuleDefault(
-        'create_bgp_peer',
-        base.RULE_ADMIN_ONLY,
-        'Create a BGP peer',
-        [
+        name='create_bgp_peer',
+        check_str=neutron_base.ADMIN,
+        scope_types=['project'],
+        description='Create a BGP peer',
+        operations=[
             {
                 'method': 'POST',
                 'path': '/bgp-peers',
             },
-        ]
+        ],
+        deprecated_rule=policy.DeprecatedRule(
+            name='create_bgp_peer',
+            check_str=base.RULE_ADMIN_ONLY,
+            deprecated_reason=DEPRECATED_REASON,
+            deprecated_since='2026.1')
     ),
     policy.DocumentedRuleDefault(
-        'update_bgp_peer',
-        base.RULE_ADMIN_ONLY,
-        'Update a BGP peer',
-        [
+        name='update_bgp_peer',
+        check_str=neutron_base.ADMIN,
+        scope_types=['project'],
+        description='Update a BGP peer',
+        operations=[
             {
                 'method': 'PUT',
                 'path': '/bgp-peers/{id}',
             },
-        ]
+        ],
+        deprecated_rule=policy.DeprecatedRule(
+            name='update_bgp_peer',
+            check_str=base.RULE_ADMIN_ONLY,
+            deprecated_reason=DEPRECATED_REASON,
+            deprecated_since='2026.1')
     ),
     policy.DocumentedRuleDefault(
-        'delete_bgp_peer',
-        base.RULE_ADMIN_ONLY,
-        'Delete a BGP peer',
-        [
+        name='delete_bgp_peer',
+        check_str=neutron_base.ADMIN,
+        scope_types=['project'],
+        description='Delete a BGP peer',
+        operations=[
             {
                 'method': 'DELETE',
                 'path': '/bgp-peers/{id}',
             },
-        ]
+        ],
+        deprecated_rule=policy.DeprecatedRule(
+            name='delete_bgp_peer',
+            check_str=base.RULE_ADMIN_ONLY,
+            deprecated_reason=DEPRECATED_REASON,
+            deprecated_since='2026.1')
     ),
     policy.DocumentedRuleDefault(
-        'get_bgp_peer',
-        base.RULE_ADMIN_ONLY,
-        'Get BGP peers',
-        [
+        name='get_bgp_peer',
+        check_str=neutron_base.ADMIN,
+        scope_types=['project'],
+        description='Get BGP peers',
+        operations=[
             {
                 'method': 'GET',
                 'path': '/bgp-peers',
@@ -61,7 +84,12 @@ rules = [
                 'method': 'GET',
                 'path': '/bgp-peers/{id}',
             },
-        ]
+        ],
+        deprecated_rule=policy.DeprecatedRule(
+            name='get_bgp_peer',
+            check_str=base.RULE_ADMIN_ONLY,
+            deprecated_reason=DEPRECATED_REASON,
+            deprecated_since='2026.1')
     ),
 ]
 

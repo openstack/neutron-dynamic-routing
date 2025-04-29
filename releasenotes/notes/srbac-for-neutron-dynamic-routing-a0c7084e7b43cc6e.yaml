@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    ``neutron-dynamic-routing`` now supports secure RBAC with scope and new
+    default roles. All BGP API policies (BGP speakers, BGP peers, and BGP
+    dynamic routing agents) have been updated to use ``project`` scope and the
+    ``ADMIN`` role instead of the legacy ``RULE_ADMIN_ONLY`` check string.
+    The old policies are deprecated as of the 2026.1 release.
+
