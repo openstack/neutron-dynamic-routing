@@ -15,9 +15,9 @@
 
 import copy
 import sys
+import time
 from unittest import mock
 
-import eventlet
 from neutron_lib import context
 from oslo_config import cfg
 from oslo_utils import uuidutils
@@ -75,6 +75,9 @@ class TestBgpDrAgent(base.BaseTestCase):
         self.driver_cls = self.driver_cls_p.start()
         self.context = context.get_admin_context()
 
+    def _stop_heartbeat(self, dr_agent):
+        dr_agent.heartbeat.stop()
+
     @mock.patch('neutron.common.config.init')
     def test_bgp_dragent_manager(self, mock_init):
         mock_init.return_value = '/tmp/test'
@@ -93,7 +96,9 @@ class TestBgpDrAgent(base.BaseTestCase):
                     n_config.init(sys.argv[1:])
                     agent_mgr = bgp_dragent.BgpDrAgentWithStateReport(
                         'testhost')
-                    eventlet.greenthread.sleep(1)
+                    agent_mgr.init_host()
+                    self.addCleanup(self._stop_heartbeat, agent_mgr)
+                    time.sleep(1)
                     agent_mgr.after_start()
                     self.assertIsNotNone(len(mock_sync_state.mock_calls))
                     state_rpc.assert_has_calls(
@@ -102,19 +107,25 @@ class TestBgpDrAgent(base.BaseTestCase):
                                                   mock.ANY)])
 
     def test_run_completes_single_pass(self):
+        cfg.CONF.set_override('report_interval', 0, 'AGENT')
         bgp_dr = bgp_dragent.BgpDrAgent(HOSTNAME)
+        bgp_dr.init_host()
         with mock.patch.object(bgp_dr, 'sync_state') as sync_state:
             bgp_dr.run()
             self.assertIsNotNone(len(sync_state.mock_calls))
 
     def test_after_start(self):
+        cfg.CONF.set_override('report_interval', 0, 'AGENT')
         bgp_dr = bgp_dragent.BgpDrAgent(HOSTNAME)
+        bgp_dr.init_host()
         with mock.patch.object(bgp_dr, 'sync_state') as sync_state:
             bgp_dr.after_start()
             self.assertIsNotNone(len(sync_state.mock_calls))
 
     def test_agent_updated(self):
+        cfg.CONF.set_override('report_interval', 0, 'AGENT')
         bgp_dr = bgp_dragent.BgpDrAgentWithStateReport(HOSTNAME)
+        bgp_dr.init_host()
         payload = {'admin_state_up': True}
         with mock.patch.object(bgp_dr, 'agent_updated') as agent_updated:
             bgp_dr.agent_updated(self.context, payload)
@@ -130,7 +141,7 @@ class TestBgpDrAgent(base.BaseTestCase):
                                 added_bgp_speakers=None,
                                 synced_bgp_speakers=None):
         bgp_dr = bgp_dragent.BgpDrAgent(HOSTNAME)
-
+        bgp_dr.init_host()
         attrs_to_mock = {
             a: mock.Mock()
             for a in ['plugin_rpc', 'sync_bgp_speaker',
@@ -288,8 +299,9 @@ class TestBgpDrAgent(base.BaseTestCase):
         if not withdraw_routes_list:
             withdraw_routes_list = []
 
+        cfg.CONF.set_override('report_interval', 0, 'AGENT')
         bgp_dr = bgp_dragent.BgpDrAgent(HOSTNAME)
-
+        bgp_dr.init_host()
         attrs_to_mock = {
             a: mock.Mock()
             for a in ['remove_bgp_peer_from_bgp_speaker',
@@ -427,6 +439,7 @@ class TestBgpDrAgent(base.BaseTestCase):
 
     def test_periodic_resync_helper(self):
         bgp_dr = bgp_dragent.BgpDrAgent(HOSTNAME)
+        bgp_dr.init_host()
         bgp_dr.schedule_resync('foo reason', 'foo-id')
         with mock.patch.object(bgp_dr, 'sync_state') as sync_state:
             sync_state.side_effect = RuntimeError
@@ -439,7 +452,7 @@ class TestBgpDrAgent(base.BaseTestCase):
                                   bgp_peer, cached_bgp_speaker,
                                   put_bgp_peer_called=True):
         bgp_dr = bgp_dragent.BgpDrAgent(HOSTNAME)
-
+        bgp_dr.init_host()
         bgp_dr.cache.cache = cached_bgp_speaker
         with mock.patch.object(
                 bgp_dr.cache, 'put_bgp_peer') as mock_put_bgp_peer:
@@ -474,7 +487,7 @@ class TestBgpDrAgent(base.BaseTestCase):
                                      route, cached_bgp_speaker,
                                      put_adv_route_called=True):
         bgp_dr = bgp_dragent.BgpDrAgent(HOSTNAME)
-
+        bgp_dr.init_host()
         bgp_dr.cache.cache = cached_bgp_speaker
         with mock.patch.object(
                 bgp_dr.cache, 'put_adv_route') as mock_put_adv_route:
@@ -534,6 +547,7 @@ class TestBgpDrAgentEventHandler(base.BaseTestCase):
         self.driver_cls = self.driver_cls_p.start()
 
         self.bgp_dr = bgp_dragent.BgpDrAgent(HOSTNAME)
+        self.bgp_dr.init_host()
         self.schedule_full_resync_p = mock.patch.object(
                                         self.bgp_dr, 'schedule_full_resync')
         self.schedule_full_resync = self.schedule_full_resync_p.start()

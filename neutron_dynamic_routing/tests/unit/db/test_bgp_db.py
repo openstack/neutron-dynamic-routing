@@ -73,10 +73,10 @@ class BgpEntityCreationMixin:
         yield self.bgp_plugin.get_bgp_speaker(self.context, bgp_speaker_id)
 
     @contextlib.contextmanager
-    def bgp_peer(self, tenant_id=_uuid(), remote_as='4321',
+    def bgp_peer(self, project_id=_uuid(), remote_as='4321',
                  peer_ip="192.168.1.1", auth_type="md5",
                  password="my-secret", name="my-peer"):
-        data = {'peer_ip': peer_ip, 'tenant_id': tenant_id,
+        data = {'peer_ip': peer_ip, 'project_id': project_id,
                 'remote_as': remote_as, 'auth_type': auth_type,
                 'password': password, 'name': name}
         bgp_peer = self.bgp_plugin.create_bgp_peer(self.context,
@@ -112,9 +112,10 @@ class BgpEntityCreationMixin:
             yield gw_network
 
     @contextlib.contextmanager
-    def router(self, name='bgp-test-router', tenant_id=_uuid(),
+    def router(self, name='bgp-test-router', project_id=_uuid(),
                admin_state_up=True, **kwargs):
-        request = {'router': {'tenant_id': tenant_id,
+        # NOTE(ralonsoh): replace "tenant_id" when the Neutron code is updated.
+        request = {'router': {'tenant_id': project_id,
                               'name': name,
                               'admin_state_up': admin_state_up}}
         for arg in kwargs:
@@ -125,7 +126,7 @@ class BgpEntityCreationMixin:
     @contextlib.contextmanager
     def router_with_external_and_tenant_networks(
                                               self,
-                                              tenant_id=_uuid(),
+                                              project_id=_uuid(),
                                               gw_prefix='8.8.8.0/24',
                                               tenant_prefix='192.168.0.0/16',
                                               address_scope=None,
@@ -134,7 +135,7 @@ class BgpEntityCreationMixin:
                                               ext_net_use_addr_scope=True,
                                               tenant_net_use_addr_scope=True):
         gw_ip_net = netaddr.IPNetwork(gw_prefix)
-        ext_pool_args = {'tenant_id': tenant_id,
+        ext_pool_args = {'project_id': project_id,
                          'name': 'bgp-pool'}
 
         if address_scope and ext_net_use_addr_scope:
@@ -150,7 +151,7 @@ class BgpEntityCreationMixin:
                              ip_version=gw_ip_net.version,
                              as_admin=True):
                 with self.router_with_tenant_networks(
-                    tenant_id,
+                    project_id,
                     external_network_id=gw_net_id,
                     tenant_prefix=tenant_prefix,
                     address_scope=address_scope,
@@ -163,7 +164,7 @@ class BgpEntityCreationMixin:
     @contextlib.contextmanager
     def router_with_tenant_networks(
                                     self,
-                                    tenant_id,
+                                    project_id,
                                     external_network_id,
                                     tenant_prefix='192.168.0.0/16',
                                     address_scope=None,
@@ -171,7 +172,7 @@ class BgpEntityCreationMixin:
                                     ha=False,
                                     tenant_net_use_addr_scope=True):
         tenant_ip_net = netaddr.IPNetwork(tenant_prefix)
-        tenant_pool_args = {'tenant_id': tenant_id,
+        tenant_pool_args = {'project_id': project_id,
                             'name': 'bgp-pool'}
 
         if address_scope and tenant_net_use_addr_scope:
@@ -203,17 +204,18 @@ class BgpTests(BgpEntityCreationMixin):
     def subnetpool_with_address_scope(self, ip_version, prefixes=None,
                                       shared=False, admin=True,
                                       name='test-pool', is_default_pool=False,
-                                      tenant_id=None, **kwargs):
-        if not tenant_id:
-            tenant_id = _uuid()
+                                      project_id=None, **kwargs):
+        if not project_id:
+            project_id = _uuid()
 
-        scope_data = {'tenant_id': tenant_id, 'ip_version': ip_version,
+        scope_data = {'project_id': project_id, 'ip_version': ip_version,
                       'shared': shared, 'name': name + '-scope'}
         address_scope = self.plugin.create_address_scope(
                                                 self.context,
                                                 {'address_scope': scope_data})
         address_scope_id = address_scope['id']
-        pool_data = {'tenant_id': tenant_id, 'shared': shared, 'name': name,
+        # NOTE(ralonsoh): replace "tenant_id" when the Neutron code is updated.
+        pool_data = {'tenant_id': project_id, 'shared': shared, 'name': name,
                      'address_scope_id': address_scope_id,
                      'prefixes': prefixes, 'is_default': is_default_pool}
         for key in kwargs:
@@ -286,11 +288,11 @@ class BgpTests(BgpEntityCreationMixin):
                           self.context, _uuid())
 
     def test_create_bgp_peer(self):
-        args = {'tenant_id': _uuid(),
+        args = {'project_id': _uuid(),
                 'remote_as': '1111',
                 'peer_ip': '10.10.10.10',
                 'auth_type': 'md5'}
-        with self.bgp_peer(tenant_id=args['tenant_id'],
+        with self.bgp_peer(project_id=args['project_id'],
                            remote_as=args['remote_as'],
                            peer_ip=args['peer_ip'],
                            auth_type='md5',
@@ -300,11 +302,11 @@ class BgpTests(BgpEntityCreationMixin):
                 self.assertEqual(args[key], peer[key])
 
     def test_update_bgp_peer_auth_type_none(self):
-        args = {'tenant_id': _uuid(),
+        args = {'project_id': _uuid(),
                 'remote_as': '1111',
                 'peer_ip': '10.10.10.10',
                 'auth_type': 'md5'}
-        with self.bgp_peer(tenant_id=args['tenant_id'],
+        with self.bgp_peer(project_id=args['project_id'],
                            remote_as=args['remote_as'],
                            peer_ip=args['peer_ip'],
                            auth_type='none',
@@ -316,12 +318,12 @@ class BgpTests(BgpEntityCreationMixin):
                               self.context, peer['id'], data)
 
     def test_update_bgp_peer_password_none(self):
-        args = {'tenant_id': _uuid(),
+        args = {'project_id': _uuid(),
                 'remote_as': 1111,
                 'peer_ip': '10.10.10.10',
                 'name': 'my-peer',
                 'auth_type': 'none'}
-        with self.bgp_peer(tenant_id=args['tenant_id'],
+        with self.bgp_peer(project_id=args['project_id'],
                            remote_as=args['remote_as'],
                            peer_ip=args['peer_ip'],
                            auth_type=args['auth_type'],
@@ -448,7 +450,7 @@ class BgpTests(BgpEntityCreationMixin):
     def test_create_bgp_speaker_with_network(self):
         with self.subnetpool_with_address_scope(
                 4, prefixes=['8.0.0.0/8']) as sp, \
-            self.gw_network(name='test-net', tenant_id=_uuid(),
+            self.gw_network(name='test-net', project_id=_uuid(),
                             shared=True, as_admin=True) as network:
             network_id = network['network']['id']
             with self.bgp_speaker(sp['ip_version'], 1234,
@@ -526,17 +528,17 @@ class BgpTests(BgpEntityCreationMixin):
         prefixes1 = ['8.0.0.0/8']
         prefixes2 = ['9.0.0.0/8']
         prefixes3 = ['10.0.0.0/8']
-        tenant_id = _uuid()
+        project_id = _uuid()
         with self.bgp_speaker(4, 1234) as speaker, \
             self.subnetpool_with_address_scope(4,
                                                prefixes=prefixes1,
-                                               tenant_id=tenant_id) as sp1, \
+                                               project_id=project_id) as sp1, \
             self.subnetpool_with_address_scope(4,
                                                prefixes=prefixes2,
-                                               tenant_id=tenant_id) as sp2, \
+                                               project_id=project_id) as sp2, \
             self.subnetpool_with_address_scope(4,
                                                prefixes=prefixes3,
-                                               tenant_id=tenant_id) as sp3, \
+                                               project_id=project_id) as sp3, \
             self.gw_network() as network1, self.gw_network() as network2, \
             self.gw_network() as network3:
             network1_id = network1['network']['id']
@@ -550,18 +552,20 @@ class BgpTests(BgpEntityCreationMixin):
                 'enable_dhcp': True,
                 'dns_nameservers': n_const.ATTR_NOT_SPECIFIED,
                 'host_routes': n_const.ATTR_NOT_SPECIFIED}
+            # NOTE(ralonsoh): replace "tenant_id" when the Neutron code is
+            # updated.
             subnet1_data = {'network_id': network1_id,
                             'subnetpool_id': sp1['id'],
                             'name': 'subnet1',
-                            'tenant_id': tenant_id}
+                            'tenant_id': project_id}
             subnet2_data = {'network_id': network2_id,
                             'subnetpool_id': sp2['id'],
                             'name': 'subnet2',
-                            'tenant_id': tenant_id}
+                            'tenant_id': project_id}
             subnet3_data = {'network_id': network3_id,
                             'subnetpool_id': sp3['id'],
                             'name': 'subnet2',
-                            'tenant_id': tenant_id}
+                            'tenant_id': project_id}
             for k in base_subnet_data:
                 subnet1_data[k] = base_subnet_data[k]
                 subnet2_data[k] = base_subnet_data[k]
@@ -584,14 +588,14 @@ class BgpTests(BgpEntityCreationMixin):
     def test_get_routes_by_bgp_speaker_binding(self):
         gw_prefix = '172.16.10.0/24'
         tenant_prefix = '10.10.10.0/24'
-        tenant_id = _uuid()
-        scope_data = {'tenant_id': tenant_id, 'ip_version': 4,
+        project_id = _uuid()
+        scope_data = {'project_id': project_id, 'ip_version': 4,
                       'shared': True, 'name': 'bgp-scope'}
         scope = self.plugin.create_address_scope(
                                                 self.context,
                                                 {'address_scope': scope_data})
         with self.router_with_external_and_tenant_networks(
-                                               tenant_id=tenant_id,
+                                               project_id=project_id,
                                                gw_prefix=gw_prefix,
                                                tenant_prefix=tenant_prefix,
                                                address_scope=scope) as res:
@@ -614,14 +618,14 @@ class BgpTests(BgpEntityCreationMixin):
     def test_get_routes_by_binding_network(self):
         gw_prefix = '172.16.10.0/24'
         tenant_prefix = '10.10.10.0/24'
-        tenant_id = _uuid()
-        scope_data = {'tenant_id': tenant_id, 'ip_version': 4,
+        project_id = _uuid()
+        scope_data = {'project_id': project_id, 'ip_version': 4,
                       'shared': True, 'name': 'bgp-scope'}
         scope = self.plugin.create_address_scope(
                                                 self.context,
                                                 {'address_scope': scope_data})
         with self.router_with_external_and_tenant_networks(
-                                               tenant_id=tenant_id,
+                                               project_id=project_id,
                                                gw_prefix=gw_prefix,
                                                tenant_prefix=tenant_prefix,
                                                address_scope=scope) as res:
@@ -647,8 +651,8 @@ class BgpTests(BgpEntityCreationMixin):
                                           gateway_cidr,
                                           fip_routes=True,
                                           router_distributed=False):
-        tenant_id = _uuid()
-        scope_data = {'tenant_id': tenant_id,
+        project_id = _uuid()
+        scope_data = {'project_id': project_id,
                       'ip_version': bgp_speaker_ip_version,
                       'shared': True,
                       'name': 'bgp-scope'}
@@ -656,7 +660,7 @@ class BgpTests(BgpEntityCreationMixin):
                                                 self.context,
                                                 {'address_scope': scope_data})
         with self.router_with_external_and_tenant_networks(
-                                    tenant_id=tenant_id,
+                                    project_id=project_id,
                                     gw_prefix=gateway_cidr,
                                     tenant_prefix=tenant_cidr,
                                     address_scope=scope,
@@ -675,7 +679,7 @@ class BgpTests(BgpEntityCreationMixin):
     def test__tenant_prefixes_by_router_no_gateway_port(self):
         with self.network() as net1, self.network() as net2, \
             self.subnetpool_with_address_scope(
-                6, tenant_id=_uuid(), prefixes=['2001:db8::/63']) as pool:
+                6, project_id=_uuid(), prefixes=['2001:db8::/63']) as pool:
             subnetpool_id = pool['id']
             with self.subnet(network=net1,
                              cidr=None,
@@ -747,9 +751,9 @@ class BgpTests(BgpEntityCreationMixin):
         binding_cidr = '2001:db8::/64'
         tenant_cidr = '2002:ab8::/64'
         with self.subnetpool_with_address_scope(
-                6, tenant_id=_uuid(), prefixes=[binding_cidr]) as ext_pool, \
+                6, project_id=_uuid(), prefixes=[binding_cidr]) as ext_pool, \
             self.subnetpool_with_address_scope(
-                6, tenant_id=_uuid(), prefixes=[tenant_cidr]) as int_pool, \
+                6, project_id=_uuid(), prefixes=[tenant_cidr]) as int_pool, \
             self.gw_network(external=True) as ext_net, \
             self.network() as int_net:
             gw_net_id = ext_net['network']['id']
@@ -787,14 +791,14 @@ class BgpTests(BgpEntityCreationMixin):
     def test__get_routes_by_router_with_fip(self):
         gw_prefix = '172.16.10.0/24'
         tenant_prefix = '10.10.10.0/24'
-        tenant_id = _uuid()
-        scope_data = {'tenant_id': tenant_id, 'ip_version': 4,
+        project_id = _uuid()
+        scope_data = {'project_id': project_id, 'ip_version': 4,
                       'shared': True, 'name': 'bgp-scope'}
         scope = self.plugin.create_address_scope(
                                                 self.context,
                                                 {'address_scope': scope_data})
         with self.router_with_external_and_tenant_networks(
-                                               tenant_id=tenant_id,
+                                               project_id=project_id,
                                                gw_prefix=gw_prefix,
                                                tenant_prefix=tenant_prefix,
                                                address_scope=scope) as res:
@@ -805,7 +809,7 @@ class BgpTests(BgpEntityCreationMixin):
             fixed_port_data = {'port':
                                {'name': 'test',
                                 'network_id': tenant_net_id,
-                                'tenant_id': tenant_id,
+                                'project_id': project_id,
                                 'admin_state_up': True,
                                 'device_id': _uuid(),
                                 'device_owner': 'compute:nova',
@@ -814,7 +818,7 @@ class BgpTests(BgpEntityCreationMixin):
             fixed_port = self.plugin.create_port(self.context,
                                                  fixed_port_data)
             fip_data = {'floatingip': {'floating_network_id': gw_net_id,
-                                       'tenant_id': tenant_id,
+                                       'project_id': project_id,
                                        'port_id': fixed_port['id']}}
             fip = self.l3plugin.create_floatingip(self.context, fip_data)
             fip_prefix = fip['floating_ip_address'] + '/32'
@@ -839,14 +843,14 @@ class BgpTests(BgpEntityCreationMixin):
     def test_get_routes_by_bgp_speaker_id_with_fip(self):
         gw_prefix = '172.16.10.0/24'
         tenant_prefix = '10.10.10.0/24'
-        tenant_id = _uuid()
-        scope_data = {'tenant_id': tenant_id, 'ip_version': 4,
+        project_id = _uuid()
+        scope_data = {'project_id': project_id, 'ip_version': 4,
                       'shared': True, 'name': 'bgp-scope'}
         scope = self.plugin.create_address_scope(
                                                 self.context,
                                                 {'address_scope': scope_data})
         with self.router_with_external_and_tenant_networks(
-                                               tenant_id=tenant_id,
+                                               project_id=project_id,
                                                gw_prefix=gw_prefix,
                                                tenant_prefix=tenant_prefix,
                                                address_scope=scope) as res:
@@ -857,7 +861,7 @@ class BgpTests(BgpEntityCreationMixin):
             fixed_port_data = {'port':
                                {'name': 'test',
                                 'network_id': tenant_net_id,
-                                'tenant_id': tenant_id,
+                                'project_id': project_id,
                                 'admin_state_up': True,
                                 'device_id': _uuid(),
                                 'device_owner': 'compute:nova',
@@ -866,7 +870,7 @@ class BgpTests(BgpEntityCreationMixin):
             fixed_port = self.plugin.create_port(self.context,
                                                  fixed_port_data)
             fip_data = {'floatingip': {'floating_network_id': gw_net_id,
-                                       'tenant_id': tenant_id,
+                                       'project_id': project_id,
                                        'port_id': fixed_port['id']}}
             fip = self.l3plugin.create_floatingip(self.context, fip_data)
             fip_prefix = fip['floating_ip_address'] + '/32'
@@ -892,14 +896,14 @@ class BgpTests(BgpEntityCreationMixin):
     def test_get_routes_by_bgp_speaker_id_with_fip_router_disabled(self):
         gw_prefix = '172.16.10.0/24'
         tenant_prefix = '10.10.10.0/24'
-        tenant_id = _uuid()
-        scope_data = {'tenant_id': tenant_id, 'ip_version': 4,
+        project_id = _uuid()
+        scope_data = {'project_id': project_id, 'ip_version': 4,
                       'shared': True, 'name': 'bgp-scope'}
         scope = self.plugin.create_address_scope(
                                                 self.context,
                                                 {'address_scope': scope_data})
         with self.router_with_external_and_tenant_networks(
-                                               tenant_id=tenant_id,
+                                               project_id=project_id,
                                                gw_prefix=gw_prefix,
                                                tenant_prefix=tenant_prefix,
                                                address_scope=scope) as res:
@@ -912,7 +916,7 @@ class BgpTests(BgpEntityCreationMixin):
             fixed_port_data = {'port':
                                {'name': 'test',
                                 'network_id': tenant_net_id,
-                                'tenant_id': tenant_id,
+                                'project_id': project_id,
                                 'admin_state_up': True,
                                 'device_id': _uuid(),
                                 'device_owner': 'compute:nova',
@@ -921,7 +925,7 @@ class BgpTests(BgpEntityCreationMixin):
             fixed_port = self.plugin.create_port(self.context,
                                                  fixed_port_data)
             fip_data = {'floatingip': {'floating_network_id': gw_net_id,
-                                       'tenant_id': tenant_id,
+                                       'project_id': project_id,
                                        'port_id': fixed_port['id']}}
             self.l3plugin.create_floatingip(self.context, fip_data)
             with self.bgp_speaker(4, 1234, networks=[gw_net_id]) as speaker:
@@ -938,22 +942,22 @@ class BgpTests(BgpEntityCreationMixin):
         gw_prefix = '172.16.10.0/24'
         tenant_prefix1 = '10.10.10.0/24'
         tenant_prefix2 = '10.10.20.0/24'
-        tenant_id = _uuid()
-        scope_data = {'tenant_id': tenant_id, 'ip_version': 4,
+        project_id = _uuid()
+        scope_data = {'project_id': project_id, 'ip_version': 4,
                       'shared': True, 'name': 'bgp-scope'}
         scope = self.plugin.create_address_scope(
                                                 self.context,
                                                 {'address_scope': scope_data})
         # network and router setup
         with self.router_with_external_and_tenant_networks(
-                                               tenant_id=tenant_id,
+                                               project_id=project_id,
                                                gw_prefix=gw_prefix,
                                                tenant_prefix=tenant_prefix1,
                                                address_scope=scope) as res:
             router1, ext_net, int_net1 = res
             gw_net_id = ext_net['network']['id']
             with self.router_with_tenant_networks(
-                tenant_id=tenant_id,
+                project_id=project_id,
                 external_network_id=gw_net_id,
                 tenant_prefix=tenant_prefix2,
                 address_scope=scope
@@ -964,7 +968,7 @@ class BgpTests(BgpEntityCreationMixin):
                 fixed_port_data1 = {'port':
                                     {'name': 'test',
                                      'network_id': tenant_net_id1,
-                                     'tenant_id': tenant_id,
+                                     'project_id': project_id,
                                      'admin_state_up': True,
                                      'device_id': _uuid(),
                                      'device_owner': 'compute:nova',
@@ -973,7 +977,7 @@ class BgpTests(BgpEntityCreationMixin):
                 fixed_port1 = self.plugin.create_port(self.context,
                                                       fixed_port_data1)
                 fip_data1 = {'floatingip': {'floating_network_id': gw_net_id,
-                                            'tenant_id': tenant_id,
+                                            'project_id': project_id,
                                             'port_id': fixed_port1['id']}}
                 fip1 = self.l3plugin.create_floatingip(self.context, fip_data1)
 
@@ -981,7 +985,7 @@ class BgpTests(BgpEntityCreationMixin):
                 fixed_port_data2 = {'port':
                                     {'name': 'test',
                                      'network_id': tenant_net_id2,
-                                     'tenant_id': tenant_id,
+                                     'project_id': project_id,
                                      'admin_state_up': True,
                                      'device_id': _uuid(),
                                      'device_owner': 'compute:nova',
@@ -990,7 +994,7 @@ class BgpTests(BgpEntityCreationMixin):
                 fixed_port2 = self.plugin.create_port(self.context,
                                                       fixed_port_data2)
                 fip_data2 = {'floatingip': {'floating_network_id': gw_net_id,
-                                            'tenant_id': tenant_id,
+                                            'project_id': project_id,
                                             'port_id': fixed_port2['id']}}
                 self.l3plugin.create_floatingip(self.context, fip_data2)
 
@@ -1027,14 +1031,14 @@ class BgpTests(BgpEntityCreationMixin):
     def test_get_routes_by_bgp_speaker_id_with_fip_dvr(self):
         gw_prefix = '172.16.10.0/24'
         tenant_prefix = '10.10.10.0/24'
-        tenant_id = _uuid()
-        scope_data = {'tenant_id': tenant_id, 'ip_version': 4,
+        project_id = _uuid()
+        scope_data = {'project_id': project_id, 'ip_version': 4,
                       'shared': True, 'name': 'bgp-scope'}
         scope = self.plugin.create_address_scope(
                                                 self.context,
                                                 {'address_scope': scope_data})
         with self.router_with_external_and_tenant_networks(
-                                               tenant_id=tenant_id,
+                                               project_id=project_id,
                                                gw_prefix=gw_prefix,
                                                tenant_prefix=tenant_prefix,
                                                address_scope=scope,
@@ -1046,7 +1050,7 @@ class BgpTests(BgpEntityCreationMixin):
             fixed_port_data = {'port':
                                {'name': 'test',
                                 'network_id': tenant_net_id,
-                                'tenant_id': tenant_id,
+                                'project_id': project_id,
                                 'admin_state_up': True,
                                 'device_id': _uuid(),
                                 'device_owner': 'compute:nova',
@@ -1065,7 +1069,7 @@ class BgpTests(BgpEntityCreationMixin):
                                                                  gw_net_id,
                                                                  'test-host')
             fip_data = {'floatingip': {'floating_network_id': gw_net_id,
-                                       'tenant_id': tenant_id,
+                                       'project_id': project_id,
                                        'port_id': fixed_port['id']}}
             fip = self.l3plugin.create_floatingip(self.context, fip_data)
             fip_prefix = fip['floating_ip_address'] + '/32'
@@ -1099,14 +1103,14 @@ class BgpTests(BgpEntityCreationMixin):
     def test__get_dvr_fip_host_routes_by_binding(self):
         gw_prefix = '172.16.10.0/24'
         tenant_prefix = '10.10.10.0/24'
-        tenant_id = _uuid()
-        scope_data = {'tenant_id': tenant_id, 'ip_version': 4,
+        project_id = _uuid()
+        scope_data = {'project_id': project_id, 'ip_version': 4,
                       'shared': True, 'name': 'bgp-scope'}
         scope = self.plugin.create_address_scope(
                                                 self.context,
                                                 {'address_scope': scope_data})
         with self.router_with_external_and_tenant_networks(
-                                               tenant_id=tenant_id,
+                                               project_id=project_id,
                                                gw_prefix=gw_prefix,
                                                tenant_prefix=tenant_prefix,
                                                address_scope=scope,
@@ -1117,7 +1121,7 @@ class BgpTests(BgpEntityCreationMixin):
             fixed_port_data = {'port':
                                {'name': 'test',
                                 'network_id': tenant_net_id,
-                                'tenant_id': tenant_id,
+                                'project_id': project_id,
                                 'admin_state_up': True,
                                 'device_id': _uuid(),
                                 'device_owner': 'compute:nova',
@@ -1136,7 +1140,7 @@ class BgpTests(BgpEntityCreationMixin):
                                                                  gw_net_id,
                                                                  'test-host')
             fip_data = {'floatingip': {'floating_network_id': gw_net_id,
-                                       'tenant_id': tenant_id,
+                                       'project_id': project_id,
                                        'port_id': fixed_port['id']}}
             fip = self.l3plugin.create_floatingip(self.context, fip_data)
             fip_prefix = fip['floating_ip_address'] + '/32'
@@ -1155,14 +1159,14 @@ class BgpTests(BgpEntityCreationMixin):
     def test__get_dvr_fip_host_routes_by_router(self):
         gw_prefix = '172.16.10.0/24'
         tenant_prefix = '10.10.10.0/24'
-        tenant_id = _uuid()
-        scope_data = {'tenant_id': tenant_id, 'ip_version': 4,
+        project_id = _uuid()
+        scope_data = {'project_id': project_id, 'ip_version': 4,
                       'shared': True, 'name': 'bgp-scope'}
         scope = self.plugin.create_address_scope(
                                                 self.context,
                                                 {'address_scope': scope_data})
         with self.router_with_external_and_tenant_networks(
-                                               tenant_id=tenant_id,
+                                               project_id=project_id,
                                                gw_prefix=gw_prefix,
                                                tenant_prefix=tenant_prefix,
                                                address_scope=scope,
@@ -1173,7 +1177,7 @@ class BgpTests(BgpEntityCreationMixin):
             fixed_port_data = {'port':
                                {'name': 'test',
                                 'network_id': tenant_net_id,
-                                'tenant_id': tenant_id,
+                                'project_id': project_id,
                                 'admin_state_up': True,
                                 'device_id': _uuid(),
                                 'device_owner': 'compute:nova',
@@ -1192,7 +1196,7 @@ class BgpTests(BgpEntityCreationMixin):
                                                                  gw_net_id,
                                                                  'test-host')
             fip_data = {'floatingip': {'floating_network_id': gw_net_id,
-                                       'tenant_id': tenant_id,
+                                       'project_id': project_id,
                                        'port_id': fixed_port['id']}}
             fip = self.l3plugin.create_floatingip(self.context, fip_data)
             fip_prefix = fip['floating_ip_address'] + '/32'
@@ -1211,14 +1215,14 @@ class BgpTests(BgpEntityCreationMixin):
     def test_get_routes_by_bgp_speaker_binding_with_fip(self):
         gw_prefix = '172.16.10.0/24'
         tenant_prefix = '10.10.10.0/24'
-        tenant_id = _uuid()
-        scope_data = {'tenant_id': tenant_id, 'ip_version': 4,
+        project_id = _uuid()
+        scope_data = {'project_id': project_id, 'ip_version': 4,
                       'shared': True, 'name': 'bgp-scope'}
         scope = self.plugin.create_address_scope(
                                                 self.context,
                                                 {'address_scope': scope_data})
         with self.router_with_external_and_tenant_networks(
-                                               tenant_id=tenant_id,
+                                               project_id=project_id,
                                                gw_prefix=gw_prefix,
                                                tenant_prefix=tenant_prefix,
                                                address_scope=scope) as res:
@@ -1229,7 +1233,7 @@ class BgpTests(BgpEntityCreationMixin):
             fixed_port_data = {'port':
                                {'name': 'test',
                                 'network_id': tenant_net_id,
-                                'tenant_id': tenant_id,
+                                'project_id': project_id,
                                 'admin_state_up': True,
                                 'device_id': _uuid(),
                                 'device_owner': 'compute:nova',
@@ -1238,7 +1242,7 @@ class BgpTests(BgpEntityCreationMixin):
             fixed_port = self.plugin.create_port(self.context,
                                                  fixed_port_data)
             fip_data = {'floatingip': {'floating_network_id': gw_net_id,
-                                       'tenant_id': tenant_id,
+                                       'project_id': project_id,
                                        'port_id': fixed_port['id']}}
             fip = self.l3plugin.create_floatingip(self.context, fip_data)
             fip_prefix = fip['floating_ip_address'] + '/32'
@@ -1300,13 +1304,13 @@ class BgpTests(BgpEntityCreationMixin):
                  'topic': 'test',
                  'configurations': {"agent_mode": item['mode']}})
 
-    def _create_scenario_test_ports(self, tenant_id, port_configs):
+    def _create_scenario_test_ports(self, project_id, port_configs):
         ports = []
         for item in port_configs:
             port_data = {
                 'port': {'name': 'test1',
                          'network_id': item['net_id'],
-                         'tenant_id': tenant_id,
+                         'project_id': project_id,
                          'admin_state_up': True,
                          'device_id': _uuid(),
                          'device_owner': 'compute:nova',
@@ -1318,11 +1322,11 @@ class BgpTests(BgpEntityCreationMixin):
         return ports
 
     def _create_scenario_test_fips(self, ext_net_id,
-                                   tenant_id, port_ids):
+                                   project_id, port_ids):
         fips = []
         for port_id in port_ids:
             fip_data = {'floatingip': {'floating_network_id': ext_net_id,
-                                       'tenant_id': tenant_id,
+                                       'project_id': project_id,
                                        'port_id': port_id}}
             fip = self.l3plugin.create_floatingip(self.context, fip_data)
             fips.append(fip)
@@ -1331,11 +1335,11 @@ class BgpTests(BgpEntityCreationMixin):
     def test_floatingip_update_callback(self):
         gw_prefix = '172.16.10.0/24'
         tenant_prefix = '10.10.10.0/24'
-        tenant_id = _uuid()
+        project_id = _uuid()
         agent_confs = [{"host": "network1", "mode": "legacy"}]
         self._create_scenario_test_l3_agents(agent_confs)
         with self.router_with_external_and_tenant_networks(
-                tenant_id=tenant_id,
+                project_id=project_id,
                 gw_prefix=gw_prefix,
                 tenant_prefix=tenant_prefix) as res:
             router, ext_net, int_net = res
@@ -1346,7 +1350,7 @@ class BgpTests(BgpEntityCreationMixin):
 
             port_configs = [{'net_id': int_net['network']['id'],
                              'host': 'compute1'}]
-            ports = self._create_scenario_test_ports(tenant_id, port_configs)
+            ports = self._create_scenario_test_ports(project_id, port_configs)
             port_ids = [port['id'] for port in ports]
             with self.bgp_speaker(4, 1234, networks=[gw_net_id]) as speaker:
                 with mock.patch.object(
@@ -1358,7 +1362,7 @@ class BgpTests(BgpEntityCreationMixin):
                         bgp_speaker_id = speaker['id']
                         # Create and associate floating IP
                         fips = self._create_scenario_test_fips(
-                            gw_net_id, tenant_id, port_ids)
+                            gw_net_id, project_id, port_ids)
                         fip_id = fips[0]['id']
                         fip_addr = fips[0]['floating_ip_address']
                         host_route = {'destination': fip_addr + '/32',
@@ -1389,7 +1393,7 @@ class BgpTests(BgpEntityCreationMixin):
             cfg.CONF.set_override('max_l3_agents_per_router', 2)
         gw_prefix = '172.16.10.0/24'
         tenant_prefix = '10.10.10.0/24'
-        tenant_id = _uuid()
+        project_id = _uuid()
 
         agent_confs = [{"host": "compute1", "mode": "dvr"},
                        {"host": "compute2", "mode": "dvr"},
@@ -1399,7 +1403,7 @@ class BgpTests(BgpEntityCreationMixin):
 
         self._create_scenario_test_l3_agents(agent_confs)
         with self.router_with_external_and_tenant_networks(
-                tenant_id=tenant_id,
+                project_id=project_id,
                 gw_prefix=gw_prefix,
                 tenant_prefix=tenant_prefix,
                 ha=router_ha) as res:
@@ -1416,9 +1420,9 @@ class BgpTests(BgpEntityCreationMixin):
                              'host': 'compute1'},
                             {'net_id': int_net['network']['id'],
                              'host': 'compute2'}]
-            ports = self._create_scenario_test_ports(tenant_id, port_configs)
+            ports = self._create_scenario_test_ports(project_id, port_configs)
             port_ids = [port['id'] for port in ports]
-            self._create_scenario_test_fips(gw_net_id, tenant_id, port_ids)
+            self._create_scenario_test_fips(gw_net_id, project_id, port_ids)
 
             next_hop = ext_gw_info[
                 'external_fixed_ips'][0]['ip_address']
@@ -1440,12 +1444,12 @@ class BgpTests(BgpEntityCreationMixin):
     def _test__get_fip_next_hop(self, distributed=False):
         gw_prefix = '172.16.10.0/24'
         tenant_prefix = '10.10.10.0/24'
-        tenant_id = _uuid()
+        project_id = _uuid()
         agent_confs = [{"host": "compute1", "mode": "dvr"},
                        {"host": "network1", "mode": "dvr_snat"}]
         self._create_scenario_test_l3_agents(agent_confs)
         with self.router_with_external_and_tenant_networks(
-                tenant_id=tenant_id,
+                project_id=project_id,
                 gw_prefix=gw_prefix,
                 tenant_prefix=tenant_prefix,
                 distributed=distributed) as res:
@@ -1461,10 +1465,10 @@ class BgpTests(BgpEntityCreationMixin):
                 self.context, gw_net_id, 'compute1')
             port_configs = [{'net_id': int_net['network']['id'],
                              'host': 'compute1'}]
-            ports = self._create_scenario_test_ports(tenant_id, port_configs)
+            ports = self._create_scenario_test_ports(project_id, port_configs)
             dvr_gw_ip = fip_gw['fixed_ips'][0]['ip_address']
             fip_data = {'floatingip': {'floating_network_id': gw_net_id,
-                                       'tenant_id': tenant_id,
+                                       'project_id': project_id,
                                        'port_id': ports[0]['id']}}
             fip = self.l3plugin.create_floatingip(self.context, fip_data)
             fip_address = fip['floating_ip_address']
@@ -1487,14 +1491,14 @@ class BgpTests(BgpEntityCreationMixin):
                                                       tenant_use_scope):
         gw_prefix = '172.16.10.0/24'
         tenant_prefix = '10.10.10.0/24'
-        tenant_id = _uuid()
-        scope_data = {'tenant_id': tenant_id, 'ip_version': 4,
+        project_id = _uuid()
+        scope_data = {'project_id': project_id, 'ip_version': 4,
                       'shared': True, 'name': 'bgp-scope'}
         scope = self.plugin.create_address_scope(
                                             self.context,
                                             {'address_scope': scope_data})
         with self.router_with_external_and_tenant_networks(
-                        tenant_id=tenant_id,
+                        project_id=project_id,
                         gw_prefix=gw_prefix,
                         tenant_prefix=tenant_prefix,
                         address_scope=scope,
@@ -1507,7 +1511,7 @@ class BgpTests(BgpEntityCreationMixin):
             fixed_port_data = {'port':
                                {'name': 'test',
                                 'network_id': tenant_net_id,
-                                'tenant_id': tenant_id,
+                                'project_id': project_id,
                                 'admin_state_up': True,
                                 'device_id': _uuid(),
                                 'device_owner': 'compute:nova',
@@ -1551,75 +1555,75 @@ class BgpTests(BgpEntityCreationMixin):
         self._test__get_dvr_fixed_ip_routes_by_bgp_speaker(False, False)
 
     def test_get_external_networks_for_port_same_address_scope_v4(self):
-        tenant_id = _uuid()
-        scope_data = {'tenant_id': tenant_id, 'ip_version': 4,
+        project_id = _uuid()
+        scope_data = {'project_id': project_id, 'ip_version': 4,
                       'shared': True, 'name': 'bgp-scope'}
         self._test_get_external_networks_for_port('172.10.2.0/24',
                                                   '10.0.0.0/24',
-                                                  scope_data, tenant_id,
+                                                  scope_data, project_id,
                                                   True, True)
         self._test_get_external_networks_for_port('172.10.2.0/24',
                                                   '10.0.0.0/24',
-                                                  scope_data, tenant_id,
+                                                  scope_data, project_id,
                                                   True, True, False)
 
     def test_get_external_networks_for_port_different_address_scope_v4(self):
-        tenant_id = _uuid()
-        scope_data = {'tenant_id': tenant_id, 'ip_version': 4,
+        project_id = _uuid()
+        scope_data = {'project_id': project_id, 'ip_version': 4,
                       'shared': True, 'name': 'bgp-scope'}
         self._test_get_external_networks_for_port('172.10.2.0/24',
                                                   '10.0.0.0/24',
-                                                  scope_data, tenant_id,
+                                                  scope_data, project_id,
                                                   True, False)
         self._test_get_external_networks_for_port('172.10.2.0/24',
                                                   '10.0.0.0/24',
-                                                  scope_data, tenant_id,
+                                                  scope_data, project_id,
                                                   True, False, False)
         self._test_get_external_networks_for_port('172.10.2.0/24',
                                                   '10.0.0.0/24',
-                                                  scope_data, tenant_id,
+                                                  scope_data, project_id,
                                                   False, True)
         self._test_get_external_networks_for_port('172.10.2.0/24',
                                                   '10.0.0.0/24',
-                                                  scope_data, tenant_id,
+                                                  scope_data, project_id,
                                                   False, True, False)
 
     def test_get_external_networks_for_port_same_address_scope_v6(self):
-        tenant_id = _uuid()
-        scope_data = {'tenant_id': tenant_id, 'ip_version': 6,
+        project_id = _uuid()
+        scope_data = {'project_id': project_id, 'ip_version': 6,
                       'shared': True, 'name': 'bgp-scope'}
         self._test_get_external_networks_for_port('2001:1234:1234::/64',
                                                   '2001:1234:4321::/64',
-                                                  scope_data, tenant_id,
+                                                  scope_data, project_id,
                                                   True, True)
         self._test_get_external_networks_for_port('2001:1234:1234::/64',
                                                   '2001:1234:4321::/64',
-                                                  scope_data, tenant_id,
+                                                  scope_data, project_id,
                                                   True, True, False)
 
     def test_get_external_networks_for_port_different_address_scope_v6(self):
-        tenant_id = _uuid()
-        scope_data = {'tenant_id': tenant_id, 'ip_version': 6,
+        project_id = _uuid()
+        scope_data = {'project_id': project_id, 'ip_version': 6,
                       'shared': True, 'name': 'bgp-scope'}
         self._test_get_external_networks_for_port('2001:1234:1234::/64',
                                                   '2001:1234:4321::/64',
-                                                  scope_data, tenant_id,
+                                                  scope_data, project_id,
                                                   True, False)
         self._test_get_external_networks_for_port('2001:1234:1234::/64',
                                                   '2001:1234:4321::/64',
-                                                  scope_data, tenant_id,
+                                                  scope_data, project_id,
                                                   True, False, False)
         self._test_get_external_networks_for_port('2001:1234:1234::/64',
                                                   '2001:1234:4321::/64',
-                                                  scope_data, tenant_id,
+                                                  scope_data, project_id,
                                                   False, True)
         self._test_get_external_networks_for_port('2001:1234:1234::/64',
                                                   '2001:1234:4321::/64',
-                                                  scope_data, tenant_id,
+                                                  scope_data, project_id,
                                                   False, True, False)
 
     def _test_get_external_networks_for_port(self, gw_prefix, tenant_prefix,
-                                             scope_data, tenant_id,
+                                             scope_data, project_id,
                                              external_use_address_scope,
                                              project_use_address_scope,
                                              match_address_scopes=True):
@@ -1630,7 +1634,7 @@ class BgpTests(BgpEntityCreationMixin):
                                             {'address_scope': scope_data})
 
         with self.router_with_external_and_tenant_networks(
-                tenant_id=tenant_id,
+                project_id=project_id,
                 gw_prefix=gw_prefix,
                 tenant_prefix=tenant_prefix,
                 address_scope=scope,
@@ -1643,7 +1647,7 @@ class BgpTests(BgpEntityCreationMixin):
             fixed_port_data = {'port':
                                {'name': 'test',
                                 'network_id': tenant_net_id,
-                                'tenant_id': tenant_id,
+                                'project_id': project_id,
                                 'admin_state_up': True,
                                 'device_id': _uuid(),
                                 'device_owner': 'compute:nova',

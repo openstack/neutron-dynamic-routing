@@ -150,7 +150,7 @@ class BgpDbMixin:
 
     def get_bgp_speaker_with_advertised_routes(self, context,
                                                bgp_speaker_id):
-        bgp_speaker_attrs = ['id', 'local_as', 'tenant_id']
+        bgp_speaker_attrs = ['id', 'local_as', 'project_id']
         bgp_peer_attrs = ['peer_ip', 'remote_as', 'auth_type', 'password']
         with db_api.CONTEXT_READER.using(context):
             bgp_speaker = self.get_bgp_speaker(context, bgp_speaker_id,
@@ -176,9 +176,9 @@ class BgpDbMixin:
 
     def _save_bgp_speaker(self, context, bgp_speaker, uuid):
         ri = bgp_speaker[bgp_ext.BGP_SPEAKER_BODY_KEY_NAME]
-        ri['tenant_id'] = context.tenant_id
+        ri['project_id'] = context.project_id
         with db_api.CONTEXT_WRITER.using(context):
-            res_keys = ['local_as', 'tenant_id', 'name', 'ip_version',
+            res_keys = ['local_as', 'project_id', 'name', 'ip_version',
                         'advertise_floating_ip_host_routes',
                         'advertise_tenant_networks']
             res = {k: ri[k] for k in res_keys}
@@ -234,7 +234,7 @@ class BgpDbMixin:
             raise bgp.InvalidBgpPeerMd5Authentication()
 
         with db_api.CONTEXT_WRITER.using(context):
-            res_keys = ['tenant_id', 'name', 'remote_as', 'peer_ip',
+            res_keys = ['project_id', 'name', 'remote_as', 'peer_ip',
                         'auth_type', 'password']
             res = {k: ri[k] for k in res_keys}
             res['id'] = uuidutils.generate_uuid()
@@ -418,7 +418,7 @@ class BgpDbMixin:
             context.session.delete(binding)
 
     def _make_bgp_speaker_dict(self, bgp_speaker, fields=None):
-        attrs = {'id', 'local_as', 'tenant_id', 'name', 'ip_version',
+        attrs = {'id', 'local_as', 'project_id', 'name', 'ip_version',
                  'advertise_floating_ip_host_routes',
                  'advertise_tenant_networks'}
         peer_bindings = bgp_speaker['peers']
@@ -452,7 +452,7 @@ class BgpDbMixin:
                     BgpSpeakerNetworkBinding.network_id == network_id).one()
 
     def _make_bgp_peer_dict(self, bgp_peer, fields=None):
-        attrs = ['tenant_id', 'id', 'name', 'peer_ip', 'remote_as',
+        attrs = ['project_id', 'id', 'name', 'peer_ip', 'remote_as',
                  'auth_type', 'password']
         res = {k: bgp_peer[k] for k in attrs}
         return db_utils.resource_fields(res, fields)

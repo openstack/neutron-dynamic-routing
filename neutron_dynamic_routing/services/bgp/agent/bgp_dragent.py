@@ -56,14 +56,19 @@ class BgpDrAgent(manager.Manager):
 
     def __init__(self, host, conf=None):
         super().__init__()
-        self.initialize_driver(conf)
+        self.host = host
+        self._conf = conf
+
+    def init_host(self):
+        self.initialize_driver(self._conf)
+        super().init_host()
         self.needs_resync_reasons = collections.defaultdict(list)
         self.needs_full_sync_reason = None
 
         self.cache = BgpSpeakerCache()
         self.context = context.get_admin_context_without_session()
         self.plugin_rpc = BgpDrPluginApi(bgp_consts.BGP_PLUGIN,
-                                         self.context, host)
+                                         self.context, self.host)
 
     def initialize_driver(self, conf):
         self.conf = conf or cfg.CONF.BGP
@@ -659,14 +664,14 @@ class BgpSpeakerCache:
 
 
 class BgpDrAgentWithStateReport(BgpDrAgent):
-    def __init__(self, host, conf=None):
-        super().__init__(host, conf)
+    def init_host(self):
+        super().init_host()
         self.state_rpc = agent_rpc.PluginReportStateAPI(topics.REPORTS)
         self.agent_state = {
             'agent_type': bgp_consts.AGENT_TYPE_BGP_ROUTING,
             'binary': 'neutron-bgp-dragent',
             'configurations': {},
-            'host': host,
+            'host': self.host,
             'topic': bgp_consts.BGP_DRAGENT,
             'start_flag': True}
         report_interval = cfg.CONF.AGENT.report_interval

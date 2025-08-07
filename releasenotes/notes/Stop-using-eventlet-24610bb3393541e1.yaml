@@ -1,0 +1,7 @@
+---
+other:
+  - |
+    Remove eventlet usage in neutron-dynamic-routing in sync with
+    Neutron.
+    For tracking and details check the related bugs with tag: eventlet-removal
+    Fixed bug: https://bugs.launchpad.net/neutron/+bug/2130631

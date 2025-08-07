@@ -51,7 +51,7 @@ def get_inspector():
 
 def get_tables():
     """
-    Returns hardcoded list of tables which have ``tenant_id`` column.
+    Returns hardcoded list of tables which have ``project_id`` column.
 
     The list is hardcoded to match the state of the schema when this
     upgrade script is run.

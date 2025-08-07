@@ -13,7 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from neutron_dynamic_routing.services.bgp.agent import entry as bgp_dragent
+# NOTE(haleyb): remove once the default backend is ``BackendType.THREADING``
+import oslo_service.backend as service
+service.init_backend(service.BackendType.THREADING)
+
+# pylint: disable=wrong-import-position
+from neutron_dynamic_routing.services.bgp.agent import entry as \
+    bgp_dragent  # noqa: E402
 
 
 def main():
