@@ -1,8 +1,8 @@
-Team and repository tags
-========================
+=======================
+neutron-dynamic-routing
+=======================
 
 .. image:: http://governance.openstack.org/badges/neutron-dynamic-routing.svg
-    :target: http://governance.openstack.org/reference/tags/index.html
 
 .. Change things from this point on
 
