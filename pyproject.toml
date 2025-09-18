@@ -1,4 +1,57 @@
 [build-system]
-requires = ["pbr>=5.7.0", "setuptools>=64.0.0", "wheel"]
+requires = ["pbr>=6.1.1"]
 build-backend = "pbr.build"
 
+[project]
+name = "neutron-dynamic-routing"
+description = "Neutron Dynamic Routing"
+authors = [
+    {name = "OpenStack", email = "openstack-discuss@lists.openstack.org"},
+]
+readme = {file = "README.rst", content-type = "text/x-rst"}
+license = {text = "Apache-2.0"}
+dynamic = ["version", "dependencies"]
+requires-python = ">=3.10"
+classifiers = [
+  "Environment :: OpenStack",
+  "Intended Audience :: Information Technology",
+  "Intended Audience :: System Administrators",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: Implementation :: CPython",
+]
+
+[project.urls]
+"Documentation" = "https://docs.openstack.org/neutron-dynamic-routing/latest/"
+"Source Code"  = "https://opendev.org/openstack/neutron-dynamic-routing"
+"Bug Tracker" = "https://bugs.launchpad.net/neutron"
+
+[tool.setuptools]
+packages = [
+    "neutron_dynamic_routing",
+]
+
+[project.entry-points."oslo.config.opts"]
+"bgp.agent" = "neutron_dynamic_routing.services.bgp.common.opts:list_bgp_agent_opts"
+
+[project.entry-points."oslo.policy.policies"]
+"neutron-dynamic-routing" = "neutron_dynamic_routing.policies:list_rules"
+
+[project.entry-points."neutron.policies"]
+"neutron-dynamic-routing" = "neutron_dynamic_routing.policies:list_rules"
+
+[project.entry-points."neutron.db.alembic_migrations"]
+"neutron-dynamic-routing" = "neutron_dynamic_routing.db.migration:alembic_migrations"
+
+[project.entry-points."console_scripts"]
+"neutron-bgp-dragent" = "neutron_dynamic_routing.cmd.agents.bgp_dragent:main"
+
+[project.entry-points."neutron.service_plugins"]
+"bgp" = "neutron_dynamic_routing.services.bgp.bgp_plugin:BgpPlugin"
