@@ -115,7 +115,7 @@ class BgpEntityCreationMixin:
     def router(self, name='bgp-test-router', project_id=_uuid(),
                admin_state_up=True, **kwargs):
         # NOTE(ralonsoh): replace "tenant_id" when the Neutron code is updated.
-        request = {'router': {'tenant_id': project_id,
+        request = {'router': {'project_id': project_id,
                               'name': name,
                               'admin_state_up': admin_state_up}}
         for arg in kwargs:
