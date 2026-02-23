@@ -114,7 +114,6 @@ class BgpEntityCreationMixin:
     @contextlib.contextmanager
     def router(self, name='bgp-test-router', project_id=_uuid(),
                admin_state_up=True, **kwargs):
-        # NOTE(ralonsoh): replace "tenant_id" when the Neutron code is updated.
         request = {'router': {'project_id': project_id,
                               'name': name,
                               'admin_state_up': admin_state_up}}
@@ -214,8 +213,7 @@ class BgpTests(BgpEntityCreationMixin):
                                                 self.context,
                                                 {'address_scope': scope_data})
         address_scope_id = address_scope['id']
-        # NOTE(ralonsoh): replace "tenant_id" when the Neutron code is updated.
-        pool_data = {'tenant_id': project_id, 'shared': shared, 'name': name,
+        pool_data = {'project_id': project_id, 'shared': shared, 'name': name,
                      'address_scope_id': address_scope_id,
                      'prefixes': prefixes, 'is_default': is_default_pool}
         for key in kwargs:
@@ -552,20 +550,18 @@ class BgpTests(BgpEntityCreationMixin):
                 'enable_dhcp': True,
                 'dns_nameservers': n_const.ATTR_NOT_SPECIFIED,
                 'host_routes': n_const.ATTR_NOT_SPECIFIED}
-            # NOTE(ralonsoh): replace "tenant_id" when the Neutron code is
-            # updated.
             subnet1_data = {'network_id': network1_id,
                             'subnetpool_id': sp1['id'],
                             'name': 'subnet1',
-                            'tenant_id': project_id}
+                            'project_id': project_id}
             subnet2_data = {'network_id': network2_id,
                             'subnetpool_id': sp2['id'],
                             'name': 'subnet2',
-                            'tenant_id': project_id}
+                            'project_id': project_id}
             subnet3_data = {'network_id': network3_id,
                             'subnetpool_id': sp3['id'],
                             'name': 'subnet2',
-                            'tenant_id': project_id}
+                            'project_id': project_id}
             for k in base_subnet_data:
                 subnet1_data[k] = base_subnet_data[k]
                 subnet2_data[k] = base_subnet_data[k]

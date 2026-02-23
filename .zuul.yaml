@@ -35,16 +35,38 @@
         - neutron-dynamic-routing-functional
         - neutron-dynamic-routing-static
         - neutron-tempest-plugin-dynamic-routing
+        - openstack-tox-py310:
+            required-projects:
+              - openstack/neutron
+        - openstack-tox-py313:
+            required-projects:
+              - openstack/neutron
+        - openstack-tox-py314:
+            voting: false
+            required-projects:
+              - openstack/neutron
     gate:
       jobs:
+        - openstack-tox-py310:
+            required-projects:
+              - openstack/neutron
+        - openstack-tox-py313:
+            required-projects:
+              - openstack/neutron
         - neutron-dynamic-routing-functional
         - neutron-tempest-plugin-dynamic-routing
     experimental:
       jobs:
-        - openstack-tox-py312-with-oslo-master
+        - openstack-tox-py312-with-oslo-master:
+            required-projects:
+              - openstack/neutron
     periodic-weekly:
       jobs:
-        - openstack-tox-py312
-        - openstack-tox-py312-with-oslo-master
+        - openstack-tox-py312:
+            required-projects:
+              - openstack/neutron
+        - openstack-tox-py312-with-oslo-master:
+            required-projects:
+              - openstack/neutron
         - neutron-tempest-plugin-dynamic-routing
         - neutron-dynamic-routing-functional
