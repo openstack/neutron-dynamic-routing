@@ -10,49 +10,72 @@
 #  License for the specific language governing permissions and limitations
 #  under the License.
 
+from neutron.conf.policies import base as neutron_base
 from neutron_lib import policy as base
 from oslo_policy import policy
 
+DEPRECATED_REASON = """
+The neutron-dynamic-routing BGP API now supports Secure RBAC default roles.
+"""
 
 rules = [
     policy.DocumentedRuleDefault(
-        'create_bgp_speaker',
-        base.RULE_ADMIN_ONLY,
-        'Create a BGP speaker',
-        [
+        name='create_bgp_speaker',
+        check_str=neutron_base.ADMIN,
+        scope_types=['project'],
+        description='Create a BGP speaker',
+        operations=[
             {
                 'method': 'POST',
                 'path': '/bgp-speakers',
             },
-        ]
+        ],
+        deprecated_rule=policy.DeprecatedRule(
+            name='create_bgp_speaker',
+            check_str=base.RULE_ADMIN_ONLY,
+            deprecated_reason=DEPRECATED_REASON,
+            deprecated_since='2026.1')
     ),
     policy.DocumentedRuleDefault(
-        'update_bgp_speaker',
-        base.RULE_ADMIN_ONLY,
-        'Update a BGP speaker',
-        [
+        name='update_bgp_speaker',
+        check_str=neutron_base.ADMIN,
+        scope_types=['project'],
+        description='Update a BGP speaker',
+        operations=[
             {
                 'method': 'PUT',
                 'path': '/bgp-speakers/{id}',
             },
-        ]
+        ],
+        deprecated_rule=policy.DeprecatedRule(
+            name='update_bgp_speaker',
+            check_str=base.RULE_ADMIN_ONLY,
+            deprecated_reason=DEPRECATED_REASON,
+            deprecated_since='2026.1')
     ),
     policy.DocumentedRuleDefault(
-        'delete_bgp_speaker',
-        base.RULE_ADMIN_ONLY,
-        'Delete a BGP speaker',
-        [
+        name='delete_bgp_speaker',
+        check_str=neutron_base.ADMIN,
+        scope_types=['project'],
+        description='Delete a BGP speaker',
+        operations=[
             {
                 'method': 'DELETE',
                 'path': '/bgp-speakers/{id}',
             },
-        ]
+        ],
+        deprecated_rule=policy.DeprecatedRule(
+            name='delete_bgp_speaker',
+            check_str=base.RULE_ADMIN_ONLY,
+            deprecated_reason=DEPRECATED_REASON,
+            deprecated_since='2026.1')
     ),
     policy.DocumentedRuleDefault(
-        'get_bgp_speaker',
-        base.RULE_ADMIN_ONLY,
-        'Get BGP speakers',
-        [
+        name='get_bgp_speaker',
+        check_str=neutron_base.ADMIN,
+        scope_types=['project'],
+        description='Get BGP speakers',
+        operations=[
             {
                 'method': 'GET',
                 'path': '/bgp-speakers',
@@ -61,63 +84,98 @@ rules = [
                 'method': 'GET',
                 'path': '/bgp-speakers/{id}',
             },
-        ]
+        ],
+        deprecated_rule=policy.DeprecatedRule(
+            name='get_bgp_speaker',
+            check_str=base.RULE_ADMIN_ONLY,
+            deprecated_reason=DEPRECATED_REASON,
+            deprecated_since='2026.1')
     ),
 
     policy.DocumentedRuleDefault(
-        'add_bgp_peer',
-        base.RULE_ADMIN_ONLY,
-        'Add a BGP peer to a BGP speaker',
-        [
+        name='add_bgp_peer',
+        check_str=neutron_base.ADMIN,
+        scope_types=['project'],
+        description='Add a BGP peer to a BGP speaker',
+        operations=[
             {
                 'method': 'PUT',
                 'path': '/bgp-speakers/{id}/add_bgp_peer',
             },
-        ]
+        ],
+        deprecated_rule=policy.DeprecatedRule(
+            name='add_bgp_peer',
+            check_str=base.RULE_ADMIN_ONLY,
+            deprecated_reason=DEPRECATED_REASON,
+            deprecated_since='2026.1')
     ),
     policy.DocumentedRuleDefault(
-        'remove_bgp_peer',
-        base.RULE_ADMIN_ONLY,
-        'Remove a BGP peer from a BGP speaker',
-        [
+        name='remove_bgp_peer',
+        check_str=neutron_base.ADMIN,
+        scope_types=['project'],
+        description='Remove a BGP peer from a BGP speaker',
+        operations=[
             {
                 'method': 'PUT',
                 'path': '/bgp-speakers/{id}/remove_bgp_peer',
             },
-        ]
+        ],
+        deprecated_rule=policy.DeprecatedRule(
+            name='remove_bgp_peer',
+            check_str=base.RULE_ADMIN_ONLY,
+            deprecated_reason=DEPRECATED_REASON,
+            deprecated_since='2026.1')
     ),
     policy.DocumentedRuleDefault(
-        'add_gateway_network',
-        base.RULE_ADMIN_ONLY,
-        'Add a gateway network to a BGP speaker',
-        [
+        name='add_gateway_network',
+        check_str=neutron_base.ADMIN,
+        scope_types=['project'],
+        description='Add a gateway network to a BGP speaker',
+        operations=[
             {
                 'method': 'PUT',
                 'path': '/bgp-speakers/{id}/add_gateway_network',
             },
-        ]
+        ],
+        deprecated_rule=policy.DeprecatedRule(
+            name='add_gateway_network',
+            check_str=base.RULE_ADMIN_ONLY,
+            deprecated_reason=DEPRECATED_REASON,
+            deprecated_since='2026.1')
     ),
     policy.DocumentedRuleDefault(
-        'remove_gateway_network',
-        base.RULE_ADMIN_ONLY,
-        'Remove a gateway network from a BGP speaker',
-        [
+        name='remove_gateway_network',
+        check_str=neutron_base.ADMIN,
+        scope_types=['project'],
+        description='Remove a gateway network from a BGP speaker',
+        operations=[
             {
                 'method': 'PUT',
                 'path': '/bgp-speakers/{id}/remove_gateway_network',
             },
-        ]
+        ],
+        deprecated_rule=policy.DeprecatedRule(
+            name='remove_gateway_network',
+            check_str=base.RULE_ADMIN_ONLY,
+            deprecated_reason=DEPRECATED_REASON,
+            deprecated_since='2026.1')
     ),
     policy.DocumentedRuleDefault(
-        'get_advertised_routes',
-        base.RULE_ADMIN_ONLY,
-        'Get advertised routes of a BGP speaker',
-        [
+        name='get_advertised_routes',
+        check_str=neutron_base.ADMIN,
+        scope_types=['project'],
+        description='Get advertised routes of a BGP speaker',
+        operations=[
             {
                 'method': 'GET',
                 'path': '/bgp-speakers/{id}/get_advertised_routes',
             },
-        ]
+        ],
+        deprecated_rule=policy.DeprecatedRule(
+            name='get_advertised_routes',
+            check_str=base.RULE_ADMIN_ONLY,
+            deprecated_reason=DEPRECATED_REASON,
+            deprecated_since='2026.1')
     ),
 ]
 
