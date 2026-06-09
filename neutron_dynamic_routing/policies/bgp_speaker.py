@@ -10,8 +10,8 @@
 #  License for the specific language governing permissions and limitations
 #  under the License.
 
-from neutron.conf.policies import base as neutron_base
 from neutron_lib import policy as base
+from neutron_lib.policy import rules as lib_rules
 from oslo_policy import policy
 
 DEPRECATED_REASON = """
@@ -21,7 +21,7 @@ The neutron-dynamic-routing BGP API now supports Secure RBAC default roles.
 rules = [
     policy.DocumentedRuleDefault(
         name='create_bgp_speaker',
-        check_str=neutron_base.ADMIN,
+        check_str=lib_rules.ADMIN,
         scope_types=['project'],
         description='Create a BGP speaker',
         operations=[
@@ -38,7 +38,7 @@ rules = [
     ),
     policy.DocumentedRuleDefault(
         name='update_bgp_speaker',
-        check_str=neutron_base.ADMIN,
+        check_str=lib_rules.ADMIN,
         scope_types=['project'],
         description='Update a BGP speaker',
         operations=[
@@ -55,7 +55,7 @@ rules = [
     ),
     policy.DocumentedRuleDefault(
         name='delete_bgp_speaker',
-        check_str=neutron_base.ADMIN,
+        check_str=lib_rules.ADMIN,
         scope_types=['project'],
         description='Delete a BGP speaker',
         operations=[
@@ -72,7 +72,7 @@ rules = [
     ),
     policy.DocumentedRuleDefault(
         name='get_bgp_speaker',
-        check_str=neutron_base.ADMIN,
+        check_str=lib_rules.ADMIN,
         scope_types=['project'],
         description='Get BGP speakers',
         operations=[
@@ -94,7 +94,7 @@ rules = [
 
     policy.DocumentedRuleDefault(
         name='add_bgp_peer',
-        check_str=neutron_base.ADMIN,
+        check_str=lib_rules.ADMIN,
         scope_types=['project'],
         description='Add a BGP peer to a BGP speaker',
         operations=[
@@ -111,7 +111,7 @@ rules = [
     ),
     policy.DocumentedRuleDefault(
         name='remove_bgp_peer',
-        check_str=neutron_base.ADMIN,
+        check_str=lib_rules.ADMIN,
         scope_types=['project'],
         description='Remove a BGP peer from a BGP speaker',
         operations=[
@@ -128,7 +128,7 @@ rules = [
     ),
     policy.DocumentedRuleDefault(
         name='add_gateway_network',
-        check_str=neutron_base.ADMIN,
+        check_str=lib_rules.ADMIN,
         scope_types=['project'],
         description='Add a gateway network to a BGP speaker',
         operations=[
@@ -145,7 +145,7 @@ rules = [
     ),
     policy.DocumentedRuleDefault(
         name='remove_gateway_network',
-        check_str=neutron_base.ADMIN,
+        check_str=lib_rules.ADMIN,
         scope_types=['project'],
         description='Remove a gateway network from a BGP speaker',
         operations=[
@@ -162,7 +162,7 @@ rules = [
     ),
     policy.DocumentedRuleDefault(
         name='get_advertised_routes',
-        check_str=neutron_base.ADMIN,
+        check_str=lib_rules.ADMIN,
         scope_types=['project'],
         description='Get advertised routes of a BGP speaker',
         operations=[

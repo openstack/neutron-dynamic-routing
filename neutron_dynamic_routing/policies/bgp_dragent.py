@@ -10,8 +10,8 @@
 #  License for the specific language governing permissions and limitations
 #  under the License.
 
-from neutron.conf.policies import base as neutron_base
 from neutron_lib import policy as base
+from neutron_lib.policy import rules as lib_rules
 from oslo_policy import policy
 
 DEPRECATED_REASON = """
@@ -21,7 +21,7 @@ The neutron-dynamic-routing BGP API now supports Secure RBAC default roles.
 rules = [
     policy.DocumentedRuleDefault(
         name='add_bgp_speaker_to_dragent',
-        check_str=neutron_base.ADMIN,
+        check_str=lib_rules.ADMIN,
         scope_types=['project'],
         description='Add a BGP speaker to a dynamic routing agent',
         operations=[
@@ -38,7 +38,7 @@ rules = [
     ),
     policy.DocumentedRuleDefault(
         name='remove_bgp_speaker_from_dragent',
-        check_str=neutron_base.ADMIN,
+        check_str=lib_rules.ADMIN,
         scope_types=['project'],
         description='Remove a BGP speaker from a dynamic routing agent',
         operations=[
@@ -55,7 +55,7 @@ rules = [
     ),
     policy.DocumentedRuleDefault(
         name='list_bgp_speaker_on_dragent',
-        check_str=neutron_base.ADMIN,
+        check_str=lib_rules.ADMIN,
         scope_types=['project'],
         description='List BGP speakers hosted by a dynamic routing agent',
         operations=[
@@ -73,7 +73,7 @@ rules = [
     ),
     policy.DocumentedRuleDefault(
         name='list_dragent_hosting_bgp_speaker',
-        check_str=neutron_base.ADMIN,
+        check_str=lib_rules.ADMIN,
         scope_types=['project'],
         description='List dynamic routing agents hosting a BGP speaker',
         operations=[
