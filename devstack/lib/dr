@@ -1,3 +1,5 @@
+#!/bin/bash
+
 function is_protocol_enabled {
     local enabled=1
     local protocol=$1
