@@ -38,11 +38,7 @@
         - openstack-tox-py311:
             required-projects:
               - openstack/neutron
-        - openstack-tox-py313:
-            required-projects:
-              - openstack/neutron
         - openstack-tox-py314:
-            voting: false
             required-projects:
               - openstack/neutron
     gate:
@@ -50,22 +46,22 @@
         - openstack-tox-py311:
             required-projects:
               - openstack/neutron
-        - openstack-tox-py313:
+        - openstack-tox-py314:
             required-projects:
               - openstack/neutron
         - neutron-dynamic-routing-functional
         - neutron-tempest-plugin-dynamic-routing
     experimental:
       jobs:
-        - openstack-tox-py312-with-oslo-master:
+        - openstack-tox-py314-with-oslo-master:
             required-projects:
               - openstack/neutron
     periodic-weekly:
       jobs:
-        - openstack-tox-py312:
+        - openstack-tox-py314:
             required-projects:
               - openstack/neutron
-        - openstack-tox-py312-with-oslo-master:
+        - openstack-tox-py314-with-oslo-master:
             required-projects:
               - openstack/neutron
         - neutron-tempest-plugin-dynamic-routing
